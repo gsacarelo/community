@@ -3,28 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to My Tools</title>
-  <style>
-    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 2rem; line-height: 1.6; }
-    h1, h2 { color: #4a4a4a; }
-    ul { list-style-type: none; padding: 0; }
-    li { margin: 0.5rem 0; }
-    a { color: #007acc; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
+  <title>Gerardo • Projects & Tools</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>👋 Hi, I'm Gerardo</h1>
-  <p>Welcome to my personal landing page. Here you'll find tools, experiments, and personal projects I’ve created or I'm working on.</p>
+  <header>
+    <h1>Gerardo</h1>
+    <p>Engineer • E-commerce • Creative Technologist</p>
+    <nav>
+      <a href="#tools">Tools</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
 
-  <h2>🧰 My Tools</h2>
-  <ul>
-    <li><a href="#">Tool 1 – Coming Soon</a></li>
-    <li><a href="#">Tool 2 – Coming Soon</a></li>
-    <li><a href="#">Tool 3 – Coming Soon</a></li>
-  </ul>
+  <main>
+    <!-- Tools Section -->
+    <section id="tools">
+      <h2>🛠️ Tools & Experiments</h2>
+      <ul>
+        <li><strong>Tool 1</strong> – <em>Coming soon…</em></li>
+        <li><strong>Tool 2</strong> – <em>Coming soon…</em></li>
+        <!-- Add more items or real links as you build them -->
+      </ul>
+    </section>
 
-  <h2>📬 Contact</h2>
-  <p>You can reach me via <a href="mailto:your-email@example.com">email</a>.</p>
+    <!-- About Section -->
+    <section id="about">
+      <h2>💡 About Me</h2>
+      <p>
+        PhD-level maker obsessed with health tech, embedded systems, and
+        unconventional learning. This site tracks my public side-projects.
+      </p>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+      <h2>📬 Get in Touch</h2>
+      <p>
+        Email: <a href="mailto:you@example.com">you@example.com</a><br />
+        GitHub: <a href="https://github.com/YOUR-USERNAME">github.com/YOUR-USERNAME</a>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Gerardo. All rights reserved.
+  </footer>
+
+  <script>
+    /* auto-update year */
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
