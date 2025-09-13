@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Affirmation Banks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+  <div class="max-w-3xl mx-auto p-6">
+    <header class="text-center mb-10">
+      <h1 class="text-3xl font-bold tracking-tight">Iron Confidence Affirmations</h1>
+      <p class="text-zinc-400">Daily • Weekend • Holiday — Focused practice with intention</p>
+    </header>
+
+    <main id="view-main" class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button data-target="daily" class="btn-primary">Daily</button>
+        <button data-target="weekend" class="btn-primary">Weekend</button>
+        <button data-target="holiday" class="btn-primary">Holiday</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button id="btn-instructions" class="btn-secondary">Instructions</button>
+        <button id="btn-contact" class="btn-secondary">Contact</button>
+        <a href="#" id="btn-github" class="btn-secondary text-center">Let's Rock!</a>
+      </div>
+      <section class="rounded-2xl border border-zinc-800 p-5 bg-zinc-900/50">
+        <h2 class="font-semibold text-lg mb-2">How it works</h2>
+        <ol class="list-decimal list-inside space-y-1 text-zinc-300">
+          <li>Pick <span class="font-medium text-white">Daily</span>, <span class="font-medium text-white">Weekend</span>, or <span class="font-medium text-white">Holiday</span>.</li>
+          <li>Read each affirmation in a quiet space — <span class="italic">repeat each 5×</span>.</li>
+          <li>Use <span class="font-medium text-white">Shuffle List</span> to switch to another bank in the same category.</li>
+          <li>Return to main at any time.</li>
+        </ol>
+      </section>
+    </main>
+
+    <section id="view-affirmations" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 id="aff-title" class="text-2xl font-bold"></h2>
+          <p id="aff-subtitle" class="text-zinc-400"></p>
+        </div>
+        <div class="flex gap-2">
+          <button id="btn-shuffle" class="btn-primary">Shuffle List</button>
+          <button id="btn-back-1" class="btn-secondary">Main</button>
+        </div>
+      </div>
+      <ul id="aff-list" class="space-y-2 text-zinc-200"></ul>
+      <p class="text-xs text-zinc-500">Tip: Breathe slowly. Repeat each line five times and feel the meaning.</p>
+    </section>
+
+    <section id="view-instructions" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold">Instructions</h2>
+        <button id="btn-back-2" class="btn-secondary">Main</button>
+      </div>
+      <div class="rounded-2xl border border-zinc-800 p-5 bg-zinc-900/50 space-y-4">
+        <h3 class="font-semibold text-lg">Main points</h3>
+        <ul class="list-disc list-inside space-y-1 text-zinc-300">
+          <li>Practice in a quiet, comfortable space without interruptions.</li>
+          <li>Connect to body, breath, emotions, and intention.</li>
+          <li>Repeat each affirmation <span class="font-medium text-white">5×</span> with full focus.</li>
+          <li>Daily vs. Weekend vs. Holiday sessions as your schedule allows.</li>
+          <li>Consistency compounds; noticeable changes in days; deeper in ~8 weeks.</li>
+        </ul>
+        <h3 class="font-semibold text-lg">Summary</h3>
+        <p class="text-zinc-300">Find quiet, breathe deeply, repeat each affirmation five times, and show up consistently. The goal is to gently rewire thought patterns toward confidence, self‑esteem, and assertiveness.</p>
+      </div>
+    </section>
+
+    <section id="view-contact" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold">Contact</h2>
+        <button id="btn-back-3" class="btn-secondary">Main</button>
+      </div>
+      <div class="rounded-2xl border border-zinc-800 p-5 bg-zinc-900/50 space-y-3">
+        <p class="text-zinc-300"><span class="font-semibold text-white">Name:</span> Gerardo Sacarelo V.</p>
+        <p class="text-zinc-300"><span class="font-semibold text-white">Email:</span> <a href="mailto:you@example.com" class="underline">you@example.com</a></p>
+        <div class="space-y-1">
+          <p class="text-zinc-300 font-semibold">Socials</p>
+          <ul class="list-disc list-inside text-zinc-300">
+            <li>Instagram: <a href="https://instagram.com/gerardo711" class="underline" target="_blank" rel="noreferrer">instagram.com/gerardo711</a></li>
+            <!--<li>Twitter/X: <a href="https://x.com/your_handle" class="underline" target="_blank" rel="noreferrer">x.com/your_handle</a></li>-->
+            <!--<li>Telegram: <a href="https://t.me/IN10SE_gs" class="underline" target="_blank" rel="noreferrer">t.me/IN10SE_gs</a></li>-->
+            <li>LinkTree: <a href="https://linktr.ee/gsacarelo" class="underline" target="_blank" rel="noreferrer">linktr.ee/gsacarelo</a></li>
+            <!--<li>Website: <a href="https://www.myeoncare.com" class="underline" target="_blank" rel="noreferrer">myeoncare.com</a></li>-->
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center text-xs text-zinc-500">
+      <p>What you believe is true, becomes true.</p>
+    </footer>
+  </div>
+
+  <style>
+    .btn-primary { border-radius: 1rem; border: 1px solid rgb(39 39 42); background: rgb(24 24 27 / 0.6); padding: 0.5rem 1rem; }
+    .btn-primary:hover { background: rgb(39 39 42); transition: background 120ms; }
+    .btn-secondary { border-radius: 1rem; border: 1px solid rgb(39 39 42); background: rgb(24 24 27 / 0.2); padding: 0.5rem 1rem; }
+    .btn-secondary:hover { background: rgb(39 39 42 / 0.4); transition: background 120ms; }
+  </style>
+
+  <script>
+    const BANKS = {
+      daily: {
+        name: "Daily",
+        banks: [
+          { title: "Self Confidence", items: [
+            "I recognize the power of my mind in shaping my confidence.",
+            "I embody unique confidence inside which radiates outside. My outer world is a reflection of my inner world.",
+            "Like a lion, I am strong and centered, and humble yet powerful.",
+            "I speak my truth clearly and with conviction.",
+            "Confidence is a beautiful quality to possess. I know it, I see it, and I embody it.",
+            "I use my mind as a tool and aim to enhance my perceptive sight daily.",
+            "Through meditation, affirmation and hypnosis, confidence can be mine forever.",
+            "I fully believe in myself.",
+            "My faith and conviction are strong. When I allow them to be strong, the world allows me to be.",
+            "I am healthy, strong, insightful and successful in my mindset. This radiates out to the world.",
+            "When I shine inside I can achieve my goals and dreams.",
+            "I remember the importance of breath in releasing all worries and concerns."
+          ]},
+          { title: "Self Esteem", items: [
+            "I recognize my gifts and talents and fully embrace them.",
+            "My strength lies in my ability to see my own self‑worth.",
+            "Self‑esteem is a part of me; it is who I am and who I choose to be.",
+            "I am unique, independent and sovereign.",
+            "I welcome success into my life.",
+            "I have self‑worth and self‑respect and amplify them through my intentions.",
+            "My gifts and talents are mine alone. No one can take them away from me.",
+            "When I practice self‑respect, others will naturally respect me.",
+            "My masculinity is a gift. I step into it with honor and appreciation.",
+            "I am not defined by my past nor in the future set in stone.",
+            "Humility and success are in harmony with my self‑esteem.",
+            "I bring balance into my life through acceptance and recognition of my strengths."
+          ]},
+          { title: "Assertiveness", items: [
+            "I step into my power with confidence and clarity.",
+            "My work is a reflection of my mindset.",
+            "I am able to express myself when in tune with my truth.",
+            "I am brave, bold and courageous. I now see this clearly.",
+            "When I am centered and aligned within, my boundaries are strong.",
+            "Life, love and success are in synergy. I recognize the importance of balance for healthy assertiveness and success.",
+            "By embodying assertiveness, I am increasing my self‑worth and self‑respect.",
+            "When I assert myself healthily, others recognize my power.",
+            "My gifts and abilities can truly shine when I practice daily assertions.",
+            "With strength, surety and clarity, I am able to speak my truth.",
+            "I have a love for myself. Compassion and self‑care are not emasculate but the feminine aspects of myself within.",
+            "My mind is a vessel for assertiveness to shine through."
+          ]},
+        ]
+      },
+      weekend: {
+        name: "Weekend",
+        banks: [
+          { title: "Self Confidence", items: [
+            "Today is a new day. I am happy, healthy and content to be alive.",
+            "I wake up each morning with a clear plan for my life.",
+            "I am committed to my goals and dreams and carry them out without issue.",
+            "I embrace a positive mindset and release all negativity from my thinking.",
+            "Conflict is a chance for growth, self‑development and evolution. I embrace it in a mature and healthy way.",
+            "Forward movement is a daily occurrence. I do not dwell on mistakes and errors from my past.",
+            "Today, I will do something new.",
+            "Passion, excitement and joy fill my life. I am brave to try new things.",
+            "I do not need to seek approval from eyes of judgment. The only one who needs my approval is me.",
+            "I am wise, sexy, intelligent and centered. I deserve love and affection.",
+            "Laughter is good for the soul. I now welcome laughter and joy into my life.",
+            "I proceed with a happy heart and a healthy mind every day.",
+            "Feeling and emotions come easy to me.",
+            "I am not held back by my masculinity.",
+            "The sun gives me strength, confidence and peace of mind. I shine with him.",
+            "I am able to converse with clarity, wit and humor.",
+            "Women are attracted to my personality and quirkiness. I am loveable!",
+            "Success in my career allows me to shine in daily life. My personal life is on fire.",
+            "Confidence fills my life with each breath I take. My weekends are pleasurable.",
+            "Taking time to rest and recharge is good for my health, wealth, and mindset.",
+            "I say what I mean and mean what I say.",
+            "Self‑care is both masculine and feminine.",
+            "I nurture and nourish my body with respect to my mind.",
+            "Personal hobbies and passions increase in my life.",
+            "I align with paths that are in harmony with my best interests."
+          ]},
+          { title: "Self Esteem", items: [
+            "I am a talented and unique individual.",
+            "I reflect my work qualities and talents into my personal life.",
+            "Success in my career allows me to shine every day.",
+            "I am not defined by others’ false perceptions of me.",
+            "I am aware of my worth.",
+            "Ladies love my gifts and abilities.",
+            "The opposite sex see me for the man I am.",
+            "I forgive myself for any past mistakes.",
+            "I release all failures and setbacks from my burden.",
+            "I love and respect myself. I now commit to self‑love and self‑respect now.",
+            "When I meditate, I am better able to see my strengths for what they are.",
+            "Passion and zest for life now fill my world.",
+            "Hobbies, interests and pastimes are essential to my self‑esteem.",
+            "I am worthy of the greatest love.",
+            "I aim to heal myself mentally, emotionally, physically and spiritually.",
+            "I choose to eat foods high in life force that are good for my well‑being.",
+            "I respect myself enough to honor my gifts and abilities without apology.",
+            "I go after what I want with passion and gusto.",
+            "Life, love and work are in synergy. I recognize one cannot thrive without the others.",
+            "I am an amazing lover.",
+            "Embodying the divine masculine allows me to be a better man.",
+            "Opportunities, blessings and gifts are attracted to my life.",
+            "I am perfect, despite my imperfections.",
+            "I am winning at life!",
+            "Independence and personal power are now amplified in my life."
+          ]},
+          { title: "Assertiveness", items: [
+            "I am able to speak my truth wherever I go.",
+            "Peace, prosperity and abundance are a birthright.",
+            "I recognize my own power in shaping my personal abundance.",
+            "Speaking with strangers and having healthy boundaries come easy to me.",
+            "Personal projects, dreams and aspirations are essential for a happy life.",
+            "My mind is aligned with higher things.",
+            "I respect myself wholly and completely.",
+            "Taking charge comes easy to me.",
+            "I am in control of my life.",
+            "Experiences and situations are shaped by my doing.",
+            "I recognize the importance of my intentions in creating the life I long for.",
+            "People admire my ability to assert myself.",
+            "Saying yes and meaning it is easy.",
+            "Saying no and meaning it is easy.",
+            "Healthy, honest and mature communication is an essential part of life.",
+            "I am fearless.",
+            "I can assert myself with tact.",
+            "Being sure of myself is welcomed into my life.",
+            "The more I am able to assert myself, the more positive I am.",
+            "I allow myself to feel and speak even when I feel resistance.",
+            "I am cool and collected.",
+            "Others recognize me when I speak my truth freely and without fear.",
+            "Being assertive is a positive thing.",
+            "Dignity and courage to be myself now enter my life.",
+            "I am whole and complete within."
+          ]},
+        ]
+      },
+      holiday: {
+        name: "Holiday",
+        banks: [
+          { title: "Self Confidence", items: [
+            "I am confident in my ability to connect with new people.",
+            "Each day is a new chance for growth.",
+            "I am wealthy, healthy and abundant.",
+            "I deserve the best life.",
+            "Success is a result of hard work and commitment in my career.",
+            "I am able to talk with ease and grace.",
+            "Dignity, humility and intelligence define me.",
+            "I enjoy engaging in exciting, life‑enhancing activities.",
+            "Entertainment allows me to shine inside.",
+            "Regardless of where I go, I am aware of my unique talents and abilities.",
+            "Flow and movement are healthy for my mind and sense of success.",
+            "I am always open to learning and growth.",
+            "Every moment is an opportunity to experience life to the fullest.",
+            "When I look in the mirror I see myself with positive and friendly eyes.",
+            "I release all critical judgments of myself from my life.",
+            "I attract beautiful and blissful experiences.",
+            "I am aware of the power of my mind.",
+            "Emotions are here to serve me well. I embrace them.",
+            "Confidence comes from the ability to know myself on a deeper level.",
+            "I take steps to heal my spirit, body and mind.",
+            "I have a natural presence.",
+            "My body language is warm, relaxed and welcoming.",
+            "I invite purity and new connections to my life.",
+            "Conversations flow effortlessly when I am tuned into my higher mind.",
+            "Wisdom and an inner sense of self‑authority fill my life.",
+            "I embrace the new opportunities manifesting in my life.",
+            "Independence, self‑autonomy and inner peace are healthy.",
+            "Excitement fills my cells and I feel alive!",
+            "Holidays are a chance for new self‑confidence to arise.",
+            "I surrender to what life has in store.",
+            "I am open to change and new experiences.",
+            "I balance going with the flow with actively creating my life.",
+            "Presence and power fill my cells.",
+            "I remember my meditation when seeking new experiences.",
+            "I take this newfound feeling of peace back to my work and relationships.",
+            "Rest and relaxation are essential to my well‑being.",
+            "I am filled with harmony.",
+            "Relaxation and rejuvenation lead to increased confidence.",
+            "I look to the sun for inspiration.",
+            "Nature reminds me of the divine simplicity of life.",
+            "My confidence comes with my ability to step up in life.",
+            "I am destined for greatness.",
+            "The waters of the world can teach me a great deal about my nature.",
+            "I embrace adventure as a healthy part of life.",
+            "I am perfect just the way I am.",
+            "No one judges me except myself.",
+            "I am the master of my own destiny.",
+            "Lightness fills me and leads to my sense of self.",
+            "I am cool, confident and calm in everything I do.",
+            "Interaction and connection are good for the soul."
+          ]},
+          { title: "Self Esteem", items: [
+            "I commit to a positive outlook every day.",
+            "Every day is a chance for growth.",
+            "I am wealthy, healthy and wise and project these qualities to the world.",
+            "I love and accept myself for who I am.",
+            "I honor myself for my gifts, talents and abilities.",
+            "I radiate positivity and warm and harmonious feelings.",
+            "I do not seek validation from others.",
+            "I am generously rewarded for my gifts.",
+            "I give thanks to all that is manifesting in my life.",
+            "Persistence and perseverance in my interests and passions are good qualities to possess.",
+            "Self‑reliance is the greatest art.",
+            "Every problem is a chance for growth.",
+            "Every setback is an opportunity for self‑development.",
+            "I am able to come up with solutions for any problem at hand.",
+            "I am soul‑driven and aligned with my highest joy.",
+            "I remember my success every moment.",
+            "The future does not yet exist and I am not limited by my past.",
+            "I have the power to change my life for the better.",
+            "Rejuvenation and rest allow me to thrive back home.",
+            "My ability to see the positive in any situation is recognized by others.",
+            "My colleagues respect and love me.",
+            "I am appreciated and missed by my work team.",
+            "I give priority to my passions and interests.",
+            "I stay committed to my goals and aspirations.",
+            "Optimism is the key to success.",
+            "I attract new and stimulating experiences in my life.",
+            "Bravery and courage are rewarded by the universe.",
+            "I embody serenity and calmness and reflect this towards anyone I meet.",
+            "The natural world provides great inspiration.",
+            "I aim to inspire and be inspired.",
+            "Like a lion, I am strong, centered and true to my gifts and abilities.",
+            "I let go of the need to compare.",
+            "I am unique and sovereign.",
+            "Self‑autonomy increases in my life.",
+            "Without a strong heart, I would not be able to achieve my goals.",
+            "Peace of mind comes when I stay true to myself.",
+            "Comparison does not serve me in any way; I am amazing just the way I am.",
+            "I seek to hone in on my skills and abilities to become a better man.",
+            "Without my courage, I would be nothing.",
+            "I enjoy expressing myself creatively.",
+            "Inspiration comes from learning and humility.",
+            "I am an inspiring individual and others see this.",
+            "Admiration and appreciation for others are beautiful qualities to possess.",
+            "I allow myself to be loved and to be seen.",
+            "I welcome new friendships and partnerships into my life.",
+            "Every day is a new chance to take on the world.",
+            "I am connected to everything around.",
+            "I am safe and protected in both my body and my environment.",
+            "When I look into the mirror, I see a lion!",
+            "I am loved and cherished by some unknown power."
+          ]},
+          { title: "Assertiveness", items: [
+            "I am confident beyond belief!",
+            "Humility and confidence go hand in hand.",
+            "I am able to assert myself to live out my dreams.",
+            "Traveling is an opportunity for new life experiences.",
+            "When meeting new people, I am centered and grounded, friendly and warm.",
+            "I shine from the inside.",
+            "People perceive me as having a natural presence.",
+            "Women admire me for my intellect and wit.",
+            "Wisdom and empathy are strengths of mine.",
+            "I respect my needs and honor my holiday.",
+            "I deserve the best in life.",
+            "I am in control of my life and in harmony with the universe.",
+            "Appreciation fills my life.",
+            "I am in touch with my sensuality and inner needs.",
+            "My body is a temple and I treat it as such.",
+            "Food, drink and indulgences are balanced in my life.",
+            "I enjoy the finer things whilst respecting myself.",
+            "I recognize that my ability to assert myself is linked with my ability to take care of myself.",
+            "I am healthy, happy and confident.",
+            "When in a social situation, people appreciate my input.",
+            "I can achieve whatever I put my mind to.",
+            "My spirit is strong and it reflects in my mind.",
+            "My emotions are in harmony with my masculinity.",
+            "Values such as compassion, care and empathy are important to me.",
+            "I am allowed to be happy.",
+            "Confidence shines on me just like the sun.",
+            "Snow is a reflection of the soul.",
+            "When I assert myself with dignity and respect I attract positive experiences into my life.",
+            "Conflict is a chance for growth.",
+            "I aim to be polite and courteous in everything that I do.",
+            "Laughter and humor are essential to life.",
+            "If I can see it in my mind’s eye, I can say it.",
+            "Standing up for myself and those I love is essential.",
+            "My strength comes from rest and rejuvenation.",
+            "When I let go and lighten up, I am able to see the positive in life.",
+            "My mind is a money magnet.",
+            "Success and abundance increase with confidence.",
+            "Swimming is good for my strength and my soul.",
+            "I smile when I speak my truth.",
+            "Authority is healthy when exerted correctly.",
+            "I seek to cause no other harm.",
+            "I am powerful and step fully into my power now.",
+            "With great power comes great responsibility.",
+            "I honor my duties and step into self‑leadership.",
+            "The future is a blank canvas to create.",
+            "Productivity and perseverance are welcomed into my life.",
+            "I am determined and can reach the status I deserve.",
+            "Hard work, rest and play are all welcome and balanced.",
+            "I am an amazing human being.",
+            "My manliness is defined by my ability to love and be loved."
+          ]},
+        ]
+      }
+    };
+
+    const $ = sel => document.querySelector(sel);
+    const show = id => {
+      ["#view-main","#view-affirmations","#view-instructions","#view-contact"]
+        .forEach(v => $(v).classList.add("hidden"));
+      $(id).classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    function renderAffirmations(categoryKey, explicitIndex=null) {
+      const cat = BANKS[categoryKey];
+      const idx = explicitIndex ?? Math.floor(Math.random() * cat.banks.length);
+      const bank = cat.banks[idx];
+      $("#aff-title").textContent = `${cat.name} • ${bank.title}`;
+      $("#aff-subtitle").textContent = `Read each line 5×, calmly and with intention.`;
+      const ul = $("#aff-list");
+      ul.innerHTML = "";
+      bank.items.forEach((line, i) => {
+        const li = document.createElement("li");
+        li.className = "rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3";
+        li.innerHTML = `<span class="text-zinc-400 mr-2">${i+1}.</span>${line}`;
+        ul.appendChild(li);
+      });
+      $("#btn-shuffle").dataset.cat = categoryKey;
+      $("#btn-shuffle").dataset.idx = idx;
+      show("#view-affirmations");
+    }
+
+    document.querySelectorAll('#view-main button[data-target]').forEach(btn => {
+      btn.addEventListener('click', () => renderAffirmations(btn.dataset.target));
+    });
+    $("#btn-shuffle").addEventListener("click", () => {
+      const cat = $("#btn-shuffle").dataset.cat;
+      const current = parseInt($("#btn-shuffle").dataset.idx || "-1", 10);
+      const len = BANKS[cat].banks.length;
+      let next = Math.floor(Math.random() * len);
+      if (len > 1 && next === current) next = (next + 1) % len;
+      renderAffirmations(cat, next);
+    });
+
+    $("#btn-instructions").addEventListener("click", () => show("#view-instructions"));
+    $("#btn-contact").addEventListener("click", () => show("#view-contact"));
+    $("#btn-back-1").addEventListener("click", () => show("#view-main"));
+    $("#btn-back-2").addEventListener("click", () => show("#view-main"));
+    $("#btn-back-3").addEventListener("click", () => show("#view-main"));
+
+    $("#btn-github").addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Discipline sets you free. Thank you.");
+    });
+  </script>
+</body>
+</html>
