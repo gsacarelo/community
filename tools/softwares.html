@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Software Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-zinc-950 text-zinc-100 min-h-screen">
+    <div class="max-w-6xl mx-auto p-6">
+      <!-- Header -->
+      <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold tracking-tight">⚙️ Software Tools</h1>
+        <p class="text-zinc-400">Dynamic list generated from CSV with search & filters.</p>
+        <a
+          href="../../index.html"
+          class="mt-4 inline-block px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 transition">
+          ← Main Page
+        </a>
+      </header>
+
+      <!-- Filters -->
+      <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <input
+          id="search"
+          type="text"
+          placeholder="🔎 Search name, description, or tags..."
+          class="flex-1 px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-900 focus:outline-none focus:border-indigo-400" />
+        <select id="tierFilter" class="px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-900">
+          <option value="">All tiers</option>
+          <option value="1">Tier 1</option>
+          <option value="2">Tier 2</option>
+          <option value="3">Tier 3</option>
+        </select>
+      </div>
+
+      <!-- Tool List -->
+      <div id="tool-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      <a
+        href="../../index.html"
+        class="mt-4 inline-block px-4 py-2 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 transition">
+        ← Main Page
+      </a>
+      <footer class="mt-10 text-center text-xs text-zinc-500">
+        <p>Built with quiet luxury ✦ Gerardo Sacarelo</p>
+      </footer>
+    </div>
+
+    <script>
+      // Robust CSV parser for simple comma-separated values (supports quoted commas)
+      function parseCSV(text) {
+        const lines = text.replace(/\r/g, "").split("\n").filter(Boolean);
+        const header = lines[0].split(",").map((h) => h.trim());
+        const rows = lines.slice(1).map((line) => {
+          const cells = [];
+          let cur = "",
+            inQuotes = false;
+          for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (ch === '"') {
+              if (inQuotes && line[i + 1] === '"') {
+                cur += '"';
+                i++;
+              } else {
+                inQuotes = !inQuotes;
+              }
+            } else if (ch === "," && !inQuotes) {
+              cells.push(cur);
+              cur = "";
+            } else {
+              cur += ch;
+            }
+          }
+          cells.push(cur);
+          const obj = {};
+          header.forEach((h, idx) => {
+            obj[h] = (cells[idx] || "").trim();
+          });
+          return obj;
+        });
+        return rows;
+      }
+
+      async function loadTools() {
+        const res = await fetch("./tools.csv", { cache: "no-store" });
+        const text = await res.text();
+        const data = parseCSV(text).map((t) => ({
+          name: t.name || "",
+          description: t.description || "",
+          link: t.link || "#",
+          tier: (t.tier || "").toString().trim(),
+          tags: (t.tags || "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          image: t.image || ""
+        }));
+        return data;
+      }
+
+      function toolCard(t) {
+        const logo = t.image
+          ? `
+        <img src="${t.image}"
+             alt="${t.name} logo"
+             class="h-10 w-10 rounded-lg object-cover border border-zinc-800"
+             onerror="this.style.display='none'">`
+          : "";
+
+        return `
+        <div class="p-4 border border-zinc-800 rounded-2xl bg-zinc-900/60 hover:bg-zinc-900 transition flex flex-col gap-3">
+          <div class="flex items-center gap-3">
+            ${logo}
+            <div class="min-w-0">
+              <a href="${t.link}" target="_blank" rel="noreferrer"
+                 class="block text-lg font-semibold hover:underline truncate">${t.name}</a>
+              <div class="text-xs text-zinc-500">Tier ${t.tier || "—"}</div>
+            </div>
+          </div>
+          <p class="text-zinc-300 text-sm">${t.description}</p>
+          <div class="flex flex-wrap gap-2">
+            ${t.tags.map((tag) => `<span class="text-xs text-zinc-300 border border-zinc-700/70 bg-zinc-800/60 px-2 py-0.5 rounded-full">#${tag}</span>`).join("")}
+          </div>
+        </div>
+      `;
+      }
+
+      function render(tools) {
+        const grid = document.getElementById("tool-list");
+        grid.innerHTML = tools.map(toolCard).join("");
+      }
+
+      function applyFilters(allTools) {
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        const tier = document.getElementById("tierFilter").value.trim();
+        return allTools.filter((t) => {
+          const hay = (t.name + " " + t.description + " " + t.tags.join(" ")).toLowerCase();
+          const matchesQuery = !q || hay.includes(q);
+          const matchesTier = !tier || t.tier === tier;
+          return matchesQuery && matchesTier;
+        });
+      }
+
+      loadTools().then((allTools) => {
+        // Initial render
+        render(allTools);
+
+        // Wire filters
+        document.getElementById("search").addEventListener("input", () => {
+          render(applyFilters(allTools));
+        });
+        document.getElementById("tierFilter").addEventListener("change", () => {
+          render(applyFilters(allTools));
+        });
+      });
+    </script>
+  </body>
+</html>
