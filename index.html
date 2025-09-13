@@ -1,59 +1,380 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerardo Sacarelo • Projects & Tools</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header>
-    <h1>Gerardo Sacarelo V.</h1>
-    <p>PhD • E-commerce • Creative Technologist</p>
-    <nav>
-      <a href="#tools">Tools</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gerardo Sacarelo • Projects & Tools</title>
+    <meta
+      name="description"
+      content="Gerardo Sacarelo — PhD • E-commerce • Creative Technologist. Side projects, tools, contact." />
+    <link rel="icon" href="data:," />
+    <style>
+      :root {
+        --bg: #0b0b0c;
+        --card: #101114cc; /* glass */
+        --stroke: #1c1d22;
+        --text: #e9e9ee;
+        --muted: #a6a7ad;
+        --brand: #b79bff; /* soft luxury violet */
+        --brand-2: #89c2ff; /* cool accent */
+        --radius: 18px;
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font:
+          16px/1.6 ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          "Apple Color Emoji",
+          "Segoe UI Emoji";
+        color: var(--text);
+        background: radial-gradient(1200px 600px at 80% -10%, rgba(183, 155, 255, 0.08), transparent 60%),
+          radial-gradient(900px 500px at -10% 0%, rgba(137, 194, 255, 0.07), transparent 55%),
+          linear-gradient(180deg, #0b0b0c, #0b0b0c 30%);
+        background-color: var(--bg);
+        letter-spacing: 0.1px;
+      }
+      a {
+        color: var(--text);
+        text-decoration: none;
+      }
+      a:hover {
+        color: var(--brand);
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 32px 20px 80px;
+      }
 
-  <main>
-    <!-- Tools Section -->
-    <section id="tools">
-      <h2>🛠️ Tools & Experiments</h2>
-      <ul>
-        <li><strong>Tool 1</strong> – <em>Coming soon…</em></li>
-        <li><strong>Tool 2</strong> – <em>Coming soon…</em></li>
-        <!-- Add more items or real links as you build them -->
-      </ul>
-    </section>
+      /* Header / hero */
+      header {
+        position: relative;
+        padding: 28px 24px;
+        border: 1px solid var(--stroke);
+        border-radius: calc(var(--radius) + 6px);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), var(--card);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .glow {
+        position: absolute;
+        inset: -2px;
+        background: radial-gradient(300px 140px at 80% 0%, rgba(183, 155, 255, 0.16), transparent 60%),
+          radial-gradient(260px 120px at 0% 20%, rgba(137, 194, 255, 0.12), transparent 55%);
+        filter: blur(20px);
+        pointer-events: none;
+      }
+      .topbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #fff, #cbb7ff 40%, #6b5bd6 70%);
+        box-shadow: 0 0 14px rgba(183, 155, 255, 0.6);
+      }
+      nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+      }
+      nav a {
+        padding: 8px 12px;
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        background: #0f1014ad;
+      }
+      nav a:hover {
+        border-color: #2a2c33;
+        background: #151721;
+        transition: all 0.15s;
+      }
+      .hero {
+        display: grid;
+        gap: 4px;
+        margin-top: 6px;
+        padding: 6px 4px 2px;
+      }
+      .hero h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: 0.2px;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .badges {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip {
+        font-size: 12px;
+        color: #dcdcef;
+        border: 1px solid var(--stroke);
+        background: #0f1116ad;
+        border-radius: 999px;
+        padding: 6px 10px;
+      }
 
-    <!-- About Section -->
-    <section id="about">
-      <h2>💡 About Me</h2>
-      <p>
-        PhD-level maker obsessed with health tech, embedded systems, and
-        unconventional learning. This site tracks my public side-projects.
-      </p>
-    </section>
+      /* Sections */
+      section {
+        margin-top: 28px;
+        padding: 22px;
+        border: 1px solid var(--stroke);
+        border-radius: var(--radius);
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+      h2 {
+        margin: 0 0 12px 0;
+        font-size: 18px;
+        letter-spacing: 0.2px;
+      }
+      .grid {
+        display: grid;
+        gap: 12px;
+      }
+      @media (min-width: 720px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
 
-    <!-- Contact Section -->
-    <section id="contact">
-      <h2>📬 Get in Touch</h2>
-      <p>
-        Instagram: <a href="https://www.instagram.com/gerardo711">@gerardo711</a><br />
-        Socials: <a href="https://linktr.ee/gsacarelo">Linktree</a>
-      </p>
-    </section>
-  </main>
+      .card {
+        padding: 16px;
+        border: 1px solid var(--stroke);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), #0f1116;
+        transition:
+          transform 0.15s ease,
+          border-color 0.15s ease,
+          background 0.15s ease;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: #2a2c33;
+        background: #12141b;
+      }
+      .card h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .card .link {
+        margin-top: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--brand);
+      }
+      .pill {
+        margin-left: 6px;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid #2a2c33;
+        background: #0f1116;
+        color: #c9c9d6;
+      }
 
-  <footer>
-    © 1990 - <span id="year"></span> Gerardo Sacarelo V. All rights reserved.
-  </footer>
+      /* Footer */
+      footer {
+        margin-top: 28px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 13px;
+      }
 
-  <script>
-    /* auto-update year */
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
-</body>
+      /* Motion */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(8px);
+        animation: in 0.5s ease forwards;
+      }
+      .fade-in:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .fade-in:nth-child(2) {
+        animation-delay: 0.12s;
+      }
+      .fade-in:nth-child(3) {
+        animation-delay: 0.18s;
+      }
+      @keyframes in {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* Smooth anchor scroll */
+      html {
+        scroll-behavior: smooth;
+      }
+      /* ===== Mobile header tidy-up ===== */
+      @media (max-width: 560px) {
+        header {
+          padding: 20px 16px;
+        }
+        .topbar {
+          flex-direction: column; /* stack brand + nav */
+          align-items: flex-start;
+          gap: 10px;
+          margin-bottom: 12px;
+        }
+        nav {
+          width: 100%;
+          flex-wrap: wrap; /* allow buttons to wrap to a new line */
+          gap: 8px;
+        }
+        nav a {
+          font-size: 14px; /* slightly smaller chips */
+          padding: 7px 10px;
+          border-radius: 10px;
+          white-space: nowrap; /* keep each chip on one line */
+        }
+        .brand {
+          font-size: 16px;
+        }
+        .hero {
+          padding: 4px 2px 0;
+        }
+        .hero h1 {
+          font-size: clamp(20px, 6vw, 26px);
+        } /* scale headline on narrow screens */
+        .chip {
+          font-size: 11px;
+          padding: 5px 9px;
+        } /* tighter badges */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="fade-in">
+        <div class="glow"></div>
+        <div class="topbar">
+          <div class="brand">
+            <div class="dot" aria-hidden="true"></div>
+            <span>Gerardo&nbsp;Sacarelo&nbsp;V.</span>
+          </div>
+          <nav>
+            <a href="#projects">Side&nbsp;Projects</a>
+            <a href="#tools">Tools</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+          </nav>
+        </div>
+        <div class="hero">
+          <h1>PhD • E-commerce • Creative Technologist</h1>
+          <p>Building quiet-luxury software, human-systems, and practical experiments.</p>
+          <div class="badges">
+            <span class="chip">Health Tech</span>
+            <span class="chip">Embedded &amp; Wearables</span>
+            <span class="chip">Behavior Design</span>
+            <span class="chip">Minimal Ops</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Side Projects -->
+      <section id="projects" class="fade-in">
+        <h2>⚡ Side Projects</h2>
+        <div class="grid">
+          <a class="card" href="./apps/affirmations/index.html" target="_self" rel="noopener">
+            <h3>Affirmations Cards <span class="pill">Live</span></h3>
+            <p>Daily • Weekend • Holiday practice. Minimal, offline, focused.</p>
+            <span class="link">Open →</span>
+          </a>
+
+          <div class="card">
+            <h3>Project X <span class="pill">Soon</span></h3>
+            <p>Reserved space for the next public build.</p>
+          </div>
+
+          <div class="card">
+            <h3>Project Y <span class="pill">Soon</span></h3>
+            <p>Another slot for an upcoming experiment.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tools -->
+      <section id="tools" class="fade-in">
+        <h2>🛠️ Tools &amp; Experiments</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Tool 1</h3>
+            <p>Coming soon…</p>
+          </div>
+          <div class="card">
+            <h3>Tool 2</h3>
+            <p>Coming soon…</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section id="about" class="fade-in">
+        <h2>💡 About</h2>
+        <div class="card">
+          <p style="margin: 0">
+            PhD-level maker focused on health tech, embedded systems, and non-conventional learning. This site tracks
+            public side-projects and reference tools with a bias toward signal over noise.
+          </p>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" class="fade-in">
+        <h2>📬 Get in Touch</h2>
+        <div class="card">
+          <p style="margin: 0">
+            Instagram: <a href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">@gerardo711</a
+            ><br />
+            Socials: <a href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">Linktree</a>
+          </p>
+        </div>
+      </section>
+
+      <footer class="fade-in">© 1990 – <span id="year"></span> Gerardo Sacarelo V. All rights reserved.</footer>
+    </div>
+
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
 </html>
