@@ -11,9 +11,9 @@
     --card: #161b22;
     --muted:#9aa4b2;
     --fg: #e6edf3;
-    --accent:#ff6868;   /* Temp now/future (light blue) */
-    --accentY:#4da3ff;  /* Temp yesterday (dark blue) */
-    --accent2:#7ca7d1;  /* Precip (light green) */
+    --accent:#fe4242;   /* Temp now/future (light blue) */
+    --accentY:#c47777;  /* Temp yesterday (dark blue) */
+    --accent2:#55aafd;  /* Precip (light green) */
     --accent3:#ffe97b;  /* UV (yellow) */
     --accent4:#a561ff;  /* AQI (light purple) */
     --border:#222834;
@@ -82,7 +82,7 @@
     </select>
     <button id="refreshBtn" title="Refresh now">Refresh</button>
     <button id="toggleDetailsBtn" title="Show/Hide Y-axes for Precip/UV/AQI">Show Y axes</button>
-    <a class="btn" href="../../index.html">Main Page</a>
+    <a class="btn" href="index.html">Main Page</a>
   </div>
 </header>
 
@@ -122,9 +122,9 @@
     <aside class="card">
       <div style="font-weight:700; margin-bottom:6px;">Notes</div>
       <div class="note">
-        • “Yesterday” line is a 24h left‑shifted overlay (same hour comparison).<br/>
-        • AQI shows a single US AQI value (no pollutant breakdown).<br/>
-        • Use the toggle to show/hide only the Y‑axes for Precip/UV/AQI; lines remain visible.
+        • “Yesterday” line is a 24h Temperature left‑shifted overlay.<br/>
+        • Use the toggle to show/hide only the Y‑axes for Precip/UV/AQI.<br/>
+        • By: Gerardo Sacarelo V. - IG: <a href="https://www.instagram.com/gerardo711" style="color: aliceblue">@gerardo711</a>
       </div>
     </aside>
   </div>
@@ -488,7 +488,7 @@
     c.options.scales.yPerc.display = showDetails;
     c.options.scales.yUV.display = showDetails;
     c.options.scales.yAQI.display = showDetails;
-    toggleDetailsBtn.textContent = showDetails ? "Hide Precip/UV/AQI axes" : "Show Precip/UV/AQI axes";
+    toggleDetailsBtn.textContent = showDetails ? "Hide Y axes" : "Show Y axes";
     c.update();
   });
 
