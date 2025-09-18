@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
+<title>☀️ Weather Forecast</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<style>
+  :root{
+    --bg: #0e1116;
+    --card: #161b22;
+    --muted:#9aa4b2;
+    --fg: #e6edf3;
+    --accent:#ff6868;   /* Temp now/future (light blue) */
+    --accentY:#4da3ff;  /* Temp yesterday (dark blue) */
+    --accent2:#7ca7d1;  /* Precip (light green) */
+    --accent3:#ffe97b;  /* UV (yellow) */
+    --accent4:#a561ff;  /* AQI (light purple) */
+    --border:#222834;
+    --hover:#243043;
+    --active:#0b1626;
+    --nowline:#dedede;  /* red vertical line for current time */
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", Arial;
+    line-height:1.35;
+  }
+  header{
+    padding:14px clamp(14px,2.2vw,28px); border-bottom:1px solid var(--border);
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:space-between;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  }
+  .brand{ font-weight:700; letter-spacing:.3px; font-size:clamp(18px,2.4vw,22px); }
+  .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  button, .chip, input, select, a.btn{
+    background:var(--card); color:var(--fg); border:1px solid var(--border);
+    padding:8px 12px; border-radius:10px; font-size:14px; transition:all .12s ease;
+  }
+  button:hover, a.btn:hover, input:hover, select:hover{ background:var(--hover); border-color:#2c3547; }
+  button:active, a.btn:active{ background:var(--active); transform:translateY(1px); }
+  button:disabled{opacity:.6; cursor:not-allowed}
+  input[type="text"]{width:min(52vw,340px)}
+  main{padding:16px clamp(14px,2.2vw,28px)}
+  .grid{ display:grid; gap:12px; grid-template-columns: 1fr; }
+  @media (min-width:900px){ .grid{grid-template-columns: 1.2fr .8fr} }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; position:relative; overflow:hidden; }
+  .summary{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+  @media (min-width:720px){ .summary{grid-template-columns: repeat(4, minmax(0,1fr));} }
+  .chip{ display:flex; flex-direction:column; gap:4px; min-height:68px; }
+  .label{font-size:12px; color:var(--muted)}
+  .value{font-size:20px; font-weight:700}
+  .statusbar{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; padding:8px 0; }
+  .statusbar .dot{width:8px; height:8px; border-radius:99px; background:#3fb950}
+  .statusbar.offline .dot{background:#d97706}
+  .legend{ display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin-top:8px }
+  .lg{display:inline-flex; align-items:center; gap:8px}
+  .sw{width:18px; height:3px; border-radius:6px}
+  .swT{background:var(--accent)}
+  .swTY{background:var(--accentY); position:relative}
+  .swTY::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent 0 6px, var(--card) 6px 12px);}
+  .swP{background:var(--accent2)}
+  .swU{background:var(--accent3)}
+  .swA{background:var(--accent4)}
+  .footer-controls{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px }
+  a.btn{ text-decoration:none; display:inline-block; }
+  .note{color:var(--muted); font-size:12px; margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Local Weather Forecast</div>
+  <div class="controls">
+    <input id="locationInput" type="text" placeholder="Search city (e.g., Seoul)" />
+    <button id="searchBtn" title="Search by city">Search</button>
+    <button id="geoBtn" title="Use my location">My Location</button>
+    <select id="rangeSelect" title="Forward range">
+      <option value="24">Next 24h</option>
+      <option value="48">Next 48h</option>
+      <option value="96" selected>Next 96h</option>
+    </select>
+    <button id="refreshBtn" title="Refresh now">Refresh</button>
+    <button id="toggleDetailsBtn" title="Show/Hide Y-axes for Precip/UV/AQI">Show Y axes</button>
+    <a class="btn" href="index.html">Main Page</a>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card">
+      <div class="summary" id="summaryChips">
+        <div class="chip"><div class="label">Current Temperature</div><div class="value" id="chipTemp">—</div></div>
+        <div class="chip"><div class="label">Precipitation Prob.</div><div class="value" id="chipPrecip">—</div></div>
+        <div class="chip"><div class="label">UV Index</div><div class="value" id="chipUV">—</div></div>
+        <div class="chip"><div class="label">US AQI</div><div class="value" id="chipAQI">—</div></div>
+      </div>
+
+      <div class="statusbar" id="statusbar">
+        <div class="dot"></div>
+        <div id="statusText">Online • Auto-update hourly</div>
+      </div>
+
+      <div style="height:360px"><canvas id="forecastChart"></canvas></div>
+
+      <div class="legend">
+        <span class="lg"><span class="sw swT"></span> Temperature</span>
+        <span class="lg"><span class="sw swTY"></span> Yesterday</span>
+        <span class="lg"><span class="sw swP"></span> Precip %</span>
+        <span class="lg"><span class="sw swU"></span> UV Index</span>
+        <span class="lg"><span class="sw swA"></span> US AQI</span>
+      </div>
+
+      <div class="footer-controls">
+        <button id="btn24">24h</button>
+        <button id="btn48">48h</button>
+        <button id="btn96">96h</button>
+        <span class="note" id="locNote">Location: —</span>
+      </div>
+    </section>
+
+    <aside class="card">
+      <div style="font-weight:700; margin-bottom:6px;">Notes</div>
+      <div class="note">
+        • “Yesterday” line is a 24h left‑shifted overlay (same hour comparison).<br/>
+        • AQI shows a single US AQI value (no pollutant breakdown).<br/>
+        • Use the toggle to show/hide only the Y‑axes for Precip/UV/AQI; lines remain visible.
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(() => {
+  // ---- Endpoints ----
+  const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
+  const AIR_URL     = "https://air-quality-api.open-meteo.com/v1/air-quality";
+  const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
+
+  // ---- Colors ----
+  const css = (v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const COLORS = {
+    tNow: css('--accent') || '#a8d8ff',
+    tY: css('--accentY') || '#4da3ff',
+    precip: css('--accent2') || '#8bd17c',
+    uv: css('--accent3') || '#ffd60a',
+    aqi: css('--accent4') || '#c9a0ff',
+    nowline: css('--nowline') || '#ff3b30'
+  };
+
+  // ---- DOM ----
+  const statusbar = document.getElementById('statusbar');
+  const statusText = document.getElementById('statusText');
+  const chipTemp = document.getElementById('chipTemp');
+  const chipPrecip = document.getElementById('chipPrecip');
+  const chipUV = document.getElementById('chipUV');
+  const chipAQI = document.getElementById('chipAQI');
+  const rangeSelect = document.getElementById('rangeSelect');
+  const btn24 = document.getElementById('btn24');
+  const btn48 = document.getElementById('btn48');
+  const btn96 = document.getElementById('btn96');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const toggleDetailsBtn = document.getElementById('toggleDetailsBtn');
+  const locationInput = document.getElementById('locationInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const geoBtn = document.getElementById('geoBtn');
+  const locNote = document.getElementById('locNote');
+
+  // ---- State ----
+  let currentCoords = { lat: 37.5665, lon: 126.9780, name: "Seoul" };
+  let chart = null;
+  let autoTimer = null;
+  let showDetails = false; // y-axes hidden by default
+
+  // ---- Helpers ----
+  function setOnlineState() {
+    const online = navigator.onLine;
+    statusbar.classList.toggle('offline', !online);
+    statusText.textContent = online ? "Online • Auto-update hourly" : "Offline • Will retry next hour";
+  }
+  window.addEventListener('online', setOnlineState);
+  window.addEventListener('offline', setOnlineState);
+  setOnlineState();
+
+  const fmt = (n, unit="") => (n==null || Number.isNaN(n)) ? "—" : `${Math.round(n*10)/10}${unit}`;
+
+  function hourIndexNow(labels, offsetSeconds){
+    // Compute "now" in the LOCATION timezone using utc_offset_seconds from Open‑Meteo
+    const nowUTC = new Date();
+    const local = new Date(nowUTC.getTime() + (offsetSeconds||0)*1000);
+    const key = local.toISOString().slice(0,13); // YYYY-MM-DDTHH in that tz
+    let idx = labels.findIndex(s => s.startsWith(key));
+    if (idx === -1){
+      // fallback: pick first label >= local hour by string compare (safe because labels are ISO-like)
+      const keyNum = parseInt(key.replace(/[-T:]/g,''),10);
+      idx = labels.findIndex(s => parseInt(s.slice(0,13).replace(/[-T:]/g,''),10) >= keyNum);
+      if (idx === -1) idx = labels.length-1;
+    }
+    return idx;
+  }
+
+  function nextTopOfHourDelayMs(){
+    const now = new Date();
+    return (60-now.getMinutes())*60*1000 - now.getSeconds()*1000 - now.getMilliseconds();
+  }
+
+  function dayNameFromISO(iso){
+    const y = parseInt(iso.slice(0,4),10);
+    const m = parseInt(iso.slice(5,7),10);
+    const d = parseInt(iso.slice(8,10),10);
+    const dd = new Date(Date.UTC(y, m-1, d));
+    return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dd.getUTCDay()];
+  }
+
+  // ---- Fetchers ----
+  async function fetchWeather(lat, lon){
+    const params = new URLSearchParams({
+      latitude: lat, longitude: lon, timezone: "auto",
+      past_days: "1", forecast_days: "4",
+      hourly: "temperature_2m,precipitation_probability,uv_index",
+      current: "temperature_2m,precipitation_probability,uv_index"
+    });
+    const r = await fetch(WEATHER_URL + "?" + params.toString());
+    if (!r.ok) throw new Error("weather fetch failed");
+    return await r.json();
+  }
+
+  async function fetchAir(lat, lon, fwdHours){
+    const params = new URLSearchParams({
+      latitude: lat, longitude: lon, timezone: "auto",
+      past_hours: "24", forecast_hours: String(fwdHours),
+      hourly: "us_aqi",
+      current: "us_aqi"
+    });
+    const r = await fetch(AIR_URL + "?" + params.toString());
+    if (!r.ok) throw new Error("air fetch failed");
+    return await r.json();
+  }
+
+  function buildShiftedSeries(weather, air, fwdHours){
+    const wh = weather && weather.hourly ? weather.hourly : {};
+    const labels = Array.isArray(wh.time) ? wh.time : [];
+    const t = Array.isArray(wh.temperature_2m) ? wh.temperature_2m : [];
+    const p = Array.isArray(wh.precipitation_probability) ? wh.precipitation_probability : [];
+    const uv = Array.isArray(wh.uv_index) ? wh.uv_index : [];
+
+    if (labels.length === 0) return null; // cannot render without timebase
+
+    const offsetSeconds = weather?.utc_offset_seconds ?? 0;
+    const nowIdx = hourIndexNow(labels, offsetSeconds);
+    const end = Math.min(labels.length, nowIdx + fwdHours + 1);
+    const xLabels = labels.slice(nowIdx, end);
+
+    // temp now (solid)
+    const tempNow = t.slice(nowIdx, end);
+
+    // temp yesterday shifted by 24h
+    const tempY = [];
+    for (let k=0; k<xLabels.length; k++){
+      const idx = nowIdx - 24 + k;
+      tempY.push(idx>=0 && idx<t.length ? t[idx] : null);
+    }
+
+    const precipNow = p.slice(nowIdx, end);
+    const uvNow = uv.slice(nowIdx, end);
+
+    // AQI aligned by timestamp map
+    let aqiNow = new Array(xLabels.length).fill(null);
+    if (air && air.hourly){
+      const at = Array.isArray(air.hourly.time) ? air.hourly.time : [];
+      const aqi = Array.isArray(air.hourly.us_aqi) ? air.hourly.us_aqi : [];
+      const map = new Map();
+      for (let i=0;i<at.length;i++){ map.set(at[i], aqi[i]); }
+      aqiNow = xLabels.map(ts => map.has(ts) ? map.get(ts) : null);
+    }
+
+    // current chips fallback
+    const curTemp   = weather?.current?.temperature_2m ?? (tempNow[0] ?? null);
+    const curPrecip = weather?.current?.precipitation_probability ?? (precipNow[0] ?? null);
+    const curUV     = weather?.current?.uv_index ?? (uvNow[0] ?? null);
+    const curAQI    = air?.current?.us_aqi ?? (aqiNow[0] ?? null);
+
+    // mark indices where it's midnight in label strings (T00)
+    const midnightIdxs = xLabels.reduce((acc, ts, i) => { if (ts.slice(11,13) === "00") acc.push(i); return acc; }, []);
+
+    return {
+      labels: xLabels,
+      tempNow, tempY,
+      precip: precipNow,
+      uv: uvNow,
+      aqi: aqiNow,
+      midnightIdxs,
+      offsetSeconds,
+      current: { temp: curTemp, precip: curPrecip, uv: curUV, aqi: curAQI }
+    };
+  }
+
+  // ---- Chart ----
+  // Plugin: red lines — "now" within current hour (using location offset), plus lines at every midnight label
+  const MarkersPlugin = {
+    id: 'markers',
+    afterDatasetsDraw(chart, args, pluginOptions) {
+      const {ctx, chartArea, scales} = chart;
+      const xScale = scales.x;
+      if (!xScale || chart.data.labels.length === 0) return;
+
+      const labels = chart.data.labels;
+      // compute pixel positions for category 0 and 1
+      const px0 = xScale.getPixelForValue(labels[0]);
+      let px1 = px0;
+      if (labels.length > 1) px1 = xScale.getPixelForValue(labels[1]);
+      const hourWidth = px1 - px0;
+
+      // fraction within the current hour in the LOCATION timezone
+      const offset = chart.$offsetSeconds || 0;
+      const nowUTC = new Date();
+      const local = new Date(nowUTC.getTime() + offset*1000);
+      const frac = (local.getMinutes()*60 + local.getSeconds()) / 3600;
+      let xNow = px0 + hourWidth * frac;
+      if (!isFinite(xNow)) xNow = px0;
+
+      ctx.save();
+      ctx.strokeStyle = COLORS.nowline;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6,4]);
+      // Now line
+      ctx.beginPath();
+      ctx.moveTo(Math.round(xNow)+.5, chartArea.top);
+      ctx.lineTo(Math.round(xNow)+.5, chartArea.bottom);
+      ctx.stroke();
+
+      // Midnight lines each 24h (where label hour == "00")
+      const midIdxs = chart.$midnightIdxs || [];
+      ctx.setLineDash([4,4]);
+      for (const i of midIdxs){
+        const x = xScale.getPixelForValue(labels[i]);
+        ctx.beginPath();
+        ctx.moveTo(Math.round(x)+.5, chartArea.top);
+        ctx.lineTo(Math.round(x)+.5, chartArea.bottom);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  };
+
+  function ensureChart(){
+    if (chart) return chart;
+    const ctx = document.getElementById('forecastChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type:'line',
+      data:{ labels:[], datasets:[
+        { label:'Temp (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tNow, borderWidth:2, tension:.3, pointRadius:0, spanGaps:true },
+        { label:'Temp Yesterday (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tY, borderWidth:2, borderDash:[6,6], tension:.2, pointRadius:0, spanGaps:true },
+        { label:'Precip (%)', data:[], yAxisID:'yPerc', borderColor:COLORS.precip, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
+        { label:'UV Index', data:[], yAxisID:'yUV', borderColor:COLORS.uv, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
+        { label:'US AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true }
+      ]},
+      options:{
+        animation:{duration:0},
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
+        scales:{
+          x:{ ticks:{color:'#aab2bf', maxRotation:0, autoSkip:true, callback:(value, index)=>{
+                const s = chart.data.labels[index];
+                const hour = s.slice(11,13); // 'HH'
+                const isMidnight = hour === "00";
+                return isMidnight ? (dayNameFromISO(s) + " 00") : hour;
+              }}, grid:{color:'rgba(255,255,255,0.05)'} },
+          yTemp:{ position:'left', title:{display:true,text:'°C'}, ticks:{color:'#cfd6e4'}, grid:{color:'rgba(255,255,255,0.10)'} },
+          yPerc:{ position:'right', display: false, offset:true, title:{display:true,text:'Precip %'}, min:0, max:100, ticks:{color:'#cfd6e4'}, grid:{drawOnChartArea:false} },
+          yUV:{ position:'right', display: false, offset:true, title:{display:true,text:'UV'}, min:0, suggestedMax:12, ticks:{color:'#cfd6e4'}, grid:{drawOnChartArea:false} },
+          yAQI:{ position:'right', display: false, offset:true, title:{display:true,text:'US AQI'}, min:0, suggestedMax:150, ticks:{color:'#cfd6e4'}, grid:{drawOnChartArea:false} }
+        },
+        plugins:{ legend:{display:false} },
+      },
+      plugins:[MarkersPlugin]
+    });
+    return chart;
+  }
+
+  function updateChart(series){
+    const c = ensureChart();
+    c.data.labels = series.labels;
+    c.data.datasets[0].data = series.tempNow;
+    c.data.datasets[1].data = series.tempY;
+    c.data.datasets[2].data = series.precip;
+    c.data.datasets[3].data = series.uv;
+    c.data.datasets[4].data = series.aqi;
+    // dynamic ceilings
+    const aqiMax = Math.max.apply(null, series.aqi.filter(v => v!=null).concat([0]));
+    const niceAQI = aqiMax<=100?100: aqiMax<=150?150: aqiMax<=200?200: aqiMax<=300?300: 500;
+    const uvMax = Math.max.apply(null, series.uv.filter(v => v!=null).concat([0]));
+    const niceUV = Math.max(12, Math.ceil(uvMax/2)*2);
+    c.options.scales.yAQI.suggestedMax = niceAQI;
+    c.options.scales.yUV.suggestedMax = niceUV;
+    // midnight indices and offset for plugin
+    c.$midnightIdxs = series.midnightIdxs || [];
+    c.$offsetSeconds = series.offsetSeconds || 0;
+    c.update();
+  }
+
+  function updateChips(cur){
+    chipTemp.textContent = fmt(cur.temp, "°C");
+    chipPrecip.textContent = fmt(cur.precip, "%");
+    chipUV.textContent = fmt(cur.uv, "");
+    chipAQI.textContent = fmt(cur.aqi, "");
+  }
+
+  async function runUpdate(){
+    setOnlineState();
+    if (!navigator.onLine) { scheduleNextAuto(); return; }
+    const fwd = parseInt(rangeSelect.value, 10);
+    try{
+      const [wRes, aRes] = await Promise.allSettled([
+        fetchWeather(currentCoords.lat, currentCoords.lon),
+        fetchAir(currentCoords.lat, currentCoords.lon, fwd)
+      ]);
+      const weather = wRes.status === "fulfilled" ? wRes.value : null;
+      const air     = aRes.status === "fulfilled" ? aRes.value : null;
+      if (!weather){
+        statusbar.classList.add('offline');
+        statusText.textContent = "Weather data unavailable";
+        scheduleNextAuto(); return;
+      }
+      const series = buildShiftedSeries(weather, air, fwd);
+      if (!series){
+        statusbar.classList.add('offline');
+        statusText.textContent = "No timeline available";
+        scheduleNextAuto(); return;
+      }
+      updateChart(series);
+      updateChips(series.current);
+      locNote.textContent = `Location: ${currentCoords.name}  [${currentCoords.lat.toFixed(3)}, ${currentCoords.lon.toFixed(3)}]`;
+      statusbar.classList.remove('offline');
+      statusText.textContent = "Online • Auto-update hourly";
+    }catch(err){
+      console.error(err);
+      statusbar.classList.add('offline');
+      statusText.textContent = "Error fetching • Will retry next hour";
+    }finally{
+      scheduleNextAuto();
+    }
+  }
+
+  function scheduleNextAuto(){
+    if (autoTimer) clearTimeout(autoTimer);
+    const ms = nextTopOfHourDelayMs();
+    autoTimer = setTimeout(runUpdate, Math.max(ms, 20000));
+  }
+
+  // ---- Geocoding / Geolocation ----
+  async function geocodeCity(q){
+    const url = GEOCODE_URL+"?name="+encodeURIComponent(q)+"&count=1&language=en&format=json";
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Geocoding failed");
+    const json = await res.json();
+    if (!json.results || json.results.length===0) throw new Error("City not found");
+    const r = json.results[0];
+    return { lat:r.latitude, lon:r.longitude, name:(r.name + (r.admin1?", "+r.admin1:"") + (r.country?", "+r.country:"")) };
+  }
+  function useGeolocation(){
+    if (!('geolocation' in navigator)) { alert("Geolocation not available."); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{ currentCoords = { lat:pos.coords.latitude, lon:pos.coords.longitude, name:"My Location" }; runUpdate(); },
+      (err)=>{ alert("Could not get location. Use city search instead."); console.warn(err); },
+      { enableHighAccuracy:false, timeout:8000, maximumAge:600000 }
+    );
+  }
+
+  // ---- UI wiring ----
+  refreshBtn.addEventListener('click', runUpdate);
+  btn24.addEventListener('click', ()=>{ rangeSelect.value="24"; runUpdate(); });
+  btn48.addEventListener('click', ()=>{ rangeSelect.value="48"; runUpdate(); });
+  btn96.addEventListener('click', ()=>{ rangeSelect.value="96"; runUpdate(); });
+  rangeSelect.addEventListener('change', runUpdate);
+  searchBtn.addEventListener('click', async ()=>{
+    const q = locationInput.value.trim(); if(!q) return;
+    try{ currentCoords = await geocodeCity(q); runUpdate(); }
+    catch(e){ alert("City not found. Try another name."); }
+  });
+  geoBtn.addEventListener('click', useGeolocation);
+
+  toggleDetailsBtn.addEventListener('click', ()=>{
+    showDetails = !showDetails;
+    const c = ensureChart();
+    // Only toggle axis visibility; keep datasets always visible
+    c.options.scales.yPerc.display = showDetails;
+    c.options.scales.yUV.display = showDetails;
+    c.options.scales.yAQI.display = showDetails;
+    toggleDetailsBtn.textContent = showDetails ? "Hide Precip/UV/AQI axes" : "Show Precip/UV/AQI axes";
+    c.update();
+  });
+
+  // ---- Boot ----
+  runUpdate();
+})();
+</script>
+</body>
+</html>
