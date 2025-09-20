@@ -190,7 +190,8 @@
     }
 
     function openCategory(name) {
-      catTitle.textContent = EMOJI[name] + ' ' + name;
+      catTitle.textContent = (EMOJI[name] || '') + ' ' + name;
+      catTitle.dataset.name = name;
       viewMain.style.display = 'none';
       viewCategory.style.display = 'block';
       renderRandom(name);
@@ -220,7 +221,7 @@
     btnGuide.addEventListener('click', () => alert('Tap any category to see 5 random questions. Shuffle for fresh picks, and Back to main.'));
     btnContact.addEventListener('click', () => alert('For suggestions or errors, DM me on my socials.'));
     btnShuffle.addEventListener('click', () => { 
-      const name = catTitle.textContent.trim(); 
+      const name = catTitle.dataset.name; 
       if (!name || !DATA[name]?.length) return; 
       renderRandom(name); 
       btnShuffle.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.25) inset'; 
