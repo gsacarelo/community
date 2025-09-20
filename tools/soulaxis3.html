@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>👻 Soul Axes</title>
+<style>
+  :root { --bg:#0f0f12; --fg:#e9e9ef; --sub:#a8abb6; --grid:#2a2d36; --accent:#7aa2ff; --fill:#7aa2ff20; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"; background:var(--bg); color:var(--fg); }
+  header { padding:16px 20px; border-bottom:1px solid #1b1d24; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  h1 { font-size:18px; margin:0; font-weight:700; letter-spacing:.3px; }
+  main { display:grid; grid-template-columns: 1.1fr .9fr; gap:8px; padding:12px; }
+  @media (max-width: 1180px) { main { grid-template-columns: 1fr; } }
+  .panel { background:#12141a; border:1px solid #1b1d24; border-radius:14px; padding:14px; }
+  .row { display:grid; grid-template-columns: 120px 1fr 120px; align-items:center; gap:10px; margin:10px 0; }
+  .label { font-size:12px; color:var(--sub); }
+  input[type=range] { width:100%; accent-color: var(--accent); }
+  .endcaps { display:flex; justify-content:space-between; font-size:11px; color:var(--sub); margin-top:2px; }
+  svg { width:100%; height:auto; display:block; }
+  .meta { font-size:12px; color:var(--sub); line-height:1.4; }
+  select, button { background:#171923; color:var(--fg); border:1px solid #2a2d36; border-radius:10px; padding:8px 10px; }
+  .legend { display:flex; gap:12px; flex-wrap:wrap; align-items:center; font-size:12px; color:var(--sub); }
+  .chip { background:#171923; border:1px solid #2a2d36; border-radius:999px; padding:6px 10px; }
+  .title { font-weight:700; margin-bottom:4px; }
+  .toolbar { display:flex; gap:8px; align-items:center; margin-left:auto; }
+  .readout { display:grid; gap:10px; }
+  .badges { display:flex; flex-wrap:wrap; gap:8px; }
+  .badge { border-radius:999px; padding:6px 10px; border:1px solid #2a2d36; font-size:12px; }
+  .pos { background:rgba(110,170,255,.15); border-color:#3a6ee8; }
+  .neg { background:rgba(255,110,110,.15); border-color:#e83a3a; }
+  .neutral { background:#171923; border-color:#2a2d36; }
+  .section { border-top:1px dashed #2a2d36; padding-top:8px; }
+  .muted { color:var(--sub); font-size:12px; }
+  .hline { height:1px; background:#1b1d24; margin:8px 0; }
+  footer { margin-top: 2px; margin-bottom: 7px;  color: var(--muted); text-align: center; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">👻 Soul Axes</h1>
+  <!--<div class="legend" id="legend">
+    <span class="chip" id="legend-scale">0 = Left pole • 100 = Right pole</span>
+    <span class="chip" id="legend-fill">Fill = current state</span>
+    <span class="chip" id="legend-rings">Rings = 20/40/60/80</span>
+    <span class="chip" id="legend-color">Color: blue = broad/regular, red = narrow/deformed</span>
+  </div>-->
+  <div class="toolbar">
+    <button id="mainBtn">Main Page</button>
+    <button id="langBtn">ESP</button>
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="title" id="readoutTitle">📋 Soul Readout</div>
+    <div class="readout" id="readout">
+      <!-- dynamic content here -->
+    </div>
+    <div class="hline"></div>
+    <div class="title" id="radarLabel">🧭 Radar</div>
+    <svg id="radar" viewBox="-140 -140 280 280" aria-label="7-axis radar" role="img"></svg>
+    <div class="muted" id="tip">Tip: Feel your internal duality.</div>        
+  </section>
+
+  <aside class="panel" id="controls">
+    <div class="title" id="controlsLabel">🕹 Axes Controls</div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+      <label class="label" id="presetsLabel">Presets</label>
+      <select id="preset"></select>
+      <button id="reset">Reset</button>
+    </div>
+    <div id="sliders"></div>
+    <p class="meta" id="metaText">Quick read:<br>
+      — Broad & regular polygon = <b>expansion and balance</b>.<br>
+      — Narrow or deformed = <b>contraction</b> on one or more axes.<br>
+      — <b>EI</b>: Expansion Index | Global openess<br>
+      — <b>AGI</b>: Agency Index | Self-direction<br>
+      — <b>HI</b>: Harmony Index | Internal coherence<br>
+      — <b>PI</b>: Purpose Index | Structured trascendence<br>
+      — <b>CD</b>: Creative Drive | Controled creator</p>
+  </aside>
+</main>
+  
+<footer>
+  <div>By Gerardo Sacarelo V.</div>
+</footer>
+  
+<script>
+// Bilingual content (default English)
+let lang = "en";
+
+const i18n = {
+  en: {
+    title: "👻 Soul Axes",
+    legendScale: "0 = Left pole • 100 = Right pole",
+    legendFill: "Fill = current state",
+    legendRings: "Rings = 20/40/60/80",
+    legendColor: "Color: blue = broad/regular, red = narrow/deformed",
+    radarLabel: "🧭 Radar",
+    tip: "Tip: Feel your internal duality.",
+    controlsLabel: "🕹 Axes Controls",
+    presetsLabel: "Presets",
+    reset: "Reset",
+    main: "Main Page",
+    langBtn: "ESP",
+    meta: "Quick read:<br>— Broad & regular polygon = <b>expansion and balance</b>.<br>— Narrow or deformed = <b>contraction</b> on one or more axes.<br>— <b>EI</b>: Expansion Index | Global openess<br>— <b>AGI</b>: Agency Index | Self-direction<br>— <b>HI</b>: Harmony Index | Internal coherence<br>— <b>PI</b>: Purpose Index | Structured trascendence<br>— <b>CD</b>: Creative Drive | Controled creator",
+    readoutTitle: "📋 Soul Readout",
+    axes: [
+      ["Love","Fear"],
+      ["Individuality","Belonging"],
+      ["Order","Chaos"],
+      ["Reason","Emotion"],
+      ["Creation","Conservation"],
+      ["Power","Service"],
+      ["Transcendence","Immediacy"]
+    ],
+    presets: {
+      custom: "— Custom —",
+      explorer: "Creative Explorer",
+      guardian: "Traditional Guardian",
+      leader: "Servant Leader",
+      hedonist: "Present Hedonist",
+      mystic: "Transcendent Mystic",
+      balanced: "Balanced"
+    },
+    labels: {
+      EI: "EI",
+      AGI: "AGI",
+      HI: "HI",
+      PI: "PI",
+      CD: "CD",
+      archetype: "Archetype",
+      strengths: "Strengths",
+      blindspot: "Blind spot",
+      micro: "Micro‑action",
+      mantra: "Mantra"
+    },
+    microByArchetype: {
+      "Creator-Strategist+": "Ship a small creation today without polishing. One hour, done.",
+      "Creator-Strategist-": "Stabilize form first: 5′ of box breathing, then create one rough draft.",
+      "Mystic-Servant+": "Anchor purpose in one concrete act of care today.",
+      "Mystic-Servant-": "Translate meaning into a practical next step with a deadline.",
+      "Builder-Leader+": "Delegate one task and make one decision now.",
+      "Builder-Leader-": "Clarify the smallest next action and execute before planning more.",
+      "Hedonist-Flow+": "Channel energy into one healthy routine block (20′ move / hydrate).",
+      "Hedonist-Flow-": "Set one boundary against distraction for 30′; then reward yourself.",
+      "Fragmented-Seeker": "Lower intensity: breathe 4-4-4-4 for 3′ and reduce scope by 50%.",
+      "Balanced-Seeker": "Pick one axis to expand +10 pts for the next hour."
+    },
+    mantraFmt: (a,b,c)=>`From ${a} and ${b}, I move one step into ${c}.`
+  },
+  es: {
+    title: "👻 Ejes del Alma",
+    legendScale: "0 = Polo izquierdo • 100 = Polo derecho",
+    legendFill: "Relleno = estado actual",
+    legendRings: "Anillos = 20/40/60/80",
+    legendColor: "Color: azul = amplio/regular, rojo = estrecho/deformado",
+    radarLabel: "🧭 Radar",
+    tip: "Consejo: Siente tu dualidad interna.",
+    controlsLabel: "🕹 Controles de los Ejes",
+    presetsLabel: "Presets",
+    reset: "Reset",
+    main: "Main Page",
+    langBtn: "ENG",
+    meta: "Lectura rápida:<br>— Polígono amplio y regular = <b>expansión y equilibrio</b>.<br>— Estrecho o deformado = <b>contracción</b> en uno o varios ejes.<br>— <b>EI</b>: Expansion Index | Apertura global<br>— <b>AGI</b>: Agency Index | Autodireccion<br>— <b>HI</b>: Harmony Index | Coherencia interna<br>— <b>PI</b>: Purpose Index | Trascendencia estructurada<br>— <b>CD</b>: Creative Drive | Creador controlado",
+    readoutTitle: "📋 Lectura del Alma",
+    axes: [
+      ["Amor","Miedo"],
+      ["Individualidad","Pertenencia"],
+      ["Orden","Caos"],
+      ["Razón","Emoción"],
+      ["Creación","Conservación"],
+      ["Poder","Servicio"],
+      ["Trascendencia","Inmediatez"]
+    ],
+    presets: {
+      custom: "— Personalizado —",
+      explorer: "Explorador Creativo",
+      guardian: "Guardián Tradicional",
+      leader: "Líder Servicial",
+      hedonist: "Hedonista Presente",
+      mystic: "Místico Trascendente",
+      balanced: "Equilibrado"
+    },
+    labels: {
+      EI: "EI",
+      AGI: "AGI",
+      HI: "HI",
+      PI: "PI",
+      CD: "C",
+      archetype: "Arquetipo",
+      strengths: "Fortalezas",
+      blindspot: "Punto ciego",
+      micro: "Micro‑acción",
+      mantra: "Mantra"
+    },
+    microByArchetype: {
+      "Creator-Strategist+": "Entrega hoy una creación sin pulir. Una hora, hecho.",
+      "Creator-Strategist-": "Estabiliza la forma: 5′ de respiración cuadrada, luego un borrador crudo.",
+      "Mystic-Servant+": "Ancla el sentido en un acto concreto de cuidado hoy.",
+      "Mystic-Servant-": "Traduce el significado en un paso práctico con fecha límite.",
+      "Builder-Leader+": "Delegar una tarea y tomar una decisión ahora.",
+      "Builder-Leader-": "Aclara la acción más pequeña y ejecútala antes de planear más.",
+      "Hedonist-Flow+": "Canaliza la energía a un bloque sano (20′ mover / hidratar).",
+      "Hedonist-Flow-": "Pon un límite a la distracción por 30′; luego recompénsate.",
+      "Fragmented-Seeker": "Baja la intensidad: respira 4-4-4-4 por 3′ y reduce el alcance 50%.",
+      "Balanced-Seeker": "Elige un eje y expándelo +10 pts durante la próxima hora."
+    },
+    mantraFmt: (a,b,c)=>`Desde ${a} y ${b}, hoy muevo 1 paso en ${c}.`
+  }
+};
+
+// State
+let axes = JSON.parse(JSON.stringify(i18n[lang].axes));
+const presets = {
+  explorer:   [85, 70, 40, 55, 90, 45, 60],
+  guardian:   [65, 40, 85, 60, 35, 55, 50],
+  leader:     [70, 55, 60, 60, 65, 30, 55],
+  hedonist:   [55, 60, 35, 45, 50, 55, 30],
+  mystic:     [75, 45, 55, 55, 60, 50, 90],
+  balanced:   [60, 60, 60, 60, 60, 60, 60]
+};
+let values = [...presets.balanced];
+
+// Elements
+const titleEl = document.getElementById("title");
+//const legendScaleEl = document.getElementById("legend-scale");
+//const legendFillEl = document.getElementById("legend-fill");
+//const legendRingsEl = document.getElementById("legend-rings");
+//const legendColorEl = document.getElementById("legend-color");
+const radarLabelEl = document.getElementById("radarLabel");
+const tipEl = document.getElementById("tip");
+const controlsLabelEl = document.getElementById("controlsLabel");
+const presetsLabelEl = document.getElementById("presetsLabel");
+const resetBtn = document.getElementById("reset");
+const mainBtn = document.getElementById("mainBtn");
+const langBtn = document.getElementById("langBtn");
+const presetSel = document.getElementById("preset");
+const slidersDiv = document.getElementById("sliders");
+const metaTextEl = document.getElementById("metaText");
+const radarSvg = document.getElementById("radar");
+const readoutTitleEl = document.getElementById("readoutTitle");
+const readoutEl = document.getElementById("readout");
+
+// Presets dropdown
+function populatePresets() {
+  presetSel.innerHTML = "";
+  const optCustom = document.createElement("option");
+  optCustom.value = "custom"; optCustom.textContent = i18n[lang].presets.custom;
+  presetSel.appendChild(optCustom);
+  ["explorer","guardian","leader","hedonist","mystic","balanced"].forEach(k => {
+    const o = document.createElement("option");
+    o.value = k; o.textContent = i18n[lang].presets[k];
+    presetSel.appendChild(o);
+  });
+}
+populatePresets();
+
+// Build sliders (0 left, 100 right)
+function buildSliders() {
+  slidersDiv.innerHTML = "";
+  axes.forEach((ax, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const left = document.createElement("div");
+    left.className = "label"; left.textContent = ax[1];
+    const right = document.createElement("div");
+    right.className = "label"; right.style.textAlign = "right"; right.textContent = ax[0];
+    const input = document.createElement("input");
+    input.type = "range"; input.min = "0"; input.max = "100"; input.step = "1";
+    input.value = values[i];
+    input.ariaLabel = ax[0] + " ↔ " + ax[1];
+    input.addEventListener("input", () => { values[i] = +input.value; presetSel.value = "custom"; draw(); });
+    row.prepend(left);
+    row.appendChild(input);
+    row.appendChild(right);
+    slidersDiv.appendChild(row);
+    const caps = document.createElement("div");
+    caps.className = "endcaps";
+    caps.innerHTML = `<span>0</span><span>100</span>`;
+    slidersDiv.appendChild(caps);
+  });
+}
+buildSliders();
+
+// Language toggle
+function applyLang() {
+  axes = JSON.parse(JSON.stringify(i18n[lang].axes));
+  titleEl.textContent = i18n[lang].title;
+  //legendScaleEl.textContent = i18n[lang].legendScale;
+  //legendFillEl.textContent = i18n[lang].legendFill;
+  //legendRingsEl.textContent = i18n[lang].legendRings;
+  //legendColorEl.textContent = i18n[lang].legendColor;
+  radarLabelEl.textContent = i18n[lang].radarLabel;
+  tipEl.innerHTML = i18n[lang].tip;
+  controlsLabelEl.textContent = i18n[lang].controlsLabel;
+  presetsLabelEl.textContent = i18n[lang].presetsLabel;
+  resetBtn.textContent = i18n[lang].reset;
+  mainBtn.textContent = i18n[lang].main;
+  langBtn.textContent = i18n[lang].langBtn;
+  metaTextEl.innerHTML = i18n[lang].meta;
+  readoutTitleEl.textContent = i18n[lang].readoutTitle;
+  populatePresets();
+  buildSliders();
+  draw();
+}
+langBtn.addEventListener("click", () => { lang = (lang === "en" ? "es" : "en"); applyLang(); });
+
+// Main Page button (placeholder)
+mainBtn.addEventListener("click", () => { window.location.href = "../../index.html"; });
+
+// Preset handler
+presetSel.addEventListener("change", e => {
+  const key = e.target.value;
+  if (key === "custom") return;
+  values = [...presets[key]];
+  [...slidersDiv.querySelectorAll('input[type="range"]')].forEach((r, idx) => r.value = values[idx]);
+  draw();
+});
+resetBtn.addEventListener("click", () => {
+  values = new Array(axes.length).fill(50);
+  [...slidersDiv.querySelectorAll('input[type="range"]')].forEach((r, idx) => r.value = values[idx]);
+  presetSel.value = "custom";
+  draw();
+});
+
+// Radar drawing
+const R = 100;
+function polarToXY(angle, radius) { return [Math.cos(angle) * radius, Math.sin(angle) * radius]; }
+
+function drawGrid() {
+  while (radarSvg.firstChild) radarSvg.removeChild(radarSvg.firstChild);
+  [20,40,60,80,100].forEach(level => {
+    const circ = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    circ.setAttribute("cx","0"); circ.setAttribute("cy","0");
+    circ.setAttribute("r", String(R*level/100));
+    circ.setAttribute("fill","none"); 
+    circ.setAttribute("stroke","var(--grid)");
+    circ.setAttribute("stroke-width","1");
+    radarSvg.appendChild(circ);
+  });
+  const n = axes.length;
+  for (let i=0; i<n; i++) {
+    const angle = (i / n) * Math.PI*2 - Math.PI/2;
+    const [x,y] = polarToXY(angle, R);
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1","0"); line.setAttribute("y1","0");
+    line.setAttribute("x2", x); line.setAttribute("y2", y);
+    line.setAttribute("stroke","var(--grid)");
+    line.setAttribute("stroke-width","1");
+    radarSvg.appendChild(line);
+    // Left pole
+    const lp = document.createElementNS("http://www.w3.org/2000/svg","text");
+    lp.setAttribute("x", x*1.12); lp.setAttribute("y", y*1.12);
+    lp.setAttribute("text-anchor","middle"); lp.setAttribute("dominant-baseline","central");
+    lp.setAttribute("fill","var(--fg)"); lp.setAttribute("font-size","11");
+    lp.setAttribute("font-weight","700");
+    lp.textContent = axes[i][0];
+    radarSvg.appendChild(lp);
+    // Right pole
+    const [xo, yo] = polarToXY(angle+Math.PI, R*0.85);
+    const ln = document.createElementNS("http://www.w3.org/2000/svg","text");
+    ln.setAttribute("x", xo); ln.setAttribute("y", yo);
+    ln.setAttribute("text-anchor","middle"); ln.setAttribute("dominant-baseline","central");
+    ln.setAttribute("fill","var(--sub)"); ln.setAttribute("font-size","10");
+    ln.textContent = axes[i][1];
+    radarSvg.appendChild(ln);
+  }
+}
+
+// Dynamic color from shape
+function computeColor() {
+  const radii = values.map(v => (v/100)*R);
+  const mean = radii.reduce((a,b)=>a+b,0)/radii.length;
+  const variance = radii.reduce((a,b)=>a+(b-mean)*(b-mean),0)/radii.length;
+  const std = Math.sqrt(variance);
+  const stdNorm = Math.min(std / R, 1);
+  const areaNorm = Math.min(mean / R, 1);
+  const score = Math.max(0, Math.min(1, 0.55*areaNorm + 0.45*(1-stdNorm)));
+  function lerp(a,b,t){ return Math.round(a + (b-a)*t); }
+  const r = lerp(255, 107, score);
+  const g = lerp(107, 167, score);
+  const b = lerp(107, 255, score);
+  const stroke = `rgb(${r},${g},${b})`;
+  const fill = `rgba(${r},${g},${b},0.18)`;
+  document.documentElement.style.setProperty("--accent", stroke);
+  document.documentElement.style.setProperty("--fill", fill);
+  return {stdNorm, areaNorm, score};
+}
+
+function drawPolygon() {
+  const n = axes.length;
+  let d = "";
+  for (let i=0; i<n; i++) {
+    const angle = (i / n) * Math.PI*2 - Math.PI/2;
+    const r = (values[i]/100) * R;
+    const [x,y] = polarToXY(angle, r);
+    d += (i===0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2) + " ";
+  }
+  d += "Z";
+  const pathFill = document.createElementNS("http://www.w3.org/2000/svg","path");
+  pathFill.setAttribute("d", d);
+  pathFill.setAttribute("fill","var(--fill)");
+  pathFill.setAttribute("stroke","var(--accent)");
+  pathFill.setAttribute("stroke-width","2");
+  pathFill.setAttribute("vector-effect","non-scaling-stroke");
+  radarSvg.appendChild(pathFill);
+  // Points
+  for (let i=0; i<n; i++) {
+    const angle = (i / n) * Math.PI*2 - Math.PI/2;
+    const r = (values[i]/100) * R;
+    const [x,y] = polarToXY(angle, r);
+    const pt = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    pt.setAttribute("cx", x); pt.setAttribute("cy", y);
+    pt.setAttribute("r", 2.8);
+    pt.setAttribute("fill", "var(--accent)");
+    radarSvg.appendChild(pt);
+  }
+}
+
+// Signed indices and readout
+function computeIndices(stdNorm, areaNorm) {
+  // map 0..100 to -1..+1 (left=+1, right=-1)
+  const s = values.map(v => (v - 50) / 50);
+  const [Love, Indiv, Order, Reason, Creation, Power, Transc] = s;
+  const areaS = areaNorm*2 - 1;
+  const regS = (1-stdNorm)*2 - 1;
+
+  const EI = (0.6*Love + 0.25*areaS + 0.15*regS) * 100;
+  const AGI = (0.7*Indiv + 0.3*Power) * 100;
+  const HI = (regS) * 100;
+  const PI = (0.6*Transc + 0.2*Order + 0.2*Reason) * 100;
+  const CD = (0.6*Creation + 0.25*Reason + 0.15*Order) * 100;
+
+  return { EI, AGI, HI, PI, CD };
+}
+
+function badgeClass(v) {
+  if (v > 10) return "badge pos";
+  if (v < -10) return "badge neg";
+  return "badge neutral";
+}
+
+function labelKey(k){ return i18n[lang].labels[k] || k; }
+
+function archetypeFrom(indices){
+  const {EI, AGI, HI, PI, CD} = indices;
+  // primary mode
+  let mode = "Balanced-Seeker";
+  if (EI > 35 && HI > 10) mode = "Expansive";
+  else if (EI < -25 && HI < -10) mode = "Contracted";
+  // choose flavor by top index
+  const arr = Object.entries(indices).sort((a,b)=>Math.abs(b[1]) - Math.abs(a[1]));
+  const [topK, topV] = arr[0];
+  // map to archetype families
+  let family = "Balanced-Seeker";
+  if (topK === "CD") family = "Creator-Strategist";
+  else if (topK === "PI") family = "Mystic-Servant";
+  else if (topK === "AGI") family = "Builder-Leader";
+  else if (topK === "HI") family = "Form-Keeper";
+  else if (topK === "EI") family = "Open-Heart";
+
+  // negative tilt versions
+  if (mode === "Contracted"){
+    if (family === "Creator-Strategist") family = "Creator-Strategist-";
+    else if (family === "Mystic-Servant") family = "Mystic-Servant-";
+    else if (family === "Builder-Leader") family = "Builder-Leader-";
+    else family = "Fragmented-Seeker";
+  } else if (mode === "Expansive"){
+    if (family === "Creator-Strategist") family = "Creator-Strategist+";
+    else if (family === "Mystic-Servant") family = "Mystic-Servant+";
+    else if (family === "Builder-Leader") family = "Builder-Leader+";
+    else family = family; // stays
+  } // Balanced-Seeker stays as is
+
+  // descriptions
+  const descEN = {
+    "Creator-Strategist+": "You expand by creating with structure and clarity.",
+    "Creator-Strategist-": "Creative impulse under strain: stabilize form, then build.",
+    "Mystic-Servant+": "Purpose-led care expands you and others.",
+    "Mystic-Servant-": "Meaning without action: translate purpose into small deeds.",
+    "Builder-Leader+": "You turn vision into decisions, momentum, and outcomes.",
+    "Builder-Leader-": "Leadership foggy: choose one clear decision and execute.",
+    "Form-Keeper": "You seek coherence and rhythm; protect form but avoid rigidity.",
+    "Open-Heart": "Expansion through trust and connection; keep healthy boundaries.",
+    "Fragmented-Seeker": "High internal tension and contraction; reduce intensity first.",
+    "Balanced-Seeker": "Balanced shape; choose one axis to stretch today."
+  };
+  const descES = {
+    "Creator-Strategist+": "Te expandes creando con estructura y claridad.",
+    "Creator-Strategist-": "Impulso creativo bajo tensión: estabiliza la forma y luego construye.",
+    "Mystic-Servant+": "El cuidado guiado por propósito te expande a ti y a otros.",
+    "Mystic-Servant-": "Sentido sin acción: traduce el propósito en actos pequeños.",
+    "Builder-Leader+": "Conviertes visión en decisiones, empuje y resultados.",
+    "Builder-Leader-": "Liderazgo difuso: elige una decisión clara y ejecútala.",
+    "Form-Keeper": "Buscas coherencia y ritmo; protege la forma sin rigidez.",
+    "Open-Heart": "Te expandes por confianza y conexión; mantén límites sanos.",
+    "Fragmented-Seeker": "Alta tensión interna y contracción; baja la intensidad primero.",
+    "Balanced-Seeker": "Forma equilibrada; elige un eje para estirar hoy."
+  };
+  const desc = (lang === "en" ? descEN : descES)[family] || family;
+  return {name: family, desc};
+}
+
+function microByArchetype(arch){
+  const map = i18n[lang].microByArchetype;
+  return map[arch.name] || (arch.name.includes("-") ? map["Fragmented-Seeker"] : map["Balanced-Seeker"]);
+}
+
+function readout(indices, score){
+  // strengths / blind spot from signed indices
+  const entries = Object.entries(indices).sort((a,b)=>b[1]-a[1]);
+  const top1 = entries[0][0], top2 = entries[1][0];
+  const bottom = Object.entries(indices).sort((a,b)=>a[1]-b[1])[0][0];
+
+  const arch = archetypeFrom(indices);
+  const micro = microByArchetype(arch);
+  const mantra = i18n[lang].mantraFmt(labelKey(top1), labelKey(top2), labelKey(bottom));
+
+  // badges
+  function fmt(v){ return (v>=0?"+":"") + Math.round(v); }
+  const idxLabels = ["EI","AGI","HI","PI","CD"];
+  const container = document.createElement("div");
+  container.innerHTML = `
+    <div><b>${i18n[lang].labels.archetype}:</b> ${arch.name} — <span class="muted">${arch.desc}</span></div>
+    <div class="badges">
+      ${idxLabels.map(k=>`<span class="${badgeClass(indices[k])}">${labelKey(k)}: ${fmt(indices[k])}</span>`).join("")}
+    </div>
+    <div class="section"><b>${i18n[lang].labels.strengths}:</b> ${labelKey(top1)}, ${labelKey(top2)}</div>
+    <div><b>${i18n[lang].labels.blindspot}:</b> ${labelKey(bottom)}</div>
+    <div class="section"><b>${i18n[lang].labels.micro}:</b> ${micro}</div>
+    <div><b>${i18n[lang].labels.mantra}:</b> ${mantra}</div>
+  `;
+  return container;
+}
+
+function draw(){
+  const {stdNorm, areaNorm, score} = computeColor();
+  drawGrid();
+  drawPolygon();
+  const indices = computeIndices(stdNorm, areaNorm);
+  // update readout
+  readoutEl.innerHTML = "";
+  readoutEl.appendChild(readout(indices, score));
+}
+draw();
+</script>
+</body>
+</html>
