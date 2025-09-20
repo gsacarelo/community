@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>👋 Conversation Starters</title>
+  <style>
+    :root {
+      --bg: #0b0b0c;
+      --card: #121316;
+      --text: #e7e7ea;
+      --muted: #a4a7ae;
+      --border: #1f2126;
+      --shadow: 0 8px 24px rgba(0,0,0,0.35);
+      --radius: 16px;
+      --btn-bg: #17181c;
+      --btn-bg-hover: #20222a;
+      --btn-bg-active: #2a2d36;
+      --btn-border: #2a2d34;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    header { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    h1 { margin: 0; letter-spacing: 0.2px; font-size: clamp(22px, 3vw, 30px); }
+    p.lead { margin: 0; color: var(--muted); font-size: clamp(14px, 2.3vw, 16px); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); }
+    @media (min-width: 720px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .grid { grid-template-columns: repeat(5, 1fr); } }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 16px; border-radius: 12px; background: var(--btn-bg); border: 1px solid var(--btn-border); color: var(--text); cursor: pointer; transition: transform .02s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease; user-select: none; -webkit-tap-highlight-color: transparent; }
+    .btn:hover { background: var(--btn-bg-hover); border-color: #3a3f49; }
+    .btn:active { transform: translateY(1px); background: var(--btn-bg-active); border-color: #4a5160; }
+    .muted { color: var(--muted); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px dashed var(--border); }
+    .questions { padding: 14px; }
+    .q { padding: 12px 12px; border-radius: 12px; border: 1px solid var(--border); background: #14161a; margin-bottom: 10px; }
+    .q .num { color: var(--muted); font-size: 12px; }
+    footer { padding: 16px; text-align: center; color: var(--muted); font-size: 12px; }
+    .main-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .cat-emoji { font-size: 18px; margin-right: 8px; }
+    .badge { display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>👋 Conversation Starter App</h1>
+      <p class="lead"> Top 10 categories ⇢ Press the Button!. Shuffle anytime.</p>
+    </header>
+
+    <div id="view-main" class="card" role="region" aria-label="Main">
+      <div style="padding: 16px;">
+        <div class="row" style="justify-content: space-between; gap: 16px;">
+          <div>
+            <div class="muted">Navigation</div>
+            <div class="main-actions">
+              <button class="btn" id="btn-placeholder">Main page</button>
+              <button class="btn" id="btn-guide">Guide</button>
+              <button class="btn" id="btn-contact">Contact</button>
+              <input type="file" id="fileInput" accept=".csv" style="display:none" />
+              <button class="btn" id="btn-load">Load CSV</button>
+            </div>
+          </div>
+        </div>
+        <div class="badge" id="status-badge" style="display:none;"></div>
+        <hr style="border: none; border-top: 1px dashed var(--border); margin: 14px 0;" />
+        <div class="muted" style="margin-bottom:8px;">Categories</div>
+        <div class="grid" id="cat-grid"></div>
+      </div>
+    </div>
+
+    <div id="view-category" class="card" style="display:none;" role="region" aria-live="polite" aria-label="Category">
+      <div class="toolbar">
+        <div class="row">
+          <button class="btn" id="btn-back">&larr; Back</button>
+          <div id="category-title" style="font-weight: 600;"></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="btn-shuffle">Shuffle</button>
+        </div>
+      </div>
+      <div class="questions" id="questions"></div>
+    </div>
+
+    <footer>"It is better to know some of the questions than all of the answers"<br>by Gerardo Sacarelo V.</footer>
+  </div>
+
+  <script>
+    // Emoji and colors per category (extend as needed)
+    const EMOJI = {"Light & Easy": "✨", "Personal Profile": "🧬", "Preferences": "🎯", "Blast from the Past": "🕰️", "Just Imagine": "🌈", "Viewpoints": "🧠", "Hard-Hitting": "⚡", "From the Heart": "❤️", "Spiritually Speaking": "🙏", "Extreme Spiritual Matters": "🌌"};
+    const COLORS = {"Light & Easy": "#22d3ee", "Personal Profile": "#f97316", "Preferences": "#10b981", "Blast from the Past": "#a78bfa", "Just Imagine": "#34d399", "Viewpoints": "#60a5fa", "Hard-Hitting": "#f43f5e", "From the Heart": "#ef4444", "Spiritually Speaking": "#eab308", "Extreme Spiritual Matters": "#c084fc"};
+
+    let DATA = {}; // { categoryName: [{num, text}, ...] }
+    let CAT_ORDER = []; // determined after CSV load
+
+    const viewMain = document.getElementById('view-main');
+    const viewCategory = document.getElementById('view-category');
+    const catGrid = document.getElementById('cat-grid');
+    const qWrap = document.getElementById('questions');
+    const catTitle = document.getElementById('category-title');
+    const btnBack = document.getElementById('btn-back');
+    const btnShuffle = document.getElementById('btn-shuffle');
+    const btnPlaceholder = document.getElementById('btn-placeholder');
+    const btnGuide = document.getElementById('btn-guide');
+    const btnContact = document.getElementById('btn-contact');
+    const btnLoad = document.getElementById('btn-load');
+    const fileInput = document.getElementById('fileInput');
+    const statusBadge = document.getElementById('status-badge');
+
+    // Try auto-load questions.csv from same folder; fallback to manual file chooser
+    (async function init() {
+      try {
+        const res = await fetch('preguntas.csv');
+        if (!res.ok) throw new Error('Not found');
+        const text = await res.text();
+        loadFromCSV(text);
+        setStatus('Questions Loaded :)');
+      } catch (e) {
+        setStatus('Questions NOT Loaded');
+      }
+    })();
+
+    btnLoad.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      loadFromCSV(text);
+      setStatus('Loaded: ' + file.name);
+    });
+
+    function setStatus(msg) {
+      statusBadge.style.display = 'inline-flex';
+      statusBadge.textContent = msg;
+    }
+
+    function loadFromCSV(csvText) {
+      const rows = parseCSV(csvText);
+      // Expect header: Category,Number,Question
+      const h = rows[0]?.map(s => s.trim().toLowerCase()) || [];
+      const cIdx = h.indexOf('category');
+      const nIdx = h.indexOf('number');
+      const qIdx = h.indexOf('question');
+      if (cIdx === -1 || nIdx === -1 || qIdx === -1) {
+        alert('CSV header must include: Category, Number, Question');
+        return;
+      }
+      DATA = {}
+      for (let i=1; i<rows.length; i++) {
+        const r = rows[i];
+        if (!r || r.length < 3) continue;
+        const cat = (r[cIdx] || '').trim();
+        const num = parseInt((r[nIdx] || '').trim(), 10);
+        const txt = (r[qIdx] || '').trim();
+        if (!cat || !txt || isNaN(num)) continue;
+        if (!DATA[cat]) DATA[cat] = [];
+        DATA[cat].push({ num, text: txt });
+      }
+      //CAT_ORDER = Object.keys(DATA).sort(); // alphabetical; adjust if you want a fixed order
+      CAT_ORDER = [ "Light & Easy", "Personal Profile", "Preferences", "Blast from the Past", "Just Imagine",
+      "Viewpoints", "Hard-Hitting", "From the Heart", "Spiritually Speaking", "Extreme Spiritual Matters", ];
+      renderCategories();
+    }
+
+    function renderCategories() {
+      catGrid.innerHTML = '';
+      CAT_ORDER.forEach(name => {
+        const total = (DATA[name]||[]).length;
+        const emoji = EMOJI[name] || '❓';
+        const color = COLORS[name] || '#22d3ee';
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.style.boxShadow = '0 0 0 0 rgba(0,0,0,0)';
+        btn.onmouseenter = () => btn.style.boxShadow = `0 0 0 2px ${hexToRGBA(color, 0.35)} inset`;
+        btn.onmouseleave = () => btn.style.boxShadow = '0 0 0 0 rgba(0,0,0,0)';
+        btn.onmousedown = () => btn.style.boxShadow = `0 0 0 2px ${hexToRGBA(color, 0.6)} inset`;
+        btn.onmouseup = () => btn.style.boxShadow = `0 0 0 2px ${hexToRGBA(color, 0.35)} inset`;
+        btn.innerHTML = `<div style="text-align:left; display:flex; align-items:center;">
+            <span class="cat-emoji">${emoji}</span>
+            <div>
+              <div style="font-weight:600;">${name}</div>
+              <div class="muted" style="font-size:12px;">${total} questions</div>
+            </div>
+          </div>`;
+        btn.addEventListener('click', () => openCategory(name));
+        catGrid.appendChild(btn);
+      });
+    }
+
+    function openCategory(name) {
+      catTitle.textContent = EMOJI[name] + ' ' + name;
+      viewMain.style.display = 'none';
+      viewCategory.style.display = 'block';
+      renderRandom(name);
+    }
+
+    function renderRandom(name) {
+      const arr = (DATA[name]||[]).slice();
+      const picks = [];
+      for (let i=0; i<5 && arr.length>0; i++) {
+        const idx = Math.floor(Math.random() * arr.length);
+        picks.push(arr.splice(idx,1)[0]);
+      }
+      qWrap.innerHTML = picks.map(q => `
+        <div class="q">
+          <div class="num">#${q.num}</div>
+          <div class="txt">${escapeHTML(q.text)}</div>
+        </div>
+      `).join('');
+    }
+
+    btnBack.addEventListener('click', () => {
+      viewCategory.style.display = 'none';
+      viewMain.style.display = 'block';
+    });
+
+    btnPlaceholder.addEventListener('click', () => {location.href = "../../index.html";});
+    btnGuide.addEventListener('click', () => alert('Tap any category to see 5 random questions. Shuffle for fresh picks, and Back to main.'));
+    btnContact.addEventListener('click', () => alert('For suggestions or errors, DM me on my socials.'));
+    btnShuffle.addEventListener('click', () => { 
+      const name = catTitle.textContent.trim(); 
+      if (!name || !DATA[name]?.length) return; 
+      renderRandom(name); 
+      btnShuffle.style.boxShadow = '0 0 0 2px rgba(255,255,255,0.25) inset'; 
+      setTimeout(() => (btnShuffle.style.boxShadow = ''), 120); 
+    });
+    
+    function escapeHTML(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function hexToRGBA(hex, alpha) {
+      const h = hex.replace('#','');
+      const bigint = parseInt(h, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // Minimal CSV parser (handles quoted fields with commas, and escaped quotes "")
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i=0; i<text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"') {
+            if (text[i+1] === '"') { cur += '"'; i++; }
+            else { inQuotes = false; }
+          } else { cur += c; }
+        } else {
+          if (c === '"') inQuotes = true;
+          else if (c === ',') { row.push(cur); cur = ''; }
+          else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+          else if (c === '\r') { /* ignore */ }
+          else { cur += c; }
+        }
+      }
+      // push last cell
+      row.push(cur);
+      rows.push(row);
+      // Trim possible trailing empty line
+      if (rows.length && rows[rows.length-1].length === 1 && rows[rows.length-1][0] === '') rows.pop();
+      return rows;
+    }
+  </script>
+</body>
+</html>
