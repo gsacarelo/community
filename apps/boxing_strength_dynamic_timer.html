@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🥊 Boxing Strength</title>
+<style>
+:root{
+  --bg:#0b0f14;
+  --panel:#111823;
+  --panel2:#0f1520;
+  --accent:#22d3ee;
+  --accent2:#a78bfa;
+  --text:#e8eef6;
+  --muted:#9fb2c7;
+  --good:#34d399;
+  --warn:#fbbf24;
+  --danger:#fb7185;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  color:var(--text);
+  background: radial-gradient(1200px 800px at 0% -20%, #1a2330 0%, rgba(11,15,20,0) 60%), var(--bg);
+}
+header{
+  position:sticky; top:0; z-index:10;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(11,15,20,0.95), rgba(11,15,20,0.8));
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:10px 12px;
+}
+header .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+h1{ font-size:18px; margin:4px 0 8px 0; letter-spacing:.3px;}
+select,button,input[type="number"],input[type="checkbox"]{
+  background:var(--panel);
+  color:var(--text);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:9px 11px;
+  font-size:14px; outline:none;
+}
+button.primary{
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  color:#081018; border:none; font-weight:800;
+}
+button.ghost{ background:transparent; }
+button.icon{ padding:8px 10px; border-radius:12px; background:var(--panel2); border:1px solid rgba(255,255,255,0.1); }
+label.small{ color:var(--muted); font-size:12px; }
+.toggle{ display:inline-flex; align-items:center; gap:6px; padding:6px 8px; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(255,255,255,0.02); }
+main{ padding:12px; }
+.container{
+  max-width: 880px; margin: 0 auto;
+}
+.view{
+  background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:14px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+  position:relative;
+  overflow:hidden;
+}
+.topbar{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.stepbar{
+  height:6px; width:100%;
+  background:rgba(255,255,255,0.06);
+  border-radius:999px; overflow:hidden; margin:6px 0 10px 0;
+}
+.stepbar>div{
+  height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2));
+}
+h2{ margin:6px 0 8px 0; font-size:20px; }
+h3{ margin:6px 0 8px 0; font-size:16px; color:var(--muted); font-weight:600; }
+.meta{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 6px 0; }
+.badge{ font-size:12px; font-weight:700; color:#0a1118; background:linear-gradient(135deg, var(--accent), var(--accent2)); padding:5px 9px; border-radius:999px; }
+.badge.muted{ background:rgba(255,255,255,0.08); color:var(--muted); font-weight:600; }
+.details{
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; padding:10px; font-size:13px; color:var(--muted);
+}
+.controls{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px; }
+.controls .kv{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 10px; font-size:13px; }
+.timerWrap{
+  display:grid; grid-template-columns: 110px 1fr; gap:12px; align-items:center; margin-top:8px;
+}
+.ring{ --pct:0; width:110px; height:110px; border-radius:50%;
+  background:conic-gradient(var(--accent2) calc(var(--pct)*1%), rgba(255,255,255,0.08) 0);
+  display:grid; place-items:center; position:relative;
+}
+.ring::after{
+  content:attr(data-label);
+  position:absolute; inset:8px; border-radius:50%; background:var(--panel2);
+  display:grid; place-items:center; border:1px solid rgba(255,255,255,0.08);
+  color:var(--muted); font-size:14px;
+}
+.big{ font-size:28px; font-weight:800; }
+.actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+footer{
+  position:sticky; bottom:0; z-index:10;
+  background:linear-gradient(0deg, rgba(11,15,20,0.95), rgba(11,15,20,0.85));
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding:10px 12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+}
+.status{ color:var(--muted); font-size:13px; }
+.toast{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom: 90px; background: rgba(15,21,32,0.96);
+  color:var(--text); border:1px solid rgba(255,255,255,0.12);
+  padding:10px 14px; border-radius:12px; z-index:30; display:none;
+}
+.toast.show{ display:block; animation:fadein .15s ease, fadeout .3s ease 2.2s forwards; }
+@keyframes fadein{ from{opacity:0; transform:translate(-50%,8px);} to{opacity:1; transform:translate(-50%,0);} }
+@keyframes fadeout{ to{opacity:0;} }
+hr.sep{ border:0; border-top:1px dashed rgba(255,255,255,0.12); margin:10px 0; }
+.hide{ display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🥊 Boxing Strength — Dynamic Routine</h1>
+  <div class="row">
+    <select id="daySelect">
+      <option value="mon">Monday</option>
+      <option value="tue">Tuesday</option>
+      <option value="wed">Wednesday</option>
+      <option value="thu">Thursday</option>
+      <option value="fri">Friday</option>
+    </select>
+    <button id="loadBtn" class="primary">Load</button>
+    <a href="../../index.html" class="ghost" id="backBtn" style="text-decoration:none;display:inline-block;padding:9px 11px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#0f1520;color:#e8eef6;">Main Page</a>
+
+    <span class="toggle"><input id="soundT" type="checkbox" checked> <label class="small" for="soundT">Sounds</label></span>
+    <span class="toggle"><input id="vibeT" type="checkbox" checked> <label class="small" for="vibeT">Haptics</label></span>
+    <span class="toggle"><input id="wakeT" type="checkbox" checked> <label class="small" for="wakeT">Keep screen on</label></span>
+    <span class="toggle">
+      <label class="small" for="preStart">Pre-start</label>
+      <input id="preStart" type="number" min="0" max="20" value="5" style="width:50px"> s
+    </span>
+    <span class="toggle"><input id="autoNext" type="checkbox" checked> <label class="small" for="autoNext">Auto-advance after rest</label></span>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div id="view" class="view">
+      <!-- dynamic -->
+    </div>
+  </div>
+</main>
+
+<footer>
+  <button id="startWorkout" class="primary">Start Workout</button>
+  <button id="prevBtn" class="ghost">Prev</button>
+  <button id="nextBtn" class="ghost">Next</button>
+  <button id="stopBtn" class="ghost">Stop</button>
+  <div id="status" class="status">Load a day to begin.</div>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ---- Routine data (same content as v1 but rendered one exercise at a time) ----
+const routine = {
+  mon: {
+    title: "Monday — Rack Day",
+    exercises: [
+      { name:"Back Squat", sets:4, repText:"3–5", defaultReps:4, rest:150, tempo:"2-0-X-1",
+        focus:"Brace hard, sit between hips, drive fast out of the hole.",
+        desc:"Bar on mid-traps, feet shoulder-width, toes slightly out. Inhale & brace, descend with control, keep knees tracking toes, stand up explosively. Avoid butt-wink and knee cave.",
+        alt:{ name:"Leg Press", desc:"Feet mid-sled, push through full foot, avoid locking knees. Control down 2s, drive up powerfully." } },
+      { name:"Overhead Press", sets:4, repText:"3–5", defaultReps:4, rest:120, tempo:"2-0-1-1",
+        focus:"Ribs down, glutes tight, straight bar path; no layback press.",
+        desc:"Hands just outside shoulders, wrists stacked over elbows. Squeeze glutes/abs and press bar overhead; head moves slightly back then through. Control down.",
+        alt:{ name:"DB Overhead Press", desc:"Seated or standing. Neutral grip ok. Keep ribs down, no lean." } },
+      { name:"Pull-Ups / Lat Pulldown", sets:3, repText:"6–8", defaultReps:7, rest:90, tempo:"2-0-1-1",
+        focus:"Chest up, elbows to ribs; smooth lower.",
+        desc:"Pull from a dead hang to chest-to-bar or chin over bar; avoid kipping. Control the eccentric.",
+        alt:{ name:"Seated Cable Row", desc:"Neutral spine, pull to lower ribs, pause briefly." } },
+      { name:"Walking Lunge (Optional)", sets:2, repText:"6–8/leg", defaultReps:6, rest:75, tempo:"2-0-1-0",
+        focus:"Knee tracks toes, tall torso, controlled steps.",
+        desc:"Step forward, descend straight down, push through front foot to stand. Avoid knee collapsing inward.",
+        alt:{ name:"DB Split Squat", desc:"Lunge in place; controlled depth; drive through mid-foot." } }
+    ]
+  },
+  tue: {
+    title:"Tuesday — Bench Day",
+    exercises:[
+      { name:"Flat Bench Press (speed)", sets:5, repText:"3", defaultReps:3, rest:90, tempo:"2-0-X-1",
+        focus:"Leg drive, consistent touch point, explode up.",
+        desc:"Eyes under bar, feet planted. Slight arch, shoulder blades set. Lower under control, touch sternum, press hard.",
+        alt:{ name:"DB Bench Press", desc:"Neutral or pronated grip; press fast, control down." } },
+      { name:"Seated Cable Row", sets:4, repText:"6–8", defaultReps:7, rest:85, tempo:"2-0-1-1",
+        focus:"Scap retraction; no torso sway.",
+        desc:"Neutral spine, pull handle to lower ribs; squeeze, control back.",
+        alt:{ name:"Barbell Row", desc:"Hinge torso ~30–45°, pull to lower ribs, hold 1s." } },
+      { name:"Explosive Push-Ups", sets:3, repText:"6–12", defaultReps:10, rest:65, tempo:"1-0-X-1",
+        focus:"Full-body stiffness; hands leave floor slightly.",
+        desc:"Brace; descend quick, explode up. Stop set when rep speed slows. Keep shoulders packed.",
+        alt:{ name:"Feet-Elevated Explosive Push-Ups", desc:"Small elevation; only if reps stay fast." } },
+      { name:"Chin-Ups (Optional)", sets:2, repText:"AMRAP−1", defaultReps:8, rest:90, tempo:"2-0-1-1",
+        focus:"Supinated grip; pull to chest, control down.",
+        desc:"Keep ribs down, no swinging. Leave 1–2 reps in reserve.",
+        alt:{ name:"Neutral-Grip Pulldown", desc:"Elbows to ribs; smooth control." } }
+    ]
+  },
+  wed: {
+    title:"Wednesday — Hinge + Row",
+    exercises:[
+      { name:"Barbell Romanian Deadlift (RDL)", sets:4, repText:"5–6", defaultReps:5, rest:150, tempo:"3-1-1-0",
+        focus:"Hips back, bar close, hamstrings loaded—own the bottom.",
+        desc:"Slight knee bend, hinge hips back keeping spine neutral. Lower to just below knees/mid-shin, feel hamstrings, stand tall. No rounding.",
+        alt:{ name:"Hip Thrust", desc:"Upper back on bench, drive hips up, pause, control down." } },
+      { name:"Barbell Row", sets:3, repText:"5–6", defaultReps:5, rest:120, tempo:"2-0-1-1",
+        focus:"Neutral spine; pull to lower ribs; brief hold.",
+        desc:"Hinge torso ~30–45°. Keep bar close, no hip kick. Control eccentric.",
+        alt:{ name:"Seated Row", desc:"Heavy, strict; pause at chest." } },
+      { name:"DB Split Squat", sets:2, repText:"6–8/leg", defaultReps:6, rest:75, tempo:"2-0-1-0",
+        focus:"Balance; knee tracks toes; drive through mid-foot.",
+        desc:"Feet hip-width, back heel up. Drop straight down, smooth depth, stand tall.",
+        alt:{ name:"Reverse Lunge", desc:"Step back, descend vertical; control and balance." } }
+    ]
+  },
+  thu: {
+    title:"Thursday — Light Technique Primer",
+    exercises:[
+      { name:"Back Squat (light technique)", sets:3, repText:"3 @55–65%", defaultReps:3, rest:90, tempo:"2-0-X-1",
+        focus:"Identical reps, crisp speed; zero grind.",
+        desc:"Same squat as Mon; keep load light and fast.",
+        alt:{ name:"Goblet Squat (light)", desc:"Hold DB at chest; smooth tempo, fast up." } },
+      { name:"Overhead Press (light technique)", sets:3, repText:"3 @55–65%", defaultReps:3, rest:90, tempo:"2-0-X-1",
+        focus:"Speed and path; ribs down, glutes tight.",
+        desc:"Practice perfect reps; no fatigue hunting.",
+        alt:{ name:"DB OHP (light)", desc:"Strict, fast concentric." } },
+      { name:"KB/DB Swings (light–moderate)", sets:3, repText:"10", defaultReps:10, rest:75, tempo:"ballistic",
+        focus:"Hinge + hip snap; let bell float.",
+        desc:"Hinge, snap hips; bell swings to chest height. Avoid squatting it.",
+        alt:{ name:"Bodyweight Good Morning", desc:"Hands on chest, hinge and stand; smooth." } },
+      { name:"Vertical Jumps (in place)", sets:3, repText:"5", defaultReps:5, rest:60, tempo:"explosive",
+        focus:"Max height; stop if height drops.",
+        desc:"Quick dip, jump tall; land softly, reset fully.",
+        alt:{ name:"In-place Pogo Hops", desc:"Stiff ankles, quick contacts, low amplitude." } }
+    ]
+  },
+  fri: {
+    title:"Friday — Upper Strength",
+    exercises:[
+      { name:"Weighted Pull-Ups (or Heavy Seated Row)", sets:4, repText:"3–5", defaultReps:4, rest:150, tempo:"2-0-1-1",
+        focus:"Full range; pause top; control down.",
+        desc:"Dead hang start, pull to chest/chin over bar. Avoid kicking.",
+        alt:{ name:"Seated Row (heavy)", desc:"Strict, heavy; brief chest pause." } },
+      { name:"Flat DB Bench", sets:3, repText:"5–8", defaultReps:6, rest:105, tempo:"2-0-1-1",
+        focus:"Stable shoulder blades; smooth touch; strong press.",
+        desc:"Feet planted, dumbbells to chest with control, press without flaring.",
+        alt:{ name:"Machine Chest Press", desc:"Seat height so handles align mid-chest; control eccentrics." } },
+      { name:"DB Overhead Press", sets:3, repText:"6–8", defaultReps:7, rest:105, tempo:"2-0-1-1",
+        focus:"Ribs down; no lean; even lockout.",
+        desc:"Stand tall, brace, press overhead and control down.",
+        alt:{ name:"Barbell OHP", desc:"From rack; strict form." } },
+      { name:"Triceps Pressdown", sets:3, repText:"8–12", defaultReps:10, rest:60, tempo:"2-0-1-1",
+        focus:"Elbows pinned; full extension; control back.",
+        desc:"Grip rope/straight bar, extend without shoulder swing.",
+        alt:{ name:"Dips (leave 1–2 reps)", desc:"Shoulders packed; slight forward lean ok." } }
+    ]
+  }
+};
+
+// ---- State ----
+const view = document.getElementById('view');
+const statusEl = document.getElementById('status');
+const daySelect = document.getElementById('daySelect');
+const preStartIn = document.getElementById('preStart');
+const autoNext = document.getElementById('autoNext');
+let state = { dayKey:'mon', exIdx:0, setIdx:1, usingAlt:{}, running:false, mode:'idle', timers:{} };
+
+// ---- Utils ----
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show'); }
+let audioCtx;
+function beep(ms=200, hz=880, type='sine', vol=0.05){
+  if(!document.getElementById('soundT').checked) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type=type; o.frequency.value=hz; g.gain.value=vol; o.connect(g); g.connect(audioCtx.destination);
+    o.start(); setTimeout(()=>o.stop(), ms);
+  }catch(e){}
+}
+function vibe(pattern=[30]){
+  if(!document.getElementById('vibeT').checked) return;
+  if(navigator.vibrate) try{ navigator.vibrate(pattern); }catch(e){}
+}
+async function toggleWake(on){
+  if(!('wakeLock' in navigator)) { if(on) toast('Wake lock not supported'); return; }
+  try{
+    if(on){ window._wl = await navigator.wakeLock.request('screen'); window._wl.addEventListener('release', ()=>window._wl=null); toast('Screen wake lock ON'); }
+    else if(window._wl){ await window._wl.release(); window._wl=null; toast('Screen wake lock OFF'); }
+  }catch(e){ toast('Wake lock unavailable now'); }
+}
+document.getElementById('wakeT').addEventListener('change', (e)=>toggleWake(e.target.checked));
+
+function mmss(s){ const m=Math.floor(s/60), ss=s%60; return m+":"+(ss<10?"0"+ss:ss); }
+function parseTempo(t){ t = (t||'').toUpperCase(); if(t.includes('BALL')||t.includes('EXPLO')) return [1,0,0.5,1]; return t.split('-').map(x=>x==='X'?0.5:parseFloat(x)||0); }
+
+// ---- Rendering ----
+function render(){
+  const day = routine[state.dayKey];
+  const ex = day.exercises[state.exIdx];
+  const usingAlt = !!state.usingAlt[state.exIdx];
+  const exTitle = usingAlt ? ex.alt.name : ex.name;
+  const exDesc = usingAlt ? ex.alt.desc : ex.desc;
+
+  const exCount = day.exercises.length;
+  const stepPct = Math.round(100*((state.exIdx)/exCount));
+  const setPct = Math.round(100*((state.setIdx-1)/ex.sets));
+
+  view.innerHTML = `
+    <div class="topbar">
+      <div>
+        <div class="stepbar"><div style="width:${stepPct}%"></div></div>
+        <h2>${day.title}</h2>
+        <h3>Exercise ${state.exIdx+1}/${exCount} — Set ${state.setIdx}/${ex.sets}</h3>
+      </div>
+      <div class="ring" id="ring" style="--pct:0" data-label="Ready"></div>
+    </div>
+
+    <h2 style="margin-top:2px">${exTitle}</h2>
+    <div class="meta">
+      <span class="badge">Reps: ${ex.repText}</span>
+      <span class="badge">Rest: ${mmss(ex.rest)}</span>
+      <span class="badge">Tempo: ${ex.tempo}</span>
+      <span class="badge muted">Next set: ${state.setIdx}/${ex.sets}</span>
+    </div>
+
+    <div class="details" id="details">
+      <strong>How to do it properly</strong><br/>
+      ${exDesc}<br/><br/>
+      <strong>Focus:</strong> ${ex.focus}
+    </div>
+
+    <div class="controls">
+      <div class="kv">Reps: <input id="repsIn" type="number" min="1" max="30" value="${ex.defaultReps}" style="width:72px"></div>
+      <div class="kv">Rest (s): <input id="restIn" type="number" min="10" max="600" step="5" value="${ex.rest}" style="width:84px"></div>
+      <button id="tempoBtn" class="icon">Tempo Guide</button>
+      <button id="altBtn" class="icon">${usingAlt?'Use Main':'Use Alt'}</button>
+      <button id="showBtn" class="icon">Toggle Details</button>
+    </div>
+
+    <hr class="sep"/>
+
+    <div class="timerWrap">
+      <div></div>
+      <div>
+        <div class="big" id="bigStatus">Ready</div>
+        <div class="meta">
+          <span class="badge muted" id="subStatus">Tap Start Set when ready</span>
+          <span class="badge muted">Set progress: ${setPct}%</span>
+        </div>
+        <div class="actions">
+          <button id="startSet" class="primary">Start Set</button>
+          <button id="markDone" class="ghost">Complete Set → Rest</button>
+          <button id="skipRest" class="ghost">Skip Rest</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Wire controls
+  document.getElementById('repsIn').onchange = (e)=>{ const v=parseInt(e.target.value)||ex.defaultReps; ex.defaultReps=v; };
+  document.getElementById('restIn').onchange = (e)=>{ const v=parseInt(e.target.value)||ex.rest; ex.rest=Math.max(10, Math.min(600, v)); render(); };
+  document.getElementById('showBtn').onclick = ()=>{ document.getElementById('details').classList.toggle('hide'); };
+  document.getElementById('altBtn').onclick = ()=>{ state.usingAlt[state.exIdx]=!usingAlt; toast(state.usingAlt[state.exIdx]?'Alt on':'Main on'); render(); };
+
+  document.getElementById('tempoBtn').onclick = ()=> openTempo(ex, ex.defaultReps);
+
+  document.getElementById('startSet').onclick = ()=> startSetFlow(ex);
+  document.getElementById('markDone').onclick = ()=> markSetDone(ex);
+  document.getElementById('skipRest').onclick = skipRest;
+
+  // Footer buttons
+  document.getElementById('prevBtn').onclick = ()=> goPrev();
+  document.getElementById('nextBtn').onclick = ()=> goNext();
+}
+
+function goPrev(){
+  const day = routine[state.dayKey];
+  if(state.exIdx===0 && state.setIdx===1){ toast('At beginning'); return; }
+  if(state.setIdx>1){ state.setIdx--; }
+  else { state.exIdx=Math.max(0,state.exIdx-1); state.setIdx=1; }
+  stopTimers();
+  render();
+}
+function goNext(){
+  const day = routine[state.dayKey];
+  const ex = day.exercises[state.exIdx];
+  if(state.setIdx < ex.sets){ state.setIdx++; }
+  else{
+    if(state.exIdx < day.exercises.length-1){ state.exIdx++; state.setIdx=1; }
+    else { workoutComplete(); return; }
+  }
+  stopTimers();
+  render();
+}
+
+function workoutComplete(){
+  stopTimers();
+  statusEl.textContent = "Workout Complete ✔";
+  view.innerHTML = `
+    <div class="topbar">
+      <div>
+        <div class="stepbar"><div style="width:100%"></div></div>
+        <h2>Great work!</h2>
+        <h3>Session finished</h3>
+      </div>
+    </div>
+    <p style="color:var(--muted)">You completed ${routine[state.dayKey].title}. Hydrate, note loads, and recover.</p>
+    <div class="actions">
+      <button class="primary" id="restart">Restart Day</button>
+      <button class="ghost" id="home">Change Day</button>
+    </div>
+  `;
+  document.getElementById('restart').onclick = ()=>{ state.exIdx=0; state.setIdx=1; render(); };
+  document.getElementById('home').onclick = ()=>{ document.getElementById('daySelect').focus(); };
+  beep(300, 900, 'triangle', 0.06); vibe([60,60,60]);
+}
+
+function startSetFlow(ex){
+  // Pre-start countdown then In-Set timer (count up)
+  stopTimers();
+  const ring = document.getElementById('ring');
+  const big = document.getElementById('bigStatus');
+  const sub = document.getElementById('subStatus');
+  let pre = Math.max(0, parseInt(preStartIn.value)||0);
+  if(pre>0){ beep(120, 700, 'sine', 0.05); vibe([30]); }
+  state.mode='pre';
+  ring.setAttribute('data-label', pre>0? pre+'s':'GO');
+  ring.style.setProperty('--pct', 0);
+  statusEl.textContent = 'Get ready…';
+  if(pre===0){ beginSetTimer(); return; }
+  const total=pre;
+  state.timers.pre = setInterval(()=>{
+    pre--;
+    const pct = 100*((total-pre)/total);
+    ring.style.setProperty('--pct', pct);
+    ring.setAttribute('data-label', pre>0? pre+'s':'GO');
+    big.textContent = 'Get Ready';
+    sub.textContent = 'Starting…';
+    if(pre<=0){ clearInterval(state.timers.pre); beginSetTimer(); }
+  },1000);
+
+  function beginSetTimer(){
+    beep(200, 1100, 'square', 0.06); vibe([60]);
+    state.mode='inset';
+    big.textContent='Set in progress';
+    sub.textContent='Hit "Complete Set → Rest" when done';
+    ring.style.setProperty('--pct', 0);
+    ring.setAttribute('data-label', 'SET');
+    let t=0;
+    state.timers.set = setInterval(()=>{
+      t++;
+      ring.setAttribute('data-label', mmss(t));
+    },1000);
+  }
+}
+
+function markSetDone(ex){
+  if(state.mode!=='inset'){ /* allow manual rest start anyway */ }
+  stopTimers();
+  startRest(ex.rest);
+}
+
+function skipRest(){
+  stopTimers();
+  beep(100, 900, 'square', 0.05);
+  vibe([50]);
+  nextStepAfterRest();
+}
+
+function startRest(seconds){
+  const ring = document.getElementById('ring');
+  const big = document.getElementById('bigStatus');
+  const sub = document.getElementById('subStatus');
+  state.mode='rest';
+  const total = seconds;
+  let t = seconds;
+  ring.style.setProperty('--pct', 0);
+  ring.setAttribute('data-label', mmss(t));
+  big.textContent='Rest';
+  sub.textContent='Recover — next set soon';
+  beep(120, 650, 'sine', 0.04); vibe([30]);
+  state.timers.rest = setInterval(()=>{
+    t--;
+    const pct = 100*((total-t)/total);
+    ring.style.setProperty('--pct', pct);
+    ring.setAttribute('data-label', mmss(Math.max(0,t)));
+    statusEl.textContent = 'Rest ' + mmss(Math.max(0,t));
+    if(t<=0){
+      clearInterval(state.timers.rest);
+      beep(250, 1100, 'triangle', 0.06); vibe([60,60]);
+      nextStepAfterRest();
+    }
+  },1000);
+}
+
+function nextStepAfterRest(){
+  const day = routine[state.dayKey];
+  const ex = day.exercises[state.exIdx];
+  if(state.setIdx < ex.sets){
+    state.setIdx++;
+    toast('Next set');
+    statusEl.textContent='Next set';
+    if(autoNext.checked){ render(); }
+  }else{
+    if(state.exIdx < day.exercises.length-1){
+      state.exIdx++; state.setIdx=1;
+      toast('Next exercise');
+      statusEl.textContent='Next exercise';
+      if(autoNext.checked){ render(); }
+    }else{
+      workoutComplete();
+      return;
+    }
+  }
+}
+
+function stopTimers(){
+  Object.values(state.timers).forEach(id=>clearInterval(id));
+  state.timers={};
+  state.mode='idle';
+  const ring = document.getElementById('ring');
+  if(ring){ ring.style.setProperty('--pct', 0); ring.setAttribute('data-label','ready'); }
+}
+
+function openTempo(ex, reps){
+  const overlay = document.createElement('div');
+  overlay.style.position='fixed'; overlay.style.inset='0'; overlay.style.zIndex='40';
+  overlay.style.background='rgba(6,9,14,0.92)'; overlay.style.display='grid'; overlay.style.placeItems='center';
+  overlay.innerHTML = `
+    <div style="width:min(560px,92vw);background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <h3 style="margin:0">Tempo Guide — ${ex.name} (${ex.tempo})</h3>
+        <button id="closeTempo" class="ghost">Close</button>
+      </div>
+      <hr class="sep" />
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="ring" id="tempoRing" style="--pct:0" data-label="ready"></div>
+        <div>
+          <div class="big" id="tempoMain">Ready</div>
+          <div class="meta"><span class="badge muted" id="tempoSub">Press Start</span></div>
+          <div class="controls">
+            <div class="kv">Reps: <input id="tempoReps" type="number" min="1" value="${reps}" style="width:80px"></div>
+            <button id="tempoStart" class="primary">Start</button>
+            <button id="tempoPause" class="ghost">Pause</button>
+            <button id="tempoStop" class="ghost">Stop</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const ring = overlay.querySelector('#tempoRing');
+  const main = overlay.querySelector('#tempoMain');
+  const sub = overlay.querySelector('#tempoSub');
+  const close = ()=> overlay.remove();
+  overlay.querySelector('#closeTempo').onclick = close;
+  overlay.querySelector('#tempoStop').onclick = close;
+  let phases = parseTempo(ex.tempo); if(phases.length!==4) phases=[2,0,1,1];
+  const labels=['Down','Bottom','Up','Top'];
+  let running=false, paused=false, rep=1, phase=0, id=null;
+
+  function step(){
+    if(!running || paused) return;
+    const repTotal = parseInt(overlay.querySelector('#tempoReps').value)||reps;
+    const dur = phases[phase]; const label=labels[phase];
+    main.textContent = `Rep ${rep}/${repTotal}`;
+    sub.textContent = `${label} — ${dur===0.5?'X':dur}s`;
+    beep(120, phase===2?1100:700, phase===2?'square':'sine', 0.05);
+    ring.style.setProperty('--pct', (phase/4)*100);
+    id = setTimeout(()=>{
+      phase++;
+      if(phase>=4){ phase=0; rep++; }
+      if(rep>repTotal){ main.textContent='Done'; sub.textContent=''; beep(250,900,'triangle',0.06); running=false; return; }
+      step();
+    }, Math.max(50, dur*1000));
+  }
+  overlay.querySelector('#tempoStart').onclick = ()=>{
+    if(running && paused){ paused=false; step(); return; }
+    running=true; paused=false; rep=1; phase=0; step();
+  };
+  overlay.querySelector('#tempoPause').onclick = ()=>{ paused=!paused; if(!paused) step(); };
+}
+
+// ---- Controls ----
+document.getElementById('loadBtn').onclick = ()=>{
+  state.dayKey = daySelect.value;
+  state.exIdx = 0; state.setIdx = 1; state.usingAlt = {};
+  stopTimers(); render();
+  statusEl.textContent = 'Loaded: ' + routine[state.dayKey].title;
+  toast('Day loaded');
+};
+document.getElementById('startWorkout').onclick = ()=>{
+  if(document.getElementById('wakeT').checked) toggleWake(true);
+  if(!routine[state.dayKey]){ toast('Load a day first'); return; }
+  state.exIdx=0; state.setIdx=1;
+  stopTimers(); render();
+  toast('Workout started');
+  statusEl.textContent='Workout started';
+};
+document.getElementById('stopBtn').onclick = ()=>{
+  stopTimers(); statusEl.textContent='Stopped.'; toast('Session stopped');
+  toggleWake(false);
+};
+document.getElementById('prevBtn').onclick = ()=> goPrev();
+document.getElementById('nextBtn').onclick = ()=> goNext();
+
+// Restore last day from localStorage
+try{ const saved = localStorage.getItem('bx_day'); if(saved){ daySelect.value=saved; state.dayKey=saved; } }catch(e){}
+daySelect.addEventListener('change', ()=>{ try{ localStorage.setItem('bx_day', daySelect.value);}catch(e){} });
+
+// Initial render
+render();
+</script>
+</body>
+</html>
