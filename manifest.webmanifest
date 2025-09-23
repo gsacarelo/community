@@ -1,0 +1,19 @@
+{
+  "name": "Gerardo — Community",
+  "short_name": "Community",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0c",
+  "theme_color": "#0b0b0c",
+  "icons": [
+    { "src": "/icons/icons-16.png", "sizes": "16x16", "type": "image/png" },
+    { "src": "/icons/icons-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/icons/icons-76.png", "sizes": "76x76", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icons-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+
+    /* Recommended larger icons (add these files to fully optimize install banners) */
+    { "src": "/icons/appicon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable any" }
+  ]
+}
