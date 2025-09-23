@@ -1,0 +1,7 @@
+title: Boxing Strength
+subtitle: Dynamic Timer 5 Days
+emoji: 🥊
+pill: Live
+order: 20
+url:
+hide: false
