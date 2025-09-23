@@ -1,7 +1,7 @@
 title: Weather Forecast
-subtitle: Hourly & daily charts with local time shift
+subtitle: Temperature • Precipitation • UV • AQI
 emoji: 🌤️
 pill: Live
-order: 2
-url:            # optional absolute or relative override; default is <base>/<folder>/index.html
-hide: false     # set true to temporarily hide this card
+order: 10
+url:           # optional override; default is <base>/<folder>/index.html
+hide: false    # set true to hide the card without deleting it
