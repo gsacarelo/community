@@ -1,0 +1,7 @@
+title: Weather Forecast
+subtitle: Hourly & daily charts with local time shift
+emoji: 🌤️
+pill: Live
+order: 2
+url:            # optional absolute or relative override; default is <base>/<folder>/index.html
+hide: false     # set true to temporarily hide this card
