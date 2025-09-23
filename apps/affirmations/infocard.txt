@@ -1,0 +1,7 @@
+title: Iron Confidence Cards
+subtitle: Daily • Weekend • Holiday practice. Minimal & focused.
+emoji: 💪
+pill: Live
+order: 40
+url:
+hide: false
