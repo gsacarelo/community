@@ -1,0 +1,7 @@
+title: Software Tools
+subtitle: A curated list of powerful open-source and utility software.
+emoji: 🧰
+pill: New
+order: 20
+url: ./tools/softwares/softwares.html
+hide: false
