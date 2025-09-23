@@ -3,5 +3,5 @@ subtitle: Temperature • Precipitation • UV • AQI
 emoji: 🌤️
 pill: Live
 order: 10
-url:           # optional override; default is <base>/<folder>/index.html
-hide: false    # set true to hide the card without deleting it
+url:
+hide: false
