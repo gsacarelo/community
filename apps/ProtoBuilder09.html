@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>💻 Protocol Block Designer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --bg:#0f1115; --panel:#151822; --ink:#e8edf5; --muted:#9aa3b2; --accent:#6ea8fe;
+    --line:#273045; --hover:#9bc1ff; --sel:#b07aa1; --danger:#e0575e; --ok:#59a14f;
+    --ui: 1; /* GUI scale */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+    font-family:system-ui, Segoe UI, Roboto, Inter, sans-serif; font-size:calc(14px * var(--ui))}
+  .btn, input, select, textarea{
+    background:#1b2030; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+    transition:background .12s ease, border-color .12s ease, transform .05s ease}
+  .btn{cursor:pointer; user-select:none}
+  .btn.primary{background:var(--accent); color:#0c111a; border:0; font-weight:700}
+  .btn:hover{border-color:var(--accent); background:#222a40}
+  .btn:active{transform:translateY(1px); filter:saturate(1.15)}
+  .btn.danger{border-color:#5d1f22}
+  .row{display:flex; gap:8px; align-items:center}
+  .wrap{flex-wrap:wrap}
+  .grow{flex:1 1 auto}
+  .small{font-size:calc(12px * var(--ui)); color:var(--muted)}
+  .sep{width:1px; height:20px; background:var(--line)}
+  .title{font-weight:700; letter-spacing:.2px}
+  a.link{color:var(--accent); text-decoration:none} a.link:hover{text-decoration:underline}
+
+  /* Top bar */
+  .topbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:10px;
+    border-bottom:1px solid var(--line); background:#111521; position:sticky; top:0; z-index:5}
+  .kbd{background:#0b0e15;border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:calc(12px * var(--ui));color:var(--muted)}
+
+  /* Workspace */
+  .workspace{height:58vh; min-height:420px; padding:10px}
+  #svgRoot{width:100%; height:100%; background:#0b0e15; border:1px solid var(--line); border-radius:12px; cursor:grab;
+    background-image: linear-gradient(transparent 23px, var(--line) 24px), linear-gradient(90deg, transparent 23px, var(--line) 24px);
+    background-size:24px 24px}
+  #svgRoot.draggingPan{cursor:grabbing}
+  .tooltip{position:fixed; background:#141a26; border:1px solid var(--line); padding:8px 10px; border-radius:8px;
+    font-size:calc(12px * var(--ui)); color:var(--ink); max-width:280px; pointer-events:none; z-index:10; display:none}
+
+  /* Panels container */
+  .panels{
+    display:grid; grid-template-columns: 340px 1fr 380px; grid-template-areas: "left center right";
+    gap:10px; padding:10px
+  }
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px; min-width:0}
+  .panel h3{margin:4px 0 8px; font-size:calc(14px * var(--ui)); color:var(--muted); font-weight:600; letter-spacing:.3px}
+  .left{grid-area:left} .center{grid-area:center} .right{grid-area:right}
+
+  /* Left panel specifics */
+  .bar{padding:8px; border:1px dashed var(--line); border-radius:10px; margin-bottom:8px}
+  .bar .btn{min-width:38px}
+  .focusline{margin:6px 0 10px 0; padding:6px 8px; border:1px solid var(--line); border-radius:8px; color:var(--muted)}
+  .list{display:flex; flex-direction:column; gap:6px}
+  .item{padding:8px; border:1px solid var(--line); border-radius:10px; display:flex; align-items:center; gap:10px; min-height:40px}
+  .eye{cursor:pointer; opacity:.85; flex:0 0 auto}
+  .eye.off{opacity:.35; filter:grayscale(1)}
+  .name{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; cursor:pointer}
+  .item.focus{outline:2px solid var(--accent)}
+  textarea{min-height:90px; resize:vertical}
+  .pill{padding:2px 8px; border:1px solid var(--line); border-radius:999px; font-size:calc(12px * var(--ui)); color:var(--muted)}
+
+  /* Modal */
+  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:20}
+  .modal .backdrop{position:absolute; inset:0; background:rgba(0,0,0,.45)}
+  .modal .card{position:relative; background:#0f1524; border:1px solid var(--line); border-radius:12px; padding:18px; width:min(560px,90vw)}
+  .modal .close{position:absolute; top:8px; right:8px}
+
+  /* Mobile / portrait */
+  @media (max-width: 1000px), (orientation: portrait) {
+    .panels{
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "right"
+        "left"
+        "center";
+    }
+    .workspace{height:48vh}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="title">💻 Protocol Block Designer</div>
+  <a class="btn" href="../../index.html">Main page</a>
+  <button id="btnAbout" class="btn">About</button>
+
+  <div class="sep"></div>
+  <button id="btnWidthMode" class="btn" title="Cycle width mode">Width: Label</button>
+  <label class="small">Frame text
+    <input id="frameFontSizeInput" type="number" min="10" max="22" step="1" value="13" style="width:64px; margin-left:6px">
+  </label>
+  <label class="small">Layer title
+    <input id="layerTitleSizeInput" type="number" min="12" max="24" step="1" value="14" style="width:64px; margin-left:6px">
+  </label>
+  <label class="small">GUI font
+    <input id="uiScaleInput" type="number" min="0.8" max="1.4" step="0.05" value="1" style="width:64px; margin-left:6px">
+  </label>
+
+  <div class="grow"></div>
+  <button id="btnZoomOut" class="btn">–</button>
+  <span id="zoomLabel" class="kbd">100%</span>
+  <button id="btnZoomIn" class="btn">+</button>
+  <button id="btnResetView" class="btn">Reset view</button>
+</div>
+
+<!-- WORKSPACE -->
+<div class="workspace">
+  <svg id="svgRoot"></svg>
+  <div id="tooltip" class="tooltip"></div>
+</div>
+
+<!-- PANELS -->
+<div class="panels">
+  <!-- LEFT -->
+  <div class="panel left">
+    <h3>Layers</h3>
+    <div class="bar row wrap">
+      <button id="lyrUp" class="btn" title="Move layer up">↑</button>
+      <button id="lyrDown" class="btn" title="Move layer down">↓</button>
+      <button id="lyrAddFrame" class="btn" title="Add frame">+F</button>
+      <button id="lyrDup" class="btn" title="Duplicate layer">⧉</button>
+      <button id="lyrDel" class="btn danger" title="Delete layer">🗑</button>
+      <button id="lyrOpen" class="btn" title="Open (focus)">Open</button>
+      <button id="lyrToggle" class="btn" title="Show/Hide">👁/🚫</button>
+      <div class="grow"></div>
+      <input id="newTemplateName" placeholder="New layer name" />
+      <button id="btnNewTemplate" class="btn">Add</button>
+    </div>
+
+    <div id="focusLine" class="focusline small">Focus: —</div>
+    <div id="layerList" class="list"></div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="panel center">
+    <h3>Project</h3>
+    <label class="row" style="align-items:start">
+      <span class="small" style="width:140px">General notes</span>
+      <textarea id="generalNotes" class="grow" placeholder="Project-wide comments..."></textarea>
+    </label>
+
+    <h3 style="margin-top:10px">Layer Inspector</h3>
+    <label class="row">
+      <span class="small" style="width:140px">Layer name</span>
+      <input id="layerName" class="grow" />
+    </label>
+    <label class="row" style="align-items:start">
+      <span class="small" style="width:140px">Layer notes</span>
+      <textarea id="layerNotes" class="grow" placeholder="Purpose, assumptions, encoding, etc."></textarea>
+    </label>
+
+    <div class="row" style="margin-bottom:8px">
+      <div class="grow"></div>
+      <button id="btnExportPNG" class="btn" title="Export what you see (PNG)">Export PNG</button>
+      <button id="btnExportJPG" class="btn" title="Export what you see (JPG)">Export JPG</button>
+      <button id="btnSave" class="btn primary" title="Save project JSON">Save JSON</button>
+      <input id="fileLoad" type="file" accept=".json" />
+    </div>
+    <div class="row">
+      <span class="pill" id="bitStat"></span>
+      <span class="pill" id="warnStat"></span>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel right">
+    <h3>Frame Inspector</h3>
+    <div class="row" style="margin-bottom:6px">
+      <button id="btnNewFrame" class="btn" title="Add frame">+ Frame</button>
+      <button id="btnDupFrame" class="btn" title="Duplicate frame">Duplicate</button>
+      <button id="btnDelFrame" class="btn danger" title="Delete frame">Delete</button>
+    </div>
+    <label class="row">
+      <span class="small" style="width:120px">Label</span>
+      <input id="frameLabel" class="grow" />
+    </label>
+    <label class="row">
+      <span class="small" style="width:120px">Group</span>
+      <input id="frameGroup" placeholder="Header / Body / Trailer..." class="grow" />
+    </label>
+    <label class="row">
+      <span class="small" style="width:120px">Bits (empty = variable)</span>
+      <input id="frameBits" type="number" min="0" step="1" class="grow" />
+    </label>
+    <label class="row">
+      <span class="small" style="width:120px">Manual width (px)</span>
+      <input id="manualWidth" type="number" min="20" step="1" value="120" class="grow" />
+    </label>
+    <label class="row">
+      <span class="small" style="width:120px">Color</span>
+      <input id="frameColor" type="color" value="#59a14f" class="grow"/>
+    </label>
+    <label class="row" style="align-items:start">
+      <span class="small" style="width:120px">Frame comment</span>
+      <textarea id="frameComment" class="grow" placeholder="Meaning, constraints, examples..."></textarea>
+    </label>
+    <label class="row">
+      <span class="small" style="width:120px">Child Layer (nest)</span>
+      <select id="childLayerRef" class="grow"></select>
+    </label>
+    <div class="row" style="margin-top:6px">
+      <button id="btnNudgeLeft" class="btn">◀ Move Left</button>
+      <button id="btnNudgeRight" class="btn">Move Right ▶</button>
+      <button id="btnOpenChild" class="btn" title="Focus child layer">Open Child</button>
+    </div>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div id="aboutModal" class="modal" aria-hidden="true">
+  <div class="backdrop"></div>
+  <div class="card">
+    <button class="btn close" id="aboutClose">✕</button>
+    <div class="title" style="margin-bottom:6px">💻 Protocol Block Designer</div>
+    <div class="small" style="margin-bottom:12px">Version v0.9 — by Gerardo Sacarelo V.</div>
+    <div class="small">Socials: <a class="link" href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">Instagram</a> · <a class="link" href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">Socials</a> · <a class="link" href="https://gsacarelo.github.io/community/index.html" target="_blank" rel="noopener">More Tools</a></div>
+  </div>
+</div>
+
+<script>
+/* ======================= STATE ======================= */
+const nanoid = () => Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,10);
+
+let project = { version:"0.8", generalNotes:"", templates: [], ui:{widthMode:'label', frameFontSize:13, layerTitleSize:14, uiScale:1, pxPerBit:2} };
+let focusLayerId = null;      // active layer
+let selectedFrameId = null;   // selected frame
+let view = { zoom:1, panX:0, panY:0 };
+
+let widthMode   = project.ui.widthMode;
+let frameFontSize = project.ui.frameFontSize;
+let layerTitleSize = project.ui.layerTitleSize;
+let uiScale     = project.ui.uiScale;
+let pxPerBit    = project.ui.pxPerBit; // 2 px per bit (tweak in JSON if you want)
+
+/* text measure */
+const measCanvas = document.createElement('canvas');
+const measCtx = measCanvas.getContext('2d');
+function textPxWidth(txt, fontPx){ try{ measCtx.font = `${fontPx}px system-ui,Segoe UI,Roboto,Inter,sans-serif`; return measCtx.measureText(txt||'').width || 0; }catch{ return (txt||'').length * fontPx * 0.6; } }
+
+/* CSS var resolver (for inline svg attrs) */
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
+const COL = { line:'#2a2f3a', hover: cssVar('--hover'), sel: cssVar('--sel'), accent: cssVar('--accent') };
+
+/* ======================= DOM ========================= */
+const svgRoot = document.getElementById('svgRoot');
+const tooltip = document.getElementById('tooltip');
+const bitStat = document.getElementById('bitStat');
+const warnStat = document.getElementById('warnStat');
+
+const zoomLabel = document.getElementById('zoomLabel');
+document.getElementById('btnZoomIn').onclick = ()=>{ view.zoom=Math.min(2.5,view.zoom*1.1); safeRender(); };
+document.getElementById('btnZoomOut').onclick = ()=>{ view.zoom=Math.max(0.4,view.zoom/1.1); safeRender(); };
+document.getElementById('btnResetView').onclick = ()=>{ view.zoom=1; view.panX=0; view.panY=0; safeRender(); };
+
+const frameFontSizeInput = document.getElementById('frameFontSizeInput');
+const layerTitleSizeInput = document.getElementById('layerTitleSizeInput');
+const uiScaleInput = document.getElementById('uiScaleInput');
+frameFontSizeInput.value = frameFontSize; layerTitleSizeInput.value = layerTitleSize; uiScaleInput.value = uiScale.toString();
+frameFontSizeInput.oninput = ()=>{ frameFontSize = clampNum(frameFontSizeInput.value,10,22,13); project.ui.frameFontSize=frameFontSize; safeRender(); };
+layerTitleSizeInput.oninput = ()=>{ layerTitleSize = clampNum(layerTitleSizeInput.value,12,24,14); project.ui.layerTitleSize=layerTitleSize; safeRender(); };
+uiScaleInput.oninput = ()=>{ uiScale = clampNum(uiScaleInput.value,0.8,1.4,1); project.ui.uiScale=uiScale; document.documentElement.style.setProperty('--ui',uiScale); };
+
+const btnWidthMode = document.getElementById('btnWidthMode');
+btnWidthMode.onclick = ()=>{
+  widthMode = widthMode==='label' ? 'bits' : (widthMode==='bits' ? 'manual' : 'label');
+  project.ui.widthMode = widthMode;
+  btnWidthMode.textContent = 'Width: ' + cap(widthMode);
+  safeRender();
+};
+btnWidthMode.textContent = 'Width: ' + cap(widthMode);
+
+const aboutBtn = document.getElementById('btnAbout');
+const aboutModal = document.getElementById('aboutModal');
+const aboutClose = document.getElementById('aboutClose');
+aboutBtn.onclick = ()=>{ aboutModal.style.display='flex'; aboutModal.setAttribute('aria-hidden','false'); };
+aboutClose.onclick = ()=>{ aboutModal.style.display='none'; aboutModal.setAttribute('aria-hidden','true'); };
+aboutModal.querySelector('.backdrop').onclick = aboutClose.onclick;
+
+/* LEFT action bar */
+const focusLine = document.getElementById('focusLine');
+const lyrUp = document.getElementById('lyrUp');
+const lyrDown = document.getElementById('lyrDown');
+const lyrAddFrame = document.getElementById('lyrAddFrame');
+const lyrDup = document.getElementById('lyrDup');
+const lyrDel = document.getElementById('lyrDel');
+const lyrOpen = document.getElementById('lyrOpen');
+const lyrToggle = document.getElementById('lyrToggle');
+
+const layerList = document.getElementById('layerList');
+const newTemplateName = document.getElementById('newTemplateName');
+document.getElementById('btnNewTemplate').onclick = ()=> createTemplate(newTemplateName.value.trim() || "Layer");
+
+const generalNotes = document.getElementById('generalNotes');
+const btnSave = document.getElementById('btnSave');
+const fileLoad = document.getElementById('fileLoad');
+const btnExportPNG = document.getElementById('btnExportPNG');
+const btnExportJPG = document.getElementById('btnExportJPG');
+
+const layerName = document.getElementById('layerName');
+const layerNotes = document.getElementById('layerNotes');
+
+const frameLabel = document.getElementById('frameLabel');
+const frameBits = document.getElementById('frameBits');
+const frameGroup = document.getElementById('frameGroup');
+const frameColor = document.getElementById('frameColor');
+const frameComment = document.getElementById('frameComment');
+const childLayerRef = document.getElementById('childLayerRef');
+const manualWidth = document.getElementById('manualWidth');
+const btnNudgeLeft = document.getElementById('btnNudgeLeft');
+const btnNudgeRight = document.getElementById('btnNudgeRight');
+const btnOpenChild = document.getElementById('btnOpenChild');
+const btnNewFrame = document.getElementById('btnNewFrame');
+const btnDupFrame = document.getElementById('btnDupFrame');
+const btnDelFrame = document.getElementById('btnDelFrame');
+
+/* =================== HELPERS ========================= */
+const getLayer = (id)=> project.templates.find(t=>t.id===id);
+const allVisibleLayers = ()=> project.templates.filter(t=>t.visible).sort((a,b)=>a.order-b.order);
+function clampNum(v, lo, hi, fallback){ v=parseFloat(v); if(Number.isNaN(v)) return fallback; return Math.max(lo, Math.min(hi, v)); }
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function safe(fn, fallback){ try{ return fn(); } catch(e){ console.warn(e); warnStat.textContent = e?.message || 'Render error'; return fallback; } }
+
+function createTemplate(name){
+  const nextOrder = project.templates.length
+    ? Math.max(...project.templates.map(x => x.order)) + 1
+    : 0;
+  const t = { id:"tmpl_"+nanoid(), name, notes:"", visible:true, order:nextOrder, offsetX:0, offsetY:0, fields:[] };
+  project.templates.push(t);
+  focusLayerId = t.id; selectedFrameId = null;
+  updatePanels(); safeRender();
+}
+
+function duplicateTemplate(id){
+  const src = getLayer(id); if(!src) return;
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = "tmpl_"+nanoid();
+  copy.name = src.name + " (copy)";
+  copy.order = (Math.max(...project.templates.map(x=>x.order)) + 1) || 0;
+  copy.fields.forEach(f=> f.id = "f_"+nanoid());
+  project.templates.push(copy);
+  focusLayerId = copy.id; selectedFrameId=null;
+  updatePanels(); safeRender();
+}
+function deleteTemplate(id){
+  const idx = project.templates.findIndex(t=>t.id===id);
+  if(idx<0) return;
+  project.templates.forEach(t=> t.fields.forEach(f=>{ if(f.childLayerRef===id) f.childLayerRef=null; }));
+  project.templates.splice(idx,1);
+  if(!project.templates.length) createTemplate("Layer 1");
+  focusLayerId = project.templates[0].id; selectedFrameId=null;
+  updatePanels(); safeRender();
+}
+function addFrameTo(layerId){
+  const L = getLayer(layerId); if(!L) return;
+  L.fields.push({ id:"f_"+nanoid(), label:"Field", bits:null, color:"#59a14f", group:"", comment:"",
+                  childLayerRef:null, manualPx:null });
+  selectedFrameId = L.fields[L.fields.length-1].id;
+}
+function duplicateFrame(){
+  const L=getLayer(focusLayerId); if(!L||!selectedFrameId) return;
+  const i=L.fields.findIndex(f=>f.id===selectedFrameId); if(i<0) return;
+  const copy = JSON.parse(JSON.stringify(L.fields[i])); copy.id="f_"+nanoid();
+  L.fields.splice(i+1,0,copy); selectedFrameId=copy.id;
+}
+function deleteFrame(){
+  const L=getLayer(focusLayerId); if(!L||!selectedFrameId) return;
+  const i=L.fields.findIndex(f=>f.id===selectedFrameId);
+  if(i>=0){ L.fields.splice(i,1); selectedFrameId=null; }
+}
+
+/* ================= LAYER LIST + ACTIONS ============== */
+function renderLayerList(){
+  layerList.innerHTML = "";
+  project.templates.sort((a,b)=>a.order-b.order).forEach(t=>{
+    const item = document.createElement('div'); item.className = 'item' + (t.id===focusLayerId?' focus':'');
+    const eye = document.createElement('span'); eye.className='eye'+(t.visible?'':' off'); eye.textContent = t.visible?'👁':'🚫';
+    eye.title = t.visible?'Hide layer':'Show layer';
+    eye.onclick = ()=>{ t.visible=!t.visible; eye.className='eye'+(t.visible?'':' off'); safeRender(); };
+    const name = document.createElement('span'); name.textContent = t.name; name.className='name';
+    name.title = 'Select / Focus'; name.onclick = ()=>{ focusLayerId=t.id; selectedFrameId=null; updatePanels(); safeRender(); };
+    item.append(eye, name);
+    layerList.append(item);
+  });
+}
+function normalizeOrder(){
+  project.templates.sort((a,b)=>a.order-b.order).forEach((t,i)=> t.order=i);
+}
+
+/* LEFT toolbar handlers apply to the focused layer */
+lyrUp.onclick = ()=>{ const L=getLayer(focusLayerId); if(!L) return; L.order-=1.1; normalizeOrder(); renderLayerList(); safeRender(); };
+lyrDown.onclick = ()=>{ const L=getLayer(focusLayerId); if(!L) return; L.order+=1.1; normalizeOrder(); renderLayerList(); safeRender(); };
+lyrAddFrame.onclick = ()=>{ if(!focusLayerId) return; addFrameTo(focusLayerId); updatePanels(); safeRender(); };
+lyrDup.onclick = ()=>{ if(!focusLayerId) return; duplicateTemplate(focusLayerId); };
+lyrDel.onclick = ()=>{ if(!focusLayerId) return; const L=getLayer(focusLayerId); if(confirm(`Delete layer "${L?.name||''}"?`)) deleteTemplate(focusLayerId); };
+lyrOpen.onclick = ()=>{ if(!focusLayerId) return; selectedFrameId=null; updatePanels(); safeRender(); };
+lyrToggle.onclick = ()=>{ const L=getLayer(focusLayerId); if(!L) return; L.visible=!L.visible; renderLayerList(); safeRender(); };
+
+/* ================ INSPECTOR BINDINGS ================= */
+function refreshInspector(){
+  const L = getLayer(focusLayerId); if(!L){ focusLine.textContent='Focus: —'; return; }
+  focusLine.textContent = `Focus: ${L.name}`;
+  layerName.value = L.name; layerNotes.value = L.notes;
+
+  // Child dropdown options
+  childLayerRef.innerHTML = `<option value="">(none)</option>` + project.templates.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+
+  const F = L.fields.find(f=>f.id===selectedFrameId);
+  frameLabel.value = F?.label ?? "";
+  frameBits.value = (F && typeof F.bits==='number') ? F.bits : "";
+  frameGroup.value = F?.group ?? "";
+  frameColor.value = F?.color ?? "#59a14f";
+  frameComment.value = F?.comment ?? "";
+  manualWidth.value = F?.manualPx ?? Math.ceil(minContentWidth(F||{label:'Field'}));
+  childLayerRef.value = F?.childLayerRef || "";
+}
+layerName.oninput = ()=>{ const L=getLayer(focusLayerId); if(L){ L.name=layerName.value; safeRender(); renderLayerList(); refreshInspector(); }};
+layerNotes.oninput = ()=>{ const L=getLayer(focusLayerId); if(L){ L.notes=layerNotes.value; }};
+
+frameLabel.oninput = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F){ F.label=frameLabel.value; F.manualPx=null; safeRender(); }};
+frameBits.oninput = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F){ const v=frameBits.value.trim(); F.bits = v===""? null : Math.max(0, parseInt(v,10)||0); safeRender(); }};
+frameGroup.oninput = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F){ F.group=frameGroup.value; safeRender(); }};
+frameColor.oninput = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F){ F.color=frameColor.value; safeRender(); }};
+frameComment.oninput = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F){ F.comment=frameComment.value; }};
+manualWidth.oninput = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F){ const m = Math.max(minContentWidth(F), parseInt(manualWidth.value||'0',10)||0); F.manualPx = m; safeRender(); }};
+childLayerRef.onchange = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F){ F.childLayerRef = childLayerRef.value || null; safeRender(); }};
+btnNudgeLeft.onclick = ()=>{ const L=getLayer(focusLayerId); if(!L||!selectedFrameId) return; const i=L.fields.findIndex(f=>f.id===selectedFrameId); if(i>0){ const [it]=L.fields.splice(i,1); L.fields.splice(i-1,0,it); safeRender(); }};
+btnNudgeRight.onclick = ()=>{ const L=getLayer(focusLayerId); if(!L||!selectedFrameId) return; const i=L.fields.findIndex(f=>f.id===selectedFrameId); if(i<L.fields.length-1){ const [it]=L.fields.splice(i,1); L.fields.splice(i+1,0,it); safeRender(); }};
+btnOpenChild.onclick = ()=>{ const L=getLayer(focusLayerId); const F=L?.fields.find(f=>f.id===selectedFrameId); if(F?.childLayerRef){ focusLayerId = F.childLayerRef; selectedFrameId=null; updatePanels(); safeRender(); }};
+
+btnNewFrame.onclick = ()=>{ addFrameTo(focusLayerId); updatePanels(); safeRender(); };
+btnDupFrame.onclick = ()=>{ duplicateFrame(); updatePanels(); safeRender(); };
+btnDelFrame.onclick = ()=>{ if(confirm('Delete selected frame?')){ deleteFrame(); updatePanels(); safeRender(); }};
+
+/* ===================== LAYOUT ======================== */
+function minContentWidth(F){
+  const pad = 16;
+  const labelWordMax = (F.label||'Field').split(/\s+/).reduce((m,w)=> Math.max(m, textPxWidth(w, frameFontSize)), 0);
+  const groupWordMax = (F.group||'').split(/\s+/).reduce((m,w)=> Math.max(m, textPxWidth(w, frameFontSize-1)), 0);
+  const bitsText = (F.bits!==null && F.bits!=="") ? (F.bits+' bits') : 'Variable';
+  const bitsWidth = textPxWidth(bitsText, frameFontSize-2);
+  return Math.max(60, labelWordMax, groupWordMax, bitsWidth) + pad;
+}
+
+function avgFixedBits(fields){
+  const fixed = fields.filter(f => typeof f.bits === 'number').map(f => f.bits);
+  if (!fixed.length) return 8;                  // sensible fallback
+  return Math.max(1, Math.round(fixed.reduce((a,b)=>a+b,0) / fixed.length));
+}
+
+
+// --- helper: wrap text into lines without truncation
+function wrapLines(text, maxWidth, fontSize=13, lineGap=4){
+  const words = (text||'').split(/\s+/);
+  const avgChar = fontSize*0.58;
+  const maxChars = Math.max(1, Math.floor(maxWidth/avgChar));
+
+  let line='', lines=[];
+  for (let w of words){
+    if((line + (line? ' ':'') + w).length <= maxChars){
+      line = line ? line + ' ' + w : w;
+    }else{
+      if(line) lines.push(line);
+      // break very long words
+      while (w.length > maxChars){ lines.push(w.slice(0,maxChars)); w = w.slice(maxChars); }
+      line = w;
+    }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+
+function wrapLinesNoBreak(text, maxWidth, fontSize=13, lineGap=4){
+  const words = (text || '').split(/\s+/);
+  const lineW = (s)=> textPxWidth(s, fontSize);
+
+  const lines = [];
+  let line = "";
+
+  for (const w of words){
+    if (!line){                          // start a new line
+      line = w;
+    } else {
+      const test = line + " " + w;
+      if (lineW(test) <= maxWidth){
+        line = test;                     // fits in current line
+      } else {
+        lines.push(line);                // push current line
+        line = w;                        // start new one with the word
+      }
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+    
+// draw wrapped label using precomputed vertical space (no ellipsis)
+function addWrappedTextLines(svgGroup, x, yTop, yBottom, maxWidth, text, fontSize=13, lineGap=4){
+  const lines = wrapLinesNoBreak(text, maxWidth, fontSize, lineGap); // <- use no-break version
+  const lineHeight = fontSize + lineGap;
+  const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+  t.setAttribute('x', x); t.setAttribute('y', yTop);
+  t.setAttribute('fill', '#0b0e15'); t.setAttribute('font-size', String(fontSize));
+  lines.forEach((ln,i)=>{
+    const ts = document.createElementNS("http://www.w3.org/2000/svg","tspan");
+    ts.setAttribute('x', x);
+    ts.setAttribute('dy', i===0 ? 0 : lineHeight);
+    ts.textContent = ln;
+    t.appendChild(ts);
+  });
+  svgGroup.appendChild(t);
+}
+
+// independent widths + dynamic heights (per frame)
+function layoutLayerFields(fields){
+  const padX   = 12;
+  const baseTop= 32;     // slightly tighter than 40 to reduce layer spacing
+  const minH   = 86;     // minimum frame height
+
+  const mins = fields.map(minContentWidth);
+
+  // width per mode (independent of viewport)
+  const widths = fields.map((f,i)=>{
+    if (widthMode === 'manual') {
+        return Math.max(mins[i], f.manualPx ?? mins[i]);
+    }
+    if (widthMode === 'bits') {
+        // robust numeric scale; never 0/NaN
+        const scale = Math.max(0.5, Number(pxPerBit) || 2);
+        const bits  = (typeof f.bits === 'number' ? f.bits : avgFixedBits(fields));
+        // bits mode = label min + proportional delta
+        return Math.max(mins[i], mins[i] + bits * scale);
+    }
+    return mins[i]; // label
+  });
+
+
+  // compute per-frame needed height (so labels never cut), then unify to one height
+  let neededHeights = [];
+  for (let i=0;i<fields.length;i++){
+    const f = fields[i];
+    const w = widths[i];
+    const labelWidth = Math.max(1, w - 2*padX);
+
+    const lines = wrapLinesNoBreak(f.label || 'Field', labelWidth, frameFontSize, 4);
+    const labelBlock = 18 + lines.length * (frameFontSize + 4);
+    const groupBlock = (f.group ? (frameFontSize-1) : 0);
+    const bitsBlock  = (frameFontSize-2);
+    const gaps       = 6 + 6 + 10; // label→group, group→bits, bottom inset
+
+    neededHeights.push(Math.max(minH, labelBlock + groupBlock + bitsBlock + gaps));
+  }
+  const H = Math.max(...neededHeights);   // one constant height for the whole layer
+
+  // build slots (constant height)
+  let x = padX;
+  const y = baseTop;
+  const slots = fields.map((f, i) => {
+    const w = widths[i];
+    const s = { id: f.id, x, y, w, h: H };
+    x += w; // no gaps between frames
+    return s;
+  });
+
+  const totalW = widths.reduce((a,b)=>a+b,0) + padX*2;
+  // row height used by renderer to stack layers
+  const rowH   = H + baseTop + 10;
+
+  return { slots, totalW, rowH };
+}
+
+
+/* ================ RENDERING (SVG) ==================== */
+function safeRender(){ warnStat.textContent=''; try{ render(); } catch(e){ console.error(e); warnStat.textContent = 'Render failed: ' + (e?.message||'unknown'); } }
+
+function render(){
+  document.documentElement.style.setProperty('--ui', project.ui.uiScale);
+  document.getElementById('btnWidthMode').textContent = 'Width: ' + cap(widthMode);
+  zoomLabel.textContent = Math.round(view.zoom*100)+'%';
+  generalNotes.value = project.generalNotes;
+
+  const Lf = getLayer(focusLayerId);
+  if(Lf){
+    const fixedBits = Lf.fields.filter(f=>typeof f.bits==='number').reduce((a,f)=>a+f.bits,0);
+    const varCount = Lf.fields.filter(f=>f.bits===null || f.bits==="").length;
+    bitStat.textContent = `Focus: ${Lf.name} — Fixed ${fixedBits}b • Variable ${varCount}`;
+  } else { bitStat.textContent = ""; }
+
+  const gRoot = document.createElementNS("http://www.w3.org/2000/svg","g");
+  gRoot.setAttribute('transform', `translate(${view.panX},${view.panY}) scale(${view.zoom})`);
+
+  const visible = allVisibleLayers();
+  const rowGap = 5;
+  let yAccum = 10;
+
+  // For connectors we need per-layer positions and widths.
+  const layerMeta = new Map(); // id -> {x0,y0,totalW}
+  const frameCenters = new Map(); // key `${layerId}_${frameId}` -> {x,y}
+
+  visible.forEach(layer=>{
+    const {slots, totalW, rowH} = layoutLayerFields(layer.fields);
+    const yLayer = yAccum;
+
+    const group = document.createElementNS("http://www.w3.org/2000/svg","g");
+    const ox = layer.offsetX || 0, oy = layer.offsetY || 0;
+    group.setAttribute('transform', `translate(${ox}, ${yLayer + oy})`);
+    group.setAttribute('opacity', layer.id===focusLayerId? '1' : '0.78');
+
+    // layer metadata for connectors
+    layerMeta.set(layer.id, { x0: (layer.offsetX||0), y0: yLayer + (layer.offsetY||0), totalW });
+
+    // Title
+    const title = document.createElementNS("http://www.w3.org/2000/svg","text");
+    title.setAttribute('x', 12); title.setAttribute('y', 18);
+    title.setAttribute('fill', layer.id===focusLayerId? '#c9d1e1' : '#8b94a8');
+    title.setAttribute('font-size', String(layerTitleSize));
+    title.textContent = layer.name;
+    title.style.cursor = 'pointer';
+    title.addEventListener('click', ()=>{ focusLayerId=layer.id; selectedFrameId=null; updatePanels(); safeRender(); });
+    group.appendChild(title);
+
+    // Frames
+    slots.forEach(slot=>{
+      const F = layer.fields.find(f=>f.id===slot.id);
+      const frameG = document.createElementNS("http://www.w3.org/2000/svg","g");
+      frameG.setAttribute('data-fid', F.id);
+      frameG.removeAttribute('title');  // make sure no native title tooltips
+
+
+      // rect
+      const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+      rect.setAttribute('x', slot.x); rect.setAttribute('y', slot.y);
+      rect.setAttribute('rx', 6); rect.setAttribute('ry',6);
+      rect.setAttribute('width', slot.w); rect.setAttribute('height', slot.h);
+      rect.setAttribute('fill', F.color || '#59a14f');
+      rect.setAttribute('stroke', selectedFrameId===F.id? COL.sel : COL.line);
+      rect.setAttribute('stroke-width', selectedFrameId===F.id? '3':'1.5');
+      rect.style.cursor='pointer';
+      rect.removeAttribute('title');
+      frameG.appendChild(rect);
+      
+      // Build one tooltip HTML (label + optional comment)
+      const tipHTML = (() => {
+        const name = escapeHtml(F.label || 'Field');
+        const cmt  = (F.comment || '').trim();
+        return cmt
+          ? `<strong>${name}</strong><div style="height:1px;background:${COL.line};margin:6px 0"></div>${escapeHtml(cmt)}`
+          : `<strong>${name}</strong>`;
+      })();
+
+      // hover/click
+      frameG.addEventListener('mouseenter', (e)=>{
+        rect.setAttribute('stroke', selectedFrameId===F.id? COL.sel: COL.hover);
+        rect.setAttribute('stroke-width', selectedFrameId===F.id? '3':'2.5');
+        const pt = clientToSvg(e.clientX, e.clientY);
+        showTooltip(pt.x + 12, pt.y + 12, tipHTML);
+      });
+      frameG.addEventListener('mousemove', (e)=>{
+        const pt = clientToSvg(e.clientX, e.clientY);
+        showTooltip(pt.x + 12, pt.y + 12, tipHTML);
+      });
+      frameG.addEventListener('mouseleave', ()=>{
+        rect.setAttribute('stroke', selectedFrameId===F.id? COL.sel : COL.line);
+        rect.setAttribute('stroke-width', selectedFrameId===F.id? '3':'1.5'); 
+        hideTooltip();
+      });
+      frameG.addEventListener('click', ()=>{ hideTooltip(); selectedFrameId = F.id; focusLayerId = layer.id; updatePanels(); safeRender(); });
+
+      // Bottom: Group + Bits
+      const bitsText = (F.bits!==null && F.bits!=="") ? (F.bits+' bits') : 'Variable';
+      const paddingX = 8;
+      const bitsY = slot.y + slot.h - 10;
+      const groupY = bitsY - (frameFontSize + 6);
+      const labelTop = slot.y + 18;
+      const labelBottom = groupY - 6;
+      const maxWidth = Math.max(1, slot.w - 2*paddingX);
+
+      const tGroup = document.createElementNS("http://www.w3.org/2000/svg","text");
+      tGroup.setAttribute('x', slot.x+paddingX); tGroup.setAttribute('y', groupY);
+      tGroup.setAttribute('fill', '#0b0e15'); tGroup.setAttribute('font-size', String(frameFontSize-1));
+      tGroup.textContent = (F.group||'');
+
+      const tBits = document.createElementNS("http://www.w3.org/2000/svg","text");
+      tBits.setAttribute('x', slot.x+paddingX); tBits.setAttribute('y', bitsY);
+      tBits.setAttribute('fill', '#0b0e15'); tBits.setAttribute('font-size', String(frameFontSize-2));
+      tBits.textContent = bitsText;
+
+      // Label (wrapping)
+      addWrappedTextLines(frameG, slot.x+8, labelTop, labelBottom, maxWidth, F.label || 'Field', frameFontSize, 4);
+
+      frameG.appendChild(tGroup);
+      frameG.appendChild(tBits);
+
+      // Manual resize handle
+      if(widthMode==='manual'){
+        const handle = document.createElementNS("http://www.w3.org/2000/svg","rect");
+        handle.setAttribute('x', slot.x + slot.w - 4); handle.setAttribute('y', slot.y+2);
+        handle.setAttribute('width', 6); handle.setAttribute('height', slot.h-4);
+        handle.setAttribute('fill', '#2c3750'); handle.setAttribute('stroke', '#41506a'); handle.setAttribute('stroke-width','1');
+        handle.style.cursor='ew-resize';
+        handle.addEventListener('mousedown',(e)=>{
+          e.stopPropagation();
+          const startX=e.clientX; const start = F.manualPx ?? slot.w; const minW = minContentWidth(F); e.preventDefault();
+          const onMove=(ev)=>{ const dx=(ev.clientX-startX)/(view.zoom||1); const w = Math.max(minW, Math.round(start + dx)); F.manualPx = w; manualWidth.value = w; safeRender(); };
+          const onUp=()=>{ window.removeEventListener('mousemove',onMove); window.removeEventListener('mouseup',onUp); };
+          window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp);
+        });
+        frameG.appendChild(handle);
+      }
+
+      // Drag-reorder
+      frameG.addEventListener('mousedown',(e)=>{
+        if(e.button!==0 || e.target===svgRoot || (e.target.tagName==='rect' && parseInt(e.target.getAttribute('width'),10)===6)) return;
+        const startX=e.clientX; e.preventDefault(); // avoid stray text selection interfering with mouseup
+        const onMove=(ev)=>{ const dx=(ev.clientX-startX)/view.zoom; frameG.setAttribute('transform', `translate(${dx},0)`); };
+        const onUp = (ev)=>{
+          try {
+            frameG.removeAttribute('transform');
+            const layout = layoutLayerFields(layer.fields);
+            const slot2  = layout.slots.find(s => s.id === F.id);
+            if (!slot2) return; // safety if something went wrong
+
+            const dz  = Math.max(0.001, view.zoom);
+            const cx  = slot2.x + (ev.clientX - startX)/dz + slot2.w/2;
+            const arr = [...layout.slots].sort((a,b)=> (a.x+a.w/2)-(b.x+b.w/2));
+            const ni  = arr.findIndex(s => cx <= s.x + s.w/2);
+
+            const from = layer.fields.findIndex(ff => ff.id === F.id);
+            const to   = ni < 0 ? layer.fields.length-1 : ni;
+
+            if (to !== from){
+              const [it] = layer.fields.splice(from,1);
+              layer.fields.splice(to,0,it);
+              safeRender();
+            }
+          } finally {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup',   onUp);
+          }
+        };
+        window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp);
+      });
+
+      // Save frame center for connectors
+      frameCenters.set(`${layer.id}_${F.id}`, { 
+          x: (layer.offsetX||0) + slot.x + slot.w/2, 
+          y: (layer.offsetY||0) + yLayer + slot.y + slot.h 
+      });
+      group.appendChild(frameG);
+    });
+
+    // focus outline (fit to layer width, not viewport)
+    const outline = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    outline.setAttribute('x', 6); outline.setAttribute('y', 10);
+    outline.setAttribute('width', totalW - 12);
+    outline.setAttribute('rx', 10); outline.setAttribute('ry', 10);
+    outline.setAttribute('fill','none');
+    outline.setAttribute('stroke', layer.id===focusLayerId? COL.accent : '#222736');
+    outline.setAttribute('stroke-width', layer.id===focusLayerId? '2.5' : '1');
+    outline.setAttribute('height', rowH);
+    yAccum += rowH + rowGap;
+    group.insertBefore(outline, group.firstChild);
+
+    gRoot.appendChild(group);
+      
+    function makeLayerDraggable(targetEl, layerRef){
+        targetEl.style.cursor = 'move';
+        targetEl.addEventListener('mousedown', (e)=>{
+            e.stopPropagation();
+            const start = { x:e.clientX, y:e.clientY, ox:layerRef.offsetX||0, oy:layerRef.offsetY||0 };
+            const onMove = (ev)=>{
+                const dx = (ev.clientX - start.x) / (view.zoom||1);
+                const dy = (ev.clientY - start.y) / (view.zoom||1);
+                layerRef.offsetX = start.ox + dx;
+                layerRef.offsetY = start.oy + dy;
+                safeRender();
+            };
+            const onUp = ()=>{
+              window.removeEventListener('mousemove', onMove);
+              window.removeEventListener('mouseup',   onUp);
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+        });
+    }
+    makeLayerDraggable(title, layer);
+    makeLayerDraggable(outline, layer);
+
+  });
+    
+
+  // Connectors (parent frame bottom to child layer title area)
+  visible.forEach(layer=>{
+    const {slots} = safe(()=>layoutLayerFields(layer.fields), {slots:[]});
+    slots.forEach(slot=>{
+      const F = layer.fields.find(f=>f.id===slot.id);
+      if(F?.childLayerRef){
+        const child = visible.find(t=>t.id===F.childLayerRef);
+        if(!child) return;
+        const parentPt = frameCenters.get(`${layer.id}_${F.id}`);
+        const childMeta = layerMeta.get(child.id);
+        // anchor near the child's title (uses the child's current offset)
+        const endX = (childMeta?.x0 ?? 0) + 12;   // 12px = title text left margin
+        const endY = (childMeta?.y0 ?? 0) + 18;   // 18px = title baseline
+        if(parentPt && childMeta){
+          const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+          const midY = (parentPt.y + endY)/2;
+          const d = `M ${parentPt.x},${parentPt.y} C ${parentPt.x},${midY} ${endX},${midY} ${endX},${endY}`;
+          path.setAttribute('d', d);
+          path.setAttribute('stroke', '#41506a');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke-dasharray','4 4');
+          path.setAttribute('stroke-width','1.5');
+          gRoot.appendChild(path);
+        }
+      }
+    });
+  });
+
+  svgRoot.innerHTML = ""; svgRoot.appendChild(gRoot);
+}
+
+/* ================ TOOLTIP & COORDS =================== */
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+function clientToSvg(cx,cy){
+  const rect = svgRoot.getBoundingClientRect();
+  const x = (cx - rect.left - view.panX)/view.zoom;
+  const y = (cy - rect.top - view.panY)/view.zoom;
+  return {x,y};
+}
+function showTooltip(x,y,html){
+  tooltip.style.left = (x*view.zoom + svgRoot.getBoundingClientRect().left + view.panX + 8) + 'px';
+  tooltip.style.top  = (y*view.zoom + svgRoot.getBoundingClientRect().top  + view.panY + 8) + 'px';
+  tooltip.innerHTML = html; tooltip.style.display='block';
+}
+function hideTooltip(){ tooltip.style.display='none'; }
+
+/* ================== PAN / ZOOM ======================= */
+let panning=false, panStart={x:0,y:0}, viewStart={x:0,y:0};
+svgRoot.addEventListener('mousedown', (e)=>{ if(e.target===svgRoot){ panning=true; svgRoot.classList.add('draggingPan'); panStart={x:e.clientX,y:e.clientY}; viewStart={x:view.panX,y:view.panY}; }});
+svgRoot.addEventListener('click', (e)=>{ if (e.target === svgRoot) { selectedFrameId = null; refreshInspector(); safeRender(); } });
+window.addEventListener('mousemove',(e)=>{ if(!panning) return; view.panX = viewStart.x + (e.clientX-panStart.x); view.panY = viewStart.y + (e.clientY-panStart.y); safeRender(); });
+window.addEventListener('mouseup', ()=>{ panning=false; svgRoot.classList.remove('draggingPan'); });
+
+/* ================= SAVE / LOAD / EXPORT ============== */
+generalNotes.oninput = ()=> project.generalNotes = generalNotes.value;
+btnSave.onclick = ()=>{
+  project.ui = {widthMode, frameFontSize, layerTitleSize, uiScale, pxPerBit};
+  project.view = view; // <- add this line if you like restoring camera
+  const blob = new Blob([JSON.stringify(project,null,2)],{type:'application/json'});
+  triggerDownload(blob,'protocol_project.json');
+};
+fileLoad.onchange = async e=>{
+  const file=e.target.files[0]; if(!file) return;
+  try{
+    const text=await file.text();
+    const parsed=JSON.parse(text);
+    if(!parsed.templates) throw new Error('Invalid project file');
+    project=parsed;
+    ({widthMode, frameFontSize, layerTitleSize, uiScale, pxPerBit} =
+      {widthMode: project.ui?.widthMode||'label', frameFontSize: project.ui?.frameFontSize||13, layerTitleSize: project.ui?.layerTitleSize||14, uiScale: project.ui?.uiScale||1, pxPerBit: project.ui?.pxPerBit||2});
+    frameFontSizeInput.value = frameFontSize; layerTitleSizeInput.value = layerTitleSize; uiScaleInput.value = uiScale;
+    document.documentElement.style.setProperty('--ui', uiScale);
+    if(project.templates.length) { normalizeOrder(); focusLayerId = project.templates[0].id; selectedFrameId=null; }
+    updatePanels(); safeRender();
+  }catch(err){ alert('Load failed: '+(err?.message||'unknown')); }
+  finally{ fileLoad.value=""; }
+};
+
+btnExportPNG.onclick = ()=> exportWorkspace('image/png');
+btnExportJPG.onclick = ()=> exportWorkspace('image/jpeg');
+
+function triggerDownload(blob, name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
+}
+
+/* Export exactly what's in the workspace (visible SVG viewport with pan/zoom) */
+async function exportWorkspace(type){
+  try{
+    const W = svgRoot.clientWidth, H = svgRoot.clientHeight;
+
+    const clone = svgRoot.cloneNode(true);
+    // Make sure the serialized SVG has explicit size + namespace
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.setAttribute('width',  String(W));
+    clone.setAttribute('height', String(H));
+    // A viewBox helps some browsers render transforms reliably
+    if(!clone.hasAttribute('viewBox')) clone.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+    const serializer = new XMLSerializer();
+    const svgStr = serializer.serializeToString(clone);
+
+    const svgBlob = new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    await new Promise(res=>{ img.onload=res; img.src=url; });
+
+    const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
+    const ctx = canvas.getContext('2d');
+    // WHITE background as requested
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+    ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+
+    const dataURL = canvas.toDataURL(type, 0.95);
+    const a=document.createElement('a'); a.href=dataURL; a.download = `protocol_workspace.${type==='image/png'?'png':'jpg'}`;
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(err){
+    console.error(err);
+    alert('Export failed: ' + (err?.message||'unknown'));
+  }
+}
+
+
+/* ================= INIT SAMPLE ======================= */
+function initSample(){
+  const mac = { id:"tmpl_"+nanoid(), name:"MAC v1", notes:"Example MAC layer", visible:true, order:1,
+    fields:[
+      {id:"f_"+nanoid(), label:"Source address", bits:8,  color:"#4e79a7", group:"Header", comment:"1 byte", manualPx:null},
+      {id:"f_"+nanoid(), label:"Destination address",   bits:8,  color:"#4e79a7", group:"Header", comment:"1 byte", manualPx:null},
+      {id:"f_"+nanoid(), label:"Sequence Number",     bits:8,  color:"#f28e2b", group:"Header", comment:"1 byte", manualPx:null},
+      {id:"f_"+nanoid(), label:"Frame Control",  bits:8,  color:"#f28e2b", group:"Header", comment:"1 byte", manualPx:null},
+      {id:"f_"+nanoid(), label:"Payload",     bits:null, color:"#59a14f", group:"Body", comment:"Variable", childLayerRef:null, manualPx:null},
+      {id:"f_"+nanoid(), label:"Frame check sequence", bits:8,  color:"#e15759", group:"Trailer", comment:"1 byte", manualPx:null}
+    ]};
+  const phy = { id:"tmpl_"+nanoid(), name:"PHY A (BFSK)", notes:"Toy PHY", visible:true, order:0,
+    fields:[
+      {id:"f_"+nanoid(), label:"Preamble", bits:64, color:"#b07aa1", group:"Header", comment:"Sync", manualPx:null},
+      {id:"f_"+nanoid(), label:"SFD",      bits:8,  color:"#b07aa1", group:"Header", comment:"Start frame delimiter", manualPx:null},
+      {id:"f_"+nanoid(), label:"Payload",  bits:null, color:"#59a14f", group:"Body", comment:"Contains MAC", childLayerRef: mac.id, manualPx:null},
+      {id:"f_"+nanoid(), label:"CRC",      bits:32, color:"#e15759", group:"Trailer", comment:"PHY CRC", manualPx:null}
+    ]};
+
+  project.templates.push(phy, mac);
+  normalizeOrder();
+  focusLayerId = phy.id; selectedFrameId=null;
+}
+
+/* ================== WIRES ============================ */
+function updatePanels(){ renderLayerList(); refreshInspector(); }
+initSample(); updatePanels(); safeRender();
+</script>
+</body>
+</html>
