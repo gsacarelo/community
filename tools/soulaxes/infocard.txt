@@ -1,0 +1,7 @@
+title: Soul Axes
+subtitle: The 7 fundamentals basis vectors of the human soul.
+emoji: 🧭
+pill: New
+order: 10
+url:
+hide: false
