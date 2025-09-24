@@ -40,7 +40,6 @@
     a{color:inherit;text-decoration:none}
     .wrap{max-width:1120px;margin:0 auto;padding:12px 10px 56px}
 
-    /* Sticky header: brand + menu */
     header{
       position:sticky;top:0;z-index:20;
       padding:10px 10px;
@@ -77,14 +76,14 @@
       transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease,filter .16s ease;
       will-change:transform,box-shadow,filter;
     }
-    .card:hover{
+    a.card:hover{
       transform:translateY(-10px) scale(1.035);
       box-shadow:var(--shadow-strong),0 0 0 2px var(--brand-glow);
       border-color:var(--brand-strong);
       background:#0f1323;
       filter:saturate(1.15) contrast(1.08);
     }
-    .card:active{
+    a.card:active{
       transform:translateY(-4px) scale(0.98);
       box-shadow:var(--shadow-strong),0 0 0 6px var(--brand-glow);
       border-color:var(--brand-strong);
@@ -93,9 +92,32 @@
     }
     .card h3{margin:0 0 4px;font-size:16px;text-align:center}
     .card p{margin:0;color:var(--muted);text-align:center}
-
     .pill{margin-left:8px;padding:2px 6px;border-radius:999px;background:rgba(183,155,255,.18);border:1px solid rgba(183,155,255,.5);color:#efe7ff;font-size:11px;vertical-align:middle}
     .link{display:block;margin-top:8px;text-align:center;color:#d7dbff;font-size:13px}
+    /* Mini-card buttons for the Contact section */
+    .btn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;justify-items:stretch}
+    .mini-card{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:10px 12px;border:1px solid var(--stroke);border-radius:12px;
+      background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),#13151d;
+      text-align:center;line-height:1;font-size:14px;
+      transition:transform .12s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease,filter .16s ease;
+    }
+    .mini-card:hover{
+      transform:translateY(-4px);
+      border-color:#3c94ff;
+      box-shadow:0 0 0 2px rgba(60,148,255,.25), 0 10px 24px rgba(0,0,0,.35);
+      background:#0e1524; filter:saturate(1.08) contrast(1.06);
+    }
+    .mini-card:active{
+      transform:translateY(-1px) scale(.99);
+      border-color:#3c94ff;
+      box-shadow:0 0 0 6px rgba(60,148,255,.35), 0 16px 36px rgba(0,0,0,.55);
+      background:#0c1220; filter:saturate(1.1) contrast(1.08) brightness(1.02);
+    }
+    .mini-card[aria-disabled="true"]{opacity:.55;pointer-events:none;cursor:default}
+    @media(max-width:560px){.btn-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}}
+
 
     @media(max-width:560px){
       .wrap{padding:10px 8px 48px}
@@ -123,13 +145,13 @@
     </header>
 
     <section class="hero">
-      <h1>PhD • E-commerce • Creative Technologist</h1>
-      <p>Building quiet-luxury software, human-systems, and practical experiments.</p>
+      <h1>PhD • E-Commerce • Creative Technologist</h1>
+      <p>Building quiet-luxury software, human-systems, and practical experiments... without manuals.</p>
       <div class="badges">
-        <span class="chip">Health Tech</span>
-        <span class="chip">Embedded &amp; Wearables</span>
-        <span class="chip">Behavior Design</span>
-        <span class="chip">Minimal Ops</span>
+        <span class="chip">Charm Engineer</span>
+        <span class="chip">Loop Escape Consultant</span>
+        <span class="chip">Tiger Hugger</span>
+        <span class="chip">Emoji Prophet</span>
       </div>
     </section>
 
@@ -146,8 +168,8 @@
       <h2>🛠️ Tools &amp; Experiments</h2>
       <div id="status-tools" class="load-status">Loading tools…</div>
       <div class="grid" id="grid-tools">
-        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Small lab, big ideas.</p><span class="link">Coming soon</span></div>
         <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Utility arriving shortly.</p><span class="link">Coming soon</span></div>
+        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Small lab, big ideas.</p><span class="link">Coming soon</span></div>
       </div>
     </section>
 
@@ -161,7 +183,11 @@
     <section id="contact">
       <h2>📬 Get in Touch</h2>
       <div class="card">
-        <p style="margin:0">Instagram: <a href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">@gerardo711</a><br/>Socials: <a href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">Linktree</a></p>
+        <div class="btn-grid">
+          <a class="mini-card" href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">📸 Instagram</a>
+          <a class="mini-card" href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">🔗 Linktree</a>
+          <a class="mini-card" href="#" aria-disabled="true">➕ Another link (soon)</a>
+        </div>
       </div>
     </section>
 
@@ -170,144 +196,125 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 
+  <script>
     (async function () {
       const OWNER = "gsacarelo";
       const REPO = "community";
       const BRANCH = "main";
+      const DEBUG = false;
 
-      const textDecoder = new TextDecoder("utf-8");
-
-      function clean(v){
-        if(!v) return "";
-        let s = String(v).replace(/^\\uFEFF/,"").trim();
-        return s.replace(/\\s+#.*$/,"").trim();
+      async function listGithubPath(path){
+        const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
+        const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+        if (!res.ok) return [];
+        return res.json();
       }
-      function parseInfo(text){
-        const raw = text.replace(/^\\uFEFF/,"");
+
+      function parseInfoCard(text){
         const out = {};
-        raw.split(/\\r?\\n/).forEach(line=>{
-          if(/^\\s*#/.test(line)) return;
-          const m = line.match(/^\\s*([\\w-]+)\\s*:\\s*(.*)$/);
-          if(m) out[m[1].toLowerCase()] = clean(m[2]);
+        text.split(/\r?\n/).forEach(line => {
+          const m = line.match(/^\s*([a-zA-Z0-9_-]+)\s*:\s*(.*)\s*$/);
+          if (m) out[m[1].toLowerCase()] = m[2];
         });
-        const get = (...keys)=>{ for(const k of keys){ if(out[k] && out[k].trim()!=="") return out[k]; } };
-        return {
-          title: get("title","name","t"),
-          subtitle: get("subtitle","sub","desc","description","summary","text"),
-          pill: get("pill","badge","tag","label"),
-          emoji: get("emoji","icon","em"),
-          order: get("order","sort","rank","weight","priority"),
-          url: get("url","link","href"),
-          hide: (get("hide","hidden")||"").toString().toLowerCase()==="true",
-        };
+        return out;
       }
-      function pretty(slug){
-        return slug.replace(/[-_]+/g," ").replace(/\\s+/g," ").trim().replace(/\\b(\\w)/g,s=>s.toUpperCase());
+
+      function nicename(slug){
+        return slug.replace(/[-_]+/g," ").replace(/\s+/g," ").trim().replace(/\b(\w)/g,s=>s.toUpperCase());
       }
-      function makeCard(href, meta, fallbackTitle){
-        const t = (meta.title || fallbackTitle || "Untitled").trim();
-        const s = (meta.subtitle || "").trim();
+
+      function buildCard(href, meta, fallbackTitle){
+        const title = (meta.title || fallbackTitle || "Untitled").trim();
+        const subtitle = (meta.subtitle || meta.description || "").trim();
         const pill = meta.pill ? `<span class="pill">${meta.pill}</span>` : "";
-        const emoji = meta.emoji ? `${meta.emoji}\\u00A0` : "";
+        const emoji = meta.emoji ? `${meta.emoji}\u00A0` : "";
         const a = document.createElement("a");
         a.className = "card";
-        a.href = href;
+        a.href = (meta.url && meta.url.trim() !== "") ? meta.url : href;
         a.target = "_self";
         a.rel = "noopener";
         a.dataset.order = meta.order || "999";
-        a.innerHTML = `<h3>${emoji}${t}${pill}</h3><p>${s}</p><span class="link">Open →</span>`;
+        a.innerHTML = `<h3>${emoji}${title}${pill}</h3><p>${subtitle}</p><span class="link">Open →</span>`;
         return a;
       }
-      async function fetchJSON(url){
-        const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
-        if (res.status === 403) {
-          const remain = res.headers.get("X-RateLimit-Remaining");
-          const msg = remain === "0" ? "GitHub API rate limit exceeded for your IP." : "GitHub API blocked or forbidden.";
-          const err = new Error(msg); err.rateLimited = remain === "0"; throw err;
-        }
-        if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-        return res.json();
-      }
-      function encodePath(p){
-        return p.split("/").map(encodeURIComponent).join("/");
-      }
-      async function fetchInfoText(path){
-        // Try RAW first with safe encoding per segment
-        try{
-          const raw = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encodePath(path)}`;
-          const r1 = await fetch(raw, { cache: "no-store" });
-          if (r1.ok) return await r1.text();
-        }catch{}
-        // Fallback to Contents API (base64 -> UTF-8)
-        try{
-          const api = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodePath(path)}?ref=${encodeURIComponent(BRANCH)}`;
-          const j = await fetchJSON(api);
-          if (j && j.content && j.encoding === "base64") {
-            const b64 = j.content.replace(/\\n/g,"");
-            const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-            return textDecoder.decode(bin);
-          }
-        }catch{}
-        return "";
+
+      function insertSortedBeforePlaceholders(grid, cards){
+        cards.sort((a,b)=> +a.dataset.order - +b.dataset.order);
+        const children = Array.from(grid.children);
+        const firstPlaceholderIdx = children.findIndex(el => el.classList?.contains("card") && el.tagName !== "A");
+        const insertIdx = firstPlaceholderIdx >= 0 ? firstPlaceholderIdx : children.length;
+        cards.forEach((card,i) => grid.insertBefore(card, grid.children[insertIdx+i]));
       }
 
-      async function loadGroup(base, gridId, statusId){
+      async function fetchInfocard(files, base, folder){
+        // Prefer the exact file GitHub returns (case-correct) using download_url; cache-bust to avoid stale
+        const info = files.find(f => f.type === "file" && f.name.toLowerCase() === "infocard.txt");
+        let txt = "";
+        if (info && info.download_url) {
+          try {
+            const res = await fetch(info.download_url + `?ts=${Date.now()}`, { cache: "no-store" });
+            if (res.ok) txt = await res.text();
+          } catch (e) {
+            if (DEBUG) console.warn("download_url fetch failed", base, folder, e);
+          }
+        }
+        // Fallback to RAW path (also cache-busted)
+        if (!txt) {
+          const raw = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${base}/${folder}/infocard.txt?ts=${Date.now()}`;
+          try {
+            const r = await fetch(raw, { cache: "no-store" });
+            if (r.ok) txt = await r.text();
+          } catch (e) {
+            if (DEBUG) console.warn("raw fallback failed", base, folder, e);
+          }
+        }
+        return txt;
+      }
+
+      async function addCards(base, gridId, statusId){
         const grid = document.getElementById(gridId);
         const status = document.getElementById(statusId);
-        if(!grid) return;
+        if (!grid) return;
 
         try {
-          // One call: full repo tree
-          const tree = await fetchJSON(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${encodeURIComponent(BRANCH)}?recursive=1`);
-          const paths = tree.tree.map(t=>t.path);
-          const lower = paths.map(p=>p.toLowerCase());
+          const items = await listGithubPath(base);
+          const folders = items.filter(it => it.type === "dir").map(it => it.name);
+          const newCards = [];
 
-          // Folders that contain <base>/<folder>/index.html
-          const folders = Array.from(new Set(
-            lower
-              .filter(p => p.startsWith(base.toLowerCase()+"/") && p.endsWith("/index.html"))
-              .map(p => p.split("/").slice(0,2).join("/")) // base/folder
-          ));
+          for (const folder of folders) {
+            const files = await listGithubPath(`${base}/${folder}`);
+            const hasIndex = Array.isArray(files) && files.some(f => f.name.toLowerCase() === "index.html");
+            if (!hasIndex) continue;
 
-          const cards = [];
-          for (const folderLower of folders) {
-            const idxOriginal = paths.find(p => p.toLowerCase() === folderLower + "/index.html");
-            const folder = idxOriginal ? idxOriginal.split("/").slice(0,2).join("/") : folderLower;
-
-            // Look for infocard (any case)
-            const infoIdx = lower.indexOf(folderLower + "/infocard.txt");
             let meta = {};
-            if (infoIdx !== -1) {
-              const infoPath = paths[infoIdx];
-              const txt = await fetchInfoText(infoPath);
-              if (txt) meta = parseInfo(txt);
+            const txt = await fetchInfocard(files, base, folder);
+            if (txt && txt.trim()) {
+              meta = parseInfoCard(txt);
+              if ((meta.hide || "").toString().toLowerCase() === "true") continue;
             }
-            if (meta.hide) continue;
 
-            const href = (meta.url && meta.url.trim()!=="") ? clean(meta.url) : (`./${folder}/`);
-            cards.push(makeCard(href, meta, pretty(folder.split("/")[1]||"")));
+            const href = `./${base}/${folder}/index.html`;
+            const titleFallback = nicename(folder);
+            newCards.push(buildCard(href, meta, titleFallback));
           }
 
-          if(cards.length){
-            cards.sort((a,b)=> (+a.dataset.order) - (+b.dataset.order));
-            const kids = Array.from(grid.children);
-            const phIdx = kids.findIndex(el => el.classList?.contains("card") && el.tagName!=="A");
-            const idx = phIdx >= 0 ? phIdx : kids.length;
-            cards.forEach((c,i)=> grid.insertBefore(c, grid.children[idx+i]));
+          if (newCards.length) {
+            insertSortedBeforePlaceholders(grid, newCards);
             if (status) status.remove();
           } else {
             if (status) status.textContent = "No items found.";
           }
         } catch (e) {
-          if (status) status.textContent = e.rateLimited ? "Rate limit hit — try again later." : "Failed to load.";
-          console.warn(e);
+          if (status) status.textContent = "Failed to load.";
+          if (DEBUG) console.warn("Auto-list error:", e);
         }
       }
 
       await Promise.all([
-        loadGroup("apps","grid-projects","status-projects"),
-        loadGroup("tools","grid-tools","status-tools")
+        addCards("apps","grid-projects","status-projects"),
+        addCards("tools","grid-tools","status-tools"),
       ]);
     })();
   </script>
