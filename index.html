@@ -7,12 +7,17 @@
   <meta name="description" content="Gerardo Sacarelo — PhD • E-commerce • Creative Technologist. Side projects, tools, contact."/>
 
   <!-- Cross-platform icons -->
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icons-16.png"/>
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icons-32.png"/>
-  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icons-96.png"/>
-  <link rel="apple-touch-icon" sizes="76x76" href="/icons/icons-76.png"/>
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/appicon-180.png"/>
-  <meta name="theme-color" content="#0b0b0c"/>
+  <!-- PWA manifest (Android uses this for the home-screen icon) -->
+  <link rel="manifest" href="./manifest.json">
+  <!-- Browser tab icon -->
+  <link rel="icon" href="icon/favicon.ico" sizes="16x16 32x32">
+  <!-- iOS home-screen icon (iOS ignores the manifest) -->
+  <link rel="apple-touch-icon" href="icon/apple-touch-icon.png" sizes="180x180">
+  <!-- Optional PNG favicons (not required for A2HS, but fine to keep) -->
+  <link rel="icon" type="image/png" href="icon/icon-192.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="icon/icon-512.png" sizes="512x512">
+  <!-- Browser UI color -->
+  <meta name="theme-color" content="#000000">
 
   <style>
     :root{
