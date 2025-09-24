@@ -4,16 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Gerardo Sacarelo V. - Community</title>
-    <meta
-      name="description"
-      content="Gerardo Sacarelo — PhD • E-commerce • Creative Technologist. Side projects, tools, contact." />
+    <meta name="description" content="Gerardo Sacarelo — PhD • E-commerce • Creative Technologist. Side projects, tools, contact." />
 
-    <!-- Cross‑platform icons -->
+    <!-- Cross-platform icons -->
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/icons-16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icons-32.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="/icons/icons-96.png" />
     <link rel="apple-touch-icon" sizes="76x76" href="/icons/icons-76.png" />
-    <!-- Recommend adding this 180px iOS icon (safe if missing) -->
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/appicon-180.png" />
 
     <!-- PWA / Android -->
@@ -23,265 +20,119 @@
     <style>
       :root {
         --bg: #0b0b0c;
-        --card: #101114cc; /* glass */
+        --card: #101114cc;
         --stroke: #1c1d22;
         --text: #e9e9ee;
         --muted: #a5acb8;
         --brand: #b79bff;
+        --brand-strong: #9f85ff;
+        --brand-glow: rgba(183,155,255,.5);
         --radius: 12px;
-        --shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+        --shadow: 0 6px 18px rgba(0,0,0,.28);
+        --shadow-strong: 0 22px 46px rgba(0,0,0,.6);
       }
-
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        height: 100%;
-      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
       html { scroll-behavior: smooth; }
       body {
         margin: 0;
-        font:
-          16px/1.6 ui-sans-serif,
-          system-ui,
-          -apple-system,
-          "Segoe UI",
-          Roboto,
-          Arial,
-          "Apple Color Emoji",
-          "Segoe UI Emoji";
+        font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
         color: var(--text);
-        background:
-          radial-gradient(1200px 700px at 12% -14%, #171926, transparent 60%) no-repeat,
-          var(--bg);
-        overscroll-behavior-y: contain;
+        background: radial-gradient(1200px 700px at 12% -14%, #171926, transparent 60%) no-repeat, var(--bg);
       }
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
+      a { color: inherit; text-decoration: none; }
 
-      /* Container (reduced lateral padding) */
-      .wrap {
-        max-width: 1120px;
-        margin: 0 auto;
-        padding: 24px 10px 72px;
-      }
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 12px 10px 56px; }
 
-      /* Header / hero (compact + sticky) */
+      /* Sticky header: brand + menu */
       header {
-        position: sticky;
-        top: 10px;
-        z-index: 10;
-        padding: 18px 14px;
-        border: 1px solid var(--stroke);
-        border-radius: calc(var(--radius) + 6px);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), var(--card);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(6px);
+        position: sticky; top: 0; z-index: 20;
+        padding: 10px 10px;
+        border-bottom: 1px solid var(--stroke);
+        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), #0f1014f2;
+        box-shadow: 0 4px 18px rgba(0,0,0,.35);
+        backdrop-filter: blur(8px);
       }
-      .glow {
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        pointer-events: none;
-        background: radial-gradient(600px 180px at 10% -40%, rgba(183, 155, 255, 0.24), transparent 60%);
-        filter: blur(20px);
-      }
-      .topbar {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        margin-bottom: 10px;
-      }
-      .brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        letter-spacing: 0.2px;
-      }
+      .topbar { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .2px; }
       .brand .dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: conic-gradient(#7b5cff, #b79bff, #7b5cff);
-        box-shadow: 0 0 12px rgba(183, 155, 255, 0.7);
+        width: 12px; height: 12px; border-radius: 50%;
+        background: conic-gradient(#7b5cff,#b79bff,#7b5cff);
+        box-shadow: 0 0 12px rgba(183,155,255,.7);
       }
-      nav {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-      }
-      nav a {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        border-radius: 10px;
-        line-height: 1;
-        border: 1px solid var(--stroke);
-        background: rgba(255, 255, 255, 0.02);
+      nav { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+      nav a{
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 8px 10px; border-radius: 10px; line-height: 1;
+        border: 1px solid var(--stroke); background: rgba(255,255,255,.02);
         transition: border-color .15s, background .15s, box-shadow .15s, transform .05s;
         font-size: 14px;
       }
-      nav a:hover {
-        border-color: #2a2c33;
-        background: #151721;
-        box-shadow: 0 0 0 2px rgba(183, 155, 255, 0.18) inset;
-      }
-      nav a:active {
-        transform: translateY(1px);
-        box-shadow: 0 0 0 2px rgba(183, 155, 255, 0.28) inset;
-      }
+      nav a:hover { border-color: #2a2c33; background: #151721; box-shadow: 0 0 0 2px rgba(183,155,255,.18) inset; }
+      nav a:active { transform: translateY(1px); box-shadow: 0 0 0 2px rgba(183,155,255,.28) inset; }
 
-      .hero {
-        position: relative;
-      }
-      .hero h1 {
-        margin: 0 0 6px 0;
-        font-size: clamp(22px, 3.2vw, 30px);
-        text-align: center;
-      }
-      .hero p {
-        margin: 0;
-        color: var(--muted);
-        text-align: center;
-      }
-      .badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        row-gap: 6px;
-        margin-top: 10px;
-        justify-content: center;
-      }
-      .chip {
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: #0f1015;
-        border: 1px solid var(--stroke);
-        color: var(--muted);
-        font-size: 12px;
-      }
+      /* Hero (scrolls away) */
+      .hero { margin-top: 10px; text-align: center; }
+      .hero h1 { margin: 0 0 6px 0; font-size: clamp(20px, 3vw, 28px); }
+      .hero p  { margin: 0; color: var(--muted); }
+      .badges { display: flex; flex-wrap: wrap; gap: 6px; row-gap: 6px; margin-top: 10px; justify-content: center; }
+      .chip { padding: 6px 10px; border-radius: 999px; background: #0f1015; border: 1px solid var(--stroke); color: var(--muted); font-size: 12px; }
 
-      /* Sections */
-      section {
-        margin-top: 20px;
-        padding: 14px;
-        border-radius: var(--radius);
-        background: var(--card);
-        border: 1px solid var(--stroke);
-        box-shadow: var(--shadow);
-      }
-      section h2 {
-        margin: 0 0 10px 0;
-        font-size: 25px;
-        text-align: center; /* centered block titles */
-      }
+      section { margin-top: 16px; padding: 12px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--stroke); box-shadow: var(--shadow); }
+      section h2 { margin: 0 0 6px 0; font-size: 22px; text-align: center; }
+      .load-status { text-align: center; color: var(--muted); font-size: 14px; margin: 4px 0 8px; }
 
-      /* Dynamic grid */
-      .grid {
-        display: grid;
-        gap: 12px;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      }
-      @media (min-width: 1240px) {
-        .grid {
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-      }
+      .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+      @media (min-width: 1240px) { .grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
 
       /* Cards */
       .card {
         display: block;
         padding: 12px;
         border: 1px solid var(--stroke);
-        border-radius: 14px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)), var(--card);
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), #13151d;
         box-shadow: var(--shadow);
-        transition: transform .08s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+        transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, filter .16s ease;
+        will-change: transform, box-shadow, filter;
       }
       .card:hover {
-        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.34);
-        border-color: #242632;
-        background: #12141b;
+        transform: translateY(-10px) scale(1.035);
+        box-shadow: var(--shadow-strong), 0 0 0 2px var(--brand-glow);
+        border-color: var(--brand-strong);
+        background: #0f1323;
+        filter: saturate(1.15) contrast(1.08);
       }
       .card:active {
-        transform: translateY(1px) !important;
-        border-color: #2a2c33;
-        background: #12141b;
+        transform: translateY(-4px) scale(0.98);
+        box-shadow: var(--shadow-strong), 0 0 0 6px var(--brand-glow);
+        border-color: var(--brand-strong);
+        background: #0d1020;
+        filter: saturate(1.18) contrast(1.1) brightness(1.02);
       }
-      .card h3 {
-        margin: 0 0 2px 0;
-        font-size: 15px;
-        text-align: center; /* centered card titles */
-      }
-      .card p {
-        margin: 0;
-        color: var(--muted);
-        text-align: center;
-      }
+      .card h3 { margin: 0 0 4px 0; font-size: 16px; text-align: center; }
+      .card p  { margin: 0; color: var(--muted); text-align: center; }
       .pill {
-        margin-left: 8px;
-        padding: 2px 6px;
-        border-radius: 999px;
-        background: rgba(183, 155, 255, 0.14);
-        border: 1px solid rgba(183, 155, 255, 0.35);
-        color: #e9e2ff;
-        font-size: 11px;
-        vertical-align: middle;
+        margin-left: 8px; padding: 2px 6px; border-radius: 999px;
+        background: rgba(183,155,255,.18); border: 1px solid rgba(183,155,255,.5);
+        color: #efe7ff; font-size: 11px; vertical-align: middle;
       }
-      .link {
-        display: block;
-        margin-top: 8px;
-        text-align: center;
-        color: #d7dbff;
-        font-size: 13px;
-      }
+      .link { display: block; margin-top: 8px; text-align: center; color: #d7dbff; font-size: 13px; }
 
-      /* Mobile density */
       @media (max-width: 560px) {
-        .wrap { padding: 20px 8px 60px; }
-        header { padding: 14px 10px; }
-        .topbar { flex-direction: column; align-items: center; gap: 6px; }
-        .chip { font-size: 11px; padding: 4px 8px; }
-
+        .wrap { padding: 10px 8px 48px; }
         .card { padding: 10px; }
-        .card p {
-          margin-top: 2px;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden; /* clamp to shrink card height */
-        }
-
-        .badges { overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
-        .badges .chip { display: inline-block; }
-        section { padding: 12px; }
+        .card p { margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        section { padding: 10px; }
       }
 
-      footer {
-        margin-top: 24px;
-        font-size: 12.5px;
-        color: var(--muted);
-        text-align: center;
-      }
-
-      /* Simple fade-in (respects reduced motion) */
-      @media (prefers-reduced-motion: reduce) {
-        .fade-in { animation: none !important; opacity: 1; transform: none; }
-        * { scroll-behavior: auto; }
-      }
+      footer { margin-top: 18px; font-size: 12.5px; color: var(--muted); text-align: center; }
+      @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <header class="fade-in">
-        <div class="glow"></div>
+      <header>
         <div class="topbar">
           <div class="brand">
             <div class="dot" aria-hidden="true"></div>
@@ -294,184 +145,180 @@
             <a href="#contact">Contact</a>
           </nav>
         </div>
-        <div class="hero">
-          <h1>PhD • E-commerce • Creative Technologist</h1>
-          <p>Building quiet-luxury software, human-systems, and practical experiments.</p>
-          <div class="badges">
-            <span class="chip">Health Tech</span>
-            <span class="chip">Embedded &amp; Wearables</span>
-            <span class="chip">Behavior Design</span>
-            <span class="chip">Minimal Ops</span>
-          </div>
-        </div>
       </header>
 
-      <!-- ============ Projects (dynamic) ============ -->
-      <section id="projects" class="fade-in">
+      <section class="hero">
+        <h1>PhD • E-commerce • Creative Technologist</h1>
+        <p>Building quiet-luxury software, human-systems, and practical experiments.</p>
+        <div class="badges">
+          <span class="chip">Health Tech</span>
+          <span class="chip">Embedded &amp; Wearables</span>
+          <span class="chip">Behavior Design</span>
+          <span class="chip">Minimal Ops</span>
+        </div>
+      </section>
+
+      <section id="projects">
         <h2>⚡ Side Projects</h2>
+        <div id="status-projects" class="load-status">Loading apps…</div>
         <div class="grid" id="grid-projects">
-          <!-- Placeholders kept at the end -->
           <div class="card">
-            <h3>Soon<span class="pill">Placeholder</span></h3>
+            <h3>Project X<span class="pill">Soon</span></h3>
             <p>Another project is brewing.</p>
             <span class="link">Coming soon</span>
           </div>
           <div class="card">
-            <h3>Soon<span class="pill">Placeholder</span></h3>
+            <h3>Project Y<span class="pill">Soon</span></h3>
             <p>Stay tuned for updates.</p>
             <span class="link">Coming soon</span>
           </div>
         </div>
       </section>
 
-      <!-- ============ Tools (dynamic) ============ -->
-      <section id="tools" class="fade-in">
+      <section id="tools">
         <h2>🛠️ Tools &amp; Experiments</h2>
+        <div id="status-tools" class="load-status">Loading tools…</div>
         <div class="grid" id="grid-tools">
-          <!-- Placeholders kept at the end -->
           <div class="card">
-            <h3>Soon<span class="pill">Placeholder</span></h3>
+            <h3>AI Agents<span class="pill">Soon</span></h3>
             <p>Utility arriving shortly.</p>
             <span class="link">Coming soon</span>
           </div>
           <div class="card">
-            <h3>Soon<span class="pill">Placeholder</span></h3>
+            <h3>Key Master<span class="pill">Soon</span></h3>
             <p>Small lab, big ideas.</p>
             <span class="link">Coming soon</span>
           </div>
         </div>
       </section>
 
-      <!-- ============ About (preserved) ============ -->
-      <section id="about" class="fade-in">
+      <section id="about">
         <h2>💡 About</h2>
         <div class="card">
-          <p style="margin: 0">
-            PhD-level maker focused on health tech, embedded systems, and non-conventional learning. This site tracks
-            public side-projects and reference tools with a bias toward signal over noise.
+          <p style="margin:0">
+            PhD-level maker focused on health tech, embedded systems, and non-conventional learning.
+            This site tracks public side-projects and reference tools with a bias toward signal over noise.
           </p>
         </div>
       </section>
 
-      <!-- ============ Contact (preserved) ============ -->
-      <section id="contact" class="fade-in">
+      <section id="contact">
         <h2>📬 Get in Touch</h2>
         <div class="card">
-          <p style="margin: 0">
+          <p style="margin:0">
             Instagram: <a href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">@gerardo711</a><br />
             Socials: <a href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">Linktree</a>
           </p>
         </div>
       </section>
 
-      <footer class="fade-in">© 1990 – <span id="year"></span> Gerardo Sacarelo V. All rights reserved.</footer>
+      <footer>© 1990 – <span id="year"></span> Gerardo Sacarelo V. All rights reserved.</footer>
     </div>
 
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
 
-    <!-- Dynamic cards via GitHub API + infocard.txt -->
-    <script>
       (async function () {
         const OWNER = "gsacarelo";
         const REPO = "community";
-        const BRANCH = "main"; // adjust if needed
+        const BRANCH = "main";
 
-        async function listGithubPath(path) {
+        // --- Helpers ---
+        async function ghList(path) {
           const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
           const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
           if (!res.ok) return [];
           return res.json();
         }
-
-        function parseInfoCard(text) {
-          const out = {};
-          text.split(/\r?\n/).forEach((line) => {
-            const m = line.match(/^\s*([a-zA-Z0-9_-]+)\s*:\s*(.*)\s*$/);
-            if (m) out[m[1].toLowerCase()] = m[2];
+        function clean(v) {
+          if (!v) return "";
+          let s = String(v).replace(/^\\uFEFF/, "").trim();
+          return s.replace(/\\s+#.*$/, "").trim(); // strip trailing inline comment
+        }
+        function parseInfo(text) {
+          const data = {};
+          text.replace(/^\\uFEFF/, "").split(/\\r?\\n/).forEach(line => {
+            if (/^\\s*#/.test(line)) return;
+            const m = line.match(/^\\s*([a-zA-Z0-9_-]+)\\s*:\\s*(.*)$/);
+            if (m) data[m[1].toLowerCase()] = clean(m[2]);
           });
-          return out;
+          return data;
         }
-
-        function nicename(slug) {
-          return slug
-            .replace(/[-_]+/g, " ")
-            .replace(/\s+/g, " ")
-            .trim()
-            .replace(/\b(\w)/g, (s) => s.toUpperCase());
+        function pretty(slug) {
+          return slug.replace(/[-_]+/g, " ").replace(/\\s+/g, " ").trim().replace(/\\b(\\w)/g, s => s.toUpperCase());
         }
-
-        function buildCard(href, meta, fallbackTitle) {
+        function makeCard(href, meta, fallbackTitle) {
           const title = (meta.title || fallbackTitle || "Untitled").trim();
-          const subtitle = (meta.subtitle || meta.description || "Auto-detected").trim();
+          const subtitle = (meta.subtitle || meta.description || "").trim();
           const pill = meta.pill ? `<span class="pill">${meta.pill}</span>` : "";
-          const emoji = meta.emoji ? `${meta.emoji}\u00A0` : "";
+          const emoji = meta.emoji ? `${meta.emoji}\\u00A0` : "";
           const a = document.createElement("a");
           a.className = "card";
-          a.href = meta.url || href;
+          a.href = href;
           a.target = "_self";
           a.rel = "noopener";
           a.dataset.order = meta.order || "999";
-          a.innerHTML = `
-            <h3>${emoji}${title}${pill}</h3>
-            <p>${subtitle}</p>
-            <span class="link">Open →</span>
-          `;
+          a.innerHTML = `<h3>${emoji}${title}${pill}</h3><p>${subtitle}</p><span class="link">Open →</span>`;
           return a;
         }
-
-        function insertSortedBeforePlaceholders(grid, cards) {
-          cards.sort((a, b) => +a.dataset.order - +b.dataset.order);
-          const children = Array.from(grid.children);
-          const firstPlaceholderIdx = children.findIndex(
-            (el) => el.classList?.contains("card") && el.tagName !== "A"
-          );
-          const insertIdx = firstPlaceholderIdx >= 0 ? firstPlaceholderIdx : children.length;
-          cards.forEach((card, i) => grid.insertBefore(card, grid.children[insertIdx + i]));
+        function insertCards(grid, cards) {
+          cards.sort((a,b) => (+a.dataset.order) - (+b.dataset.order));
+          const kids = Array.from(grid.children);
+          const ph = kids.findIndex(el => el.classList?.contains("card") && el.tagName !== "A");
+          const idx = ph >= 0 ? ph : kids.length;
+          cards.forEach((c, i) => grid.insertBefore(c, grid.children[idx + i]));
         }
 
-        async function addCards(base, gridId) {
+        async function loadGroup(base, gridId, statusId) {
           const grid = document.getElementById(gridId);
+          const status = document.getElementById(statusId);
           if (!grid) return;
 
-          const items = await listGithubPath(base);
-          const folders = items.filter((it) => it.type === "dir").map((it) => it.name);
-          const newCards = [];
+          try {
+            const list = await ghList(base);
+            const folders = list.filter(x => x.type === "dir").map(x => x.name);
+            const cards = [];
 
-          for (const folder of folders) {
-            // Verify index.html exists
-            const files = await listGithubPath(`${base}/${folder}`);
-            const hasIndex = Array.isArray(files) && files.some((f) => f.name.toLowerCase() === "index.html");
-            if (!hasIndex) continue;
+            for (const folder of folders) {
+              // Try to read infocard first
+              let meta = {};
+              try {
+                const rawUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${base}/${folder}/infocard.txt`;
+                const r = await fetch(rawUrl);
+                if (r.ok) meta = parseInfo(await r.text());
+              } catch {}
+              if ((meta.hide || "").toString().toLowerCase() === "true") continue;
 
-            // Try to read infocard.txt via raw
-            let meta = {};
-            try {
-              const raw = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${base}/${folder}/infocard.txt`;
-              const res = await fetch(raw, { cache: "no-store" });
-              if (res.ok) {
-                meta = parseInfoCard(await res.text());
-                if ((meta.hide || "").toString().toLowerCase() === "true") continue;
+              // Decide href: prefer meta.url, else verify index.html exists
+              let href = clean(meta.url);
+              if (!href) {
+                // only check for index.html if no url provided
+                const files = await ghList(`${base}/${folder}`);
+                const hasIndex = Array.isArray(files) && files.some(f => f.type === "file" && f.name.toLowerCase() === "index.html");
+                if (!hasIndex) continue; // skip if we have neither url nor index
+                href = `./${base}/${folder}/`; // rely on index.html
               }
-            } catch {}
 
-            const href = `./${base}/${folder}/index.html`;
-            const titleFallback = nicename(folder);
-            newCards.push(buildCard(href, meta, titleFallback));
+              const titleFallback = pretty(folder);
+              cards.push(makeCard(href, meta, titleFallback));
+            }
+
+            if (cards.length) {
+              insertCards(grid, cards);
+              if (status) status.remove();
+            } else {
+              if (status) status.textContent = "No items found.";
+            }
+          } catch (e) {
+            if (status) status.textContent = "Failed to load.";
+            console.warn(e);
           }
-
-          if (newCards.length) insertSortedBeforePlaceholders(grid, newCards);
         }
 
-        try {
-          await Promise.all([
-            addCards("apps", "grid-projects"),
-            addCards("tools", "grid-tools"),
-          ]);
-        } catch (err) {
-          console.warn("Auto-list error:", err);
-        }
+        await Promise.all([
+          loadGroup("apps", "grid-projects", "status-projects"),
+          loadGroup("tools", "grid-tools", "status-tools"),
+        ]);
       })();
     </script>
   </body>
