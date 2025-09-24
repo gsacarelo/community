@@ -1,325 +1,294 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Gerardo Sacarelo V. - Community</title>
-    <meta name="description" content="Gerardo Sacarelo — PhD • E-commerce • Creative Technologist. Side projects, tools, contact." />
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Gerardo Sacarelo V. - Community</title>
+  <meta name="description" content="Gerardo Sacarelo — PhD • E-commerce • Creative Technologist. Side projects, tools, contact."/>
 
-    <!-- Cross-platform icons -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icons-16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icons-32.png" />
-    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icons-96.png" />
-    <link rel="apple-touch-icon" sizes="76x76" href="/icons/icons-76.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/appicon-180.png" />
+  <!-- Cross-platform icons -->
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icons-16.png"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icons-32.png"/>
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icons-96.png"/>
+  <link rel="apple-touch-icon" sizes="76x76" href="/icons/icons-76.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/appicon-180.png"/>
+  <meta name="theme-color" content="#0b0b0c"/>
 
-    <!-- PWA / Android -->
-    <meta name="theme-color" content="#0b0b0c" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+  <style>
+    :root{
+      --bg:#0b0b0c;
+      --card:#101114cc;
+      --stroke:#1c1d22;
+      --text:#e9e9ee;
+      --muted:#a5acb8;
+      --brand:#b79bff;
+      --brand-strong:#9f85ff;
+      --brand-glow:rgba(183,155,255,.5);
+      --radius:12px;
+      --shadow:0 6px 18px rgba(0,0,0,.28);
+      --shadow-strong:0 22px 46px rgba(0,0,0,.60);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:radial-gradient(1200px 700px at 12% -14%,#171926,transparent 60%) no-repeat,var(--bg);
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1120px;margin:0 auto;padding:12px 10px 56px}
 
-    <style>
-      :root {
-        --bg: #0b0b0c;
-        --card: #101114cc;
-        --stroke: #1c1d22;
-        --text: #e9e9ee;
-        --muted: #a5acb8;
-        --brand: #b79bff;
-        --brand-strong: #9f85ff;
-        --brand-glow: rgba(183,155,255,.5);
-        --radius: 12px;
-        --shadow: 0 6px 18px rgba(0,0,0,.28);
-        --shadow-strong: 0 22px 46px rgba(0,0,0,.6);
-      }
-      * { box-sizing: border-box; }
-      html, body { height: 100%; }
-      html { scroll-behavior: smooth; }
-      body {
-        margin: 0;
-        font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-        color: var(--text);
-        background: radial-gradient(1200px 700px at 12% -14%, #171926, transparent 60%) no-repeat, var(--bg);
-      }
-      a { color: inherit; text-decoration: none; }
+    /* Sticky header: brand + menu */
+    header{
+      position:sticky;top:0;z-index:20;
+      padding:10px 10px;
+      border-bottom:1px solid var(--stroke);
+      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02)),#0f1014f2;
+      box-shadow:0 4px 18px rgba(0,0,0,.35);
+      backdrop-filter:blur(8px);
+    }
+    .topbar{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
+    .brand .dot{width:12px;height:12px;border-radius:50%;background:conic-gradient(#7b5cff,#b79bff,#7b5cff);box-shadow:0 0 12px rgba(183,155,255,.7)}
+    nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+    nav a{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;line-height:1;border:1px solid var(--stroke);background:rgba(255,255,255,.02);transition:border-color .15s,background .15s,box-shadow .15s,transform .05s;font-size:14px}
+    nav a:hover{border-color:#2a2c33;background:#151721;box-shadow:0 0 0 2px rgba(183,155,255,.18) inset}
+    nav a:active{transform:translateY(1px);box-shadow:0 0 0 2px rgba(183,155,255,.28) inset}
 
-      .wrap { max-width: 1120px; margin: 0 auto; padding: 12px 10px 56px; }
+    .hero{margin-top:10px;text-align:center}
+    .hero h1{margin:0 0 6px;font-size:clamp(20px,3vw,28px)}
+    .hero p{margin:0;color:var(--muted)}
+    .badges{display:flex;flex-wrap:wrap;gap:6px;row-gap:6px;margin-top:10px;justify-content:center}
+    .chip{padding:6px 10px;border-radius:999px;background:#0f1015;border:1px solid var(--stroke);color:var(--muted);font-size:12px}
 
-      /* Sticky header: brand + menu */
-      header {
-        position: sticky; top: 0; z-index: 20;
-        padding: 10px 10px;
-        border-bottom: 1px solid var(--stroke);
-        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), #0f1014f2;
-        box-shadow: 0 4px 18px rgba(0,0,0,.35);
-        backdrop-filter: blur(8px);
-      }
-      .topbar { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .2px; }
-      .brand .dot {
-        width: 12px; height: 12px; border-radius: 50%;
-        background: conic-gradient(#7b5cff,#b79bff,#7b5cff);
-        box-shadow: 0 0 12px rgba(183,155,255,.7);
-      }
-      nav { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-      nav a{
-        display: inline-flex; align-items: center; gap: 8px;
-        padding: 8px 10px; border-radius: 10px; line-height: 1;
-        border: 1px solid var(--stroke); background: rgba(255,255,255,.02);
-        transition: border-color .15s, background .15s, box-shadow .15s, transform .05s;
-        font-size: 14px;
-      }
-      nav a:hover { border-color: #2a2c33; background: #151721; box-shadow: 0 0 0 2px rgba(183,155,255,.18) inset; }
-      nav a:active { transform: translateY(1px); box-shadow: 0 0 0 2px rgba(183,155,255,.28) inset; }
+    section{margin-top:16px;padding:12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--stroke);box-shadow:var(--shadow)}
+    section h2{margin:0 0 6px;font-size:22px;text-align:center}
+    .load-status{text-align:center;color:var(--muted);font-size:14px;margin:4px 0 8px}
 
-      /* Hero (scrolls away) */
-      .hero { margin-top: 10px; text-align: center; }
-      .hero h1 { margin: 0 0 6px 0; font-size: clamp(20px, 3vw, 28px); }
-      .hero p  { margin: 0; color: var(--muted); }
-      .badges { display: flex; flex-wrap: wrap; gap: 6px; row-gap: 6px; margin-top: 10px; justify-content: center; }
-      .chip { padding: 6px 10px; border-radius: 999px; background: #0f1015; border: 1px solid var(--stroke); color: var(--muted); font-size: 12px; }
+    .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    @media(min-width:1240px){.grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}}
 
-      section { margin-top: 16px; padding: 12px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--stroke); box-shadow: var(--shadow); }
-      section h2 { margin: 0 0 6px 0; font-size: 22px; text-align: center; }
-      .load-status { text-align: center; color: var(--muted); font-size: 14px; margin: 4px 0 8px; }
+    .card{
+      display:block;padding:12px;border:1px solid var(--stroke);border-radius:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),#13151d;
+      box-shadow:var(--shadow);
+      transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease,filter .16s ease;
+      will-change:transform,box-shadow,filter;
+    }
+    .card:hover{
+      transform:translateY(-10px) scale(1.035);
+      box-shadow:var(--shadow-strong),0 0 0 2px var(--brand-glow);
+      border-color:var(--brand-strong);
+      background:#0f1323;
+      filter:saturate(1.15) contrast(1.08);
+    }
+    .card:active{
+      transform:translateY(-4px) scale(0.98);
+      box-shadow:var(--shadow-strong),0 0 0 6px var(--brand-glow);
+      border-color:var(--brand-strong);
+      background:#0d1020;
+      filter:saturate(1.18) contrast(1.1) brightness(1.02);
+    }
+    .card h3{margin:0 0 4px;font-size:16px;text-align:center}
+    .card p{margin:0;color:var(--muted);text-align:center}
+    .pill{margin-left:8px;padding:2px 6px;border-radius:999px;background:rgba(183,155,255,.18);border:1px solid rgba(183,155,255,.5);color:#efe7ff;font-size:11px;vertical-align:middle}
+    .link{display:block;margin-top:8px;text-align:center;color:#d7dbff;font-size:13px}
 
-      .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-      @media (min-width: 1240px) { .grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
-
-      /* Cards */
-      .card {
-        display: block;
-        padding: 12px;
-        border: 1px solid var(--stroke);
-        border-radius: 16px;
-        background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), #13151d;
-        box-shadow: var(--shadow);
-        transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, filter .16s ease;
-        will-change: transform, box-shadow, filter;
-      }
-      .card:hover {
-        transform: translateY(-10px) scale(1.035);
-        box-shadow: var(--shadow-strong), 0 0 0 2px var(--brand-glow);
-        border-color: var(--brand-strong);
-        background: #0f1323;
-        filter: saturate(1.15) contrast(1.08);
-      }
-      .card:active {
-        transform: translateY(-4px) scale(0.98);
-        box-shadow: var(--shadow-strong), 0 0 0 6px var(--brand-glow);
-        border-color: var(--brand-strong);
-        background: #0d1020;
-        filter: saturate(1.18) contrast(1.1) brightness(1.02);
-      }
-      .card h3 { margin: 0 0 4px 0; font-size: 16px; text-align: center; }
-      .card p  { margin: 0; color: var(--muted); text-align: center; }
-      .pill {
-        margin-left: 8px; padding: 2px 6px; border-radius: 999px;
-        background: rgba(183,155,255,.18); border: 1px solid rgba(183,155,255,.5);
-        color: #efe7ff; font-size: 11px; vertical-align: middle;
-      }
-      .link { display: block; margin-top: 8px; text-align: center; color: #d7dbff; font-size: 13px; }
-
-      @media (max-width: 560px) {
-        .wrap { padding: 10px 8px 48px; }
-        .card { padding: 10px; }
-        .card p { margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        section { padding: 10px; }
-      }
-
-      footer { margin-top: 18px; font-size: 12.5px; color: var(--muted); text-align: center; }
-      @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <header>
-        <div class="topbar">
-          <div class="brand">
-            <div class="dot" aria-hidden="true"></div>
-            <span>Gerardo&nbsp;Sacarelo&nbsp;V.</span>
-          </div>
-          <nav>
-            <a href="#projects">Side&nbsp;Projects</a>
-            <a href="#tools">Tools</a>
-            <a href="#about">About</a>
-            <a href="#contact">Contact</a>
-          </nav>
+    @media(max-width:560px){
+      .wrap{padding:10px 8px 48px}
+      .card{padding:10px}
+      .card p{margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+      section{padding:10px}
+    }
+    footer{margin-top:18px;font-size:12.5px;color:var(--muted);text-align:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="topbar">
+        <div class="brand">
+          <div class="dot" aria-hidden="true"></div>
+          <span>Gerardo&nbsp;Sacarelo&nbsp;V.</span>
         </div>
-      </header>
+        <nav>
+          <a href="#projects">Side&nbsp;Projects</a>
+          <a href="#tools">Tools</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
 
-      <section class="hero">
-        <h1>PhD • E-commerce • Creative Technologist</h1>
-        <p>Building quiet-luxury software, human-systems, and practical experiments.</p>
-        <div class="badges">
-          <span class="chip">Health Tech</span>
-          <span class="chip">Embedded &amp; Wearables</span>
-          <span class="chip">Behavior Design</span>
-          <span class="chip">Minimal Ops</span>
-        </div>
-      </section>
+    <section class="hero">
+      <h1>PhD • E-commerce • Creative Technologist</h1>
+      <p>Building quiet-luxury software, human-systems, and practical experiments.</p>
+      <div class="badges">
+        <span class="chip">Health Tech</span>
+        <span class="chip">Embedded &amp; Wearables</span>
+        <span class="chip">Behavior Design</span>
+        <span class="chip">Minimal Ops</span>
+      </div>
+    </section>
 
-      <section id="projects">
-        <h2>⚡ Side Projects</h2>
-        <div id="status-projects" class="load-status">Loading apps…</div>
-        <div class="grid" id="grid-projects">
-          <div class="card">
-            <h3>Project X<span class="pill">Soon</span></h3>
-            <p>Another project is brewing.</p>
-            <span class="link">Coming soon</span>
-          </div>
-          <div class="card">
-            <h3>Project Y<span class="pill">Soon</span></h3>
-            <p>Stay tuned for updates.</p>
-            <span class="link">Coming soon</span>
-          </div>
-        </div>
-      </section>
+    <section id="projects">
+      <h2>⚡ Side Projects</h2>
+      <div id="status-projects" class="load-status">Loading apps…</div>
+      <div class="grid" id="grid-projects">
+        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Another project is brewing.</p><span class="link">Coming soon</span></div>
+        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Stay tuned for updates.</p><span class="link">Coming soon</span></div>
+      </div>
+    </section>
 
-      <section id="tools">
-        <h2>🛠️ Tools &amp; Experiments</h2>
-        <div id="status-tools" class="load-status">Loading tools…</div>
-        <div class="grid" id="grid-tools">
-          <div class="card">
-            <h3>AI Agents<span class="pill">Soon</span></h3>
-            <p>Utility arriving shortly.</p>
-            <span class="link">Coming soon</span>
-          </div>
-          <div class="card">
-            <h3>Key Master<span class="pill">Soon</span></h3>
-            <p>Small lab, big ideas.</p>
-            <span class="link">Coming soon</span>
-          </div>
-        </div>
-      </section>
+    <section id="tools">
+      <h2>🛠️ Tools &amp; Experiments</h2>
+      <div id="status-tools" class="load-status">Loading tools…</div>
+      <div class="grid" id="grid-tools">
+        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Utility arriving shortly.</p><span class="link">Coming soon</span></div>
+        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Small lab, big ideas.</p><span class="link">Coming soon</span></div>
+      </div>
+    </section>
 
-      <section id="about">
-        <h2>💡 About</h2>
-        <div class="card">
-          <p style="margin:0">
-            PhD-level maker focused on health tech, embedded systems, and non-conventional learning.
-            This site tracks public side-projects and reference tools with a bias toward signal over noise.
-          </p>
-        </div>
-      </section>
+    <section id="about">
+      <h2>💡 About</h2>
+      <div class="card">
+        <p style="margin:0">PhD-level maker focused on health tech, embedded systems, and non-conventional learning. This site tracks public side-projects and reference tools with a bias toward signal over noise.</p>
+      </div>
+    </section>
 
-      <section id="contact">
-        <h2>📬 Get in Touch</h2>
-        <div class="card">
-          <p style="margin:0">
-            Instagram: <a href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">@gerardo711</a><br />
-            Socials: <a href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">Linktree</a>
-          </p>
-        </div>
-      </section>
+    <section id="contact">
+      <h2>📬 Get in Touch</h2>
+      <div class="card">
+        <p style="margin:0">Instagram: <a href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">@gerardo711</a><br/>Socials: <a href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">Linktree</a></p>
+      </div>
+    </section>
 
-      <footer>© 1990 – <span id="year"></span> Gerardo Sacarelo V. All rights reserved.</footer>
-    </div>
+    <footer>© 1990 – <span id="year"></span> Gerardo Sacarelo V. All rights reserved.</footer>
+  </div>
 
-    <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-      (async function () {
-        const OWNER = "gsacarelo";
-        const REPO = "community";
-        const BRANCH = "main";
+    (async function () {
+      const OWNER = "gsacarelo";
+      const REPO = "community";
+      const BRANCH = "main";
 
-        // --- Helpers ---
-        async function ghList(path) {
-          const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
-          const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
-          if (!res.ok) return [];
-          return res.json();
-        }
-        function clean(v) {
-          if (!v) return "";
-          let s = String(v).replace(/^\\uFEFF/, "").trim();
-          return s.replace(/\\s+#.*$/, "").trim(); // strip trailing inline comment
-        }
-        function parseInfo(text) {
-          const data = {};
-          text.replace(/^\\uFEFF/, "").split(/\\r?\\n/).forEach(line => {
-            if (/^\\s*#/.test(line)) return;
-            const m = line.match(/^\\s*([a-zA-Z0-9_-]+)\\s*:\\s*(.*)$/);
-            if (m) data[m[1].toLowerCase()] = clean(m[2]);
-          });
-          return data;
-        }
-        function pretty(slug) {
-          return slug.replace(/[-_]+/g, " ").replace(/\\s+/g, " ").trim().replace(/\\b(\\w)/g, s => s.toUpperCase());
-        }
-        function makeCard(href, meta, fallbackTitle) {
-          const title = (meta.title || fallbackTitle || "Untitled").trim();
-          const subtitle = (meta.subtitle || meta.description || "").trim();
-          const pill = meta.pill ? `<span class="pill">${meta.pill}</span>` : "";
-          const emoji = meta.emoji ? `${meta.emoji}\\u00A0` : "";
-          const a = document.createElement("a");
-          a.className = "card";
-          a.href = href;
-          a.target = "_self";
-          a.rel = "noopener";
-          a.dataset.order = meta.order || "999";
-          a.innerHTML = `<h3>${emoji}${title}${pill}</h3><p>${subtitle}</p><span class="link">Open →</span>`;
-          return a;
-        }
-        function insertCards(grid, cards) {
-          cards.sort((a,b) => (+a.dataset.order) - (+b.dataset.order));
-          const kids = Array.from(grid.children);
-          const ph = kids.findIndex(el => el.classList?.contains("card") && el.tagName !== "A");
-          const idx = ph >= 0 ? ph : kids.length;
-          cards.forEach((c, i) => grid.insertBefore(c, grid.children[idx + i]));
-        }
+      async function ghList(path){
+        const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
+        const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+        if(!res.ok) return [];
+        return res.json();
+      }
 
-        async function loadGroup(base, gridId, statusId) {
-          const grid = document.getElementById(gridId);
-          const status = document.getElementById(statusId);
-          if (!grid) return;
+      function clean(v){
+        if(!v) return "";
+        let s = String(v).replace(/^\\uFEFF/, "").trim();
+        return s.replace(/\\s+#.*$/, "").trim();
+      }
 
-          try {
-            const list = await ghList(base);
-            const folders = list.filter(x => x.type === "dir").map(x => x.name);
-            const cards = [];
+      function parseInfo(text){
+        const data = {};
+        text.replace(/^\\uFEFF/, "").split(/\\r?\\n/).forEach(line=>{
+          if(/^\\s*#/.test(line)) return;
+          const m = line.match(/^\\s*([\\w-]+)\\s*:\\s*(.*)$/);
+          if(m) data[m[1].toLowerCase()] = clean(m[2]);
+        });
+        // normalize synonyms
+        const get = (...keys)=> {
+          for(const k of keys){ if(data[k] && String(data[k]).trim()!=="") return data[k]; }
+        };
+        return {
+          title: get("title","name","t"),
+          subtitle: get("subtitle","sub","desc","description","summary","text"),
+          pill: get("pill","badge","tag","label"),
+          emoji: get("emoji","icon","em"),
+          order: get("order","sort","rank","weight","priority"),
+          url: get("url","link","href"),
+          hide: (get("hide","hidden")||"").toString().toLowerCase()==="true"
+        };
+      }
 
-            for (const folder of folders) {
-              // Try to read infocard first
-              let meta = {};
-              try {
-                const rawUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${base}/${folder}/infocard.txt`;
-                const r = await fetch(rawUrl);
-                if (r.ok) meta = parseInfo(await r.text());
-              } catch {}
-              if ((meta.hide || "").toString().toLowerCase() === "true") continue;
+      function pretty(slug){
+        return slug.replace(/[-_]+/g," ").replace(/\\s+/g," ").trim().replace(/\\b(\\w)/g,s=>s.toUpperCase());
+      }
 
-              // Decide href: prefer meta.url, else verify index.html exists
-              let href = clean(meta.url);
-              if (!href) {
-                // only check for index.html if no url provided
-                const files = await ghList(`${base}/${folder}`);
-                const hasIndex = Array.isArray(files) && files.some(f => f.type === "file" && f.name.toLowerCase() === "index.html");
-                if (!hasIndex) continue; // skip if we have neither url nor index
-                href = `./${base}/${folder}/`; // rely on index.html
-              }
+      function makeCard(href, meta, fallbackTitle){
+        const t = (meta.title || fallbackTitle || "Untitled").trim();
+        const s = (meta.subtitle || "").trim();
+        const pill = meta.pill ? `<span class="pill">${meta.pill}</span>` : "";
+        const emoji = meta.emoji ? `${meta.emoji}\\u00A0` : "";
+        const a = document.createElement("a");
+        a.className = "card";
+        a.href = href;
+        a.target = "_self";
+        a.rel = "noopener";
+        a.dataset.order = meta.order || "999";
+        a.innerHTML = `<h3>${emoji}${t}${pill}</h3><p>${s}</p><span class="link">Open →</span>`;
+        return a;
+      }
 
-              const titleFallback = pretty(folder);
-              cards.push(makeCard(href, meta, titleFallback));
+      async function loadGroup(base, gridId, statusId){
+        const grid = document.getElementById(gridId);
+        const status = document.getElementById(statusId);
+        if(!grid) return;
+
+        try{
+          const entries = await ghList(base);
+          const folders = entries.filter(x=>x.type==="dir").map(x=>x.name);
+          const cards = [];
+
+          for(const folder of folders){
+            const files = await ghList(`${base}/${folder}`);
+            // find real infocard file name (case-insensitive)
+            const infoFile = files.find(f => f.type==="file" && f.name.toLowerCase()==="infocard.txt");
+            let meta = {};
+            if(infoFile){
+              try{
+                const raw = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${base}/${folder}/${infoFile.name}`;
+                const r = await fetch(raw, { cache: "no-store" });
+                if(r.ok){
+                  meta = parseInfo(await r.text());
+                }
+              }catch(e){}
+            }
+            if(meta.hide) continue;
+
+            // resolve href: meta.url or index.html
+            let href = clean(meta.url || "");
+            if(!href){
+              const hasIndex = files.some(f => f.type==="file" && f.name.toLowerCase()==="index.html");
+              if(!hasIndex) continue;
+              href = `./${base}/${folder}/`;
             }
 
-            if (cards.length) {
-              insertCards(grid, cards);
-              if (status) status.remove();
-            } else {
-              if (status) status.textContent = "No items found.";
-            }
-          } catch (e) {
-            if (status) status.textContent = "Failed to load.";
-            console.warn(e);
+            cards.push(makeCard(href, meta, pretty(folder)));
           }
-        }
 
-        await Promise.all([
-          loadGroup("apps", "grid-projects", "status-projects"),
-          loadGroup("tools", "grid-tools", "status-tools"),
-        ]);
-      })();
-    </script>
-  </body>
+          if(cards.length){
+            cards.sort((a,b)=> (+a.dataset.order) - (+b.dataset.order));
+            // insert before placeholders
+            const kids = Array.from(grid.children);
+            const phIdx = kids.findIndex(el => el.classList?.contains("card") && el.tagName!=="A");
+            const idx = phIdx >= 0 ? phIdx : kids.length;
+            cards.forEach((c,i)=> grid.insertBefore(c, grid.children[idx+i]));
+            if(status) status.remove();
+          }else{
+            if(status) status.textContent = "No items found.";
+          }
+        }catch(e){
+          if(status) status.textContent = "Failed to load.";
+          console.warn(e);
+        }
+      }
+
+      await Promise.all([
+        loadGroup("apps","grid-projects","status-projects"),
+        loadGroup("tools","grid-tools","status-tools")
+      ]);
+    })();
+  </script>
+</body>
 </html>
