@@ -1,1 +1,7 @@
-
+title: Pomodoro+
+subtitle: Focus Timer • Roadmap • Stats
+emoji: 🍎
+pill: Live
+order: 9
+url: 
+hide: false
