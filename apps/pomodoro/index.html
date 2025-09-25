@@ -135,7 +135,7 @@
   }
   body.theme-light .btn::before{ background: conic-gradient(from 0deg, rgba(0,0,0,.9), rgba(0,0,0,.2), rgba(0,0,0,.9)) }
   .btn:hover::before{ opacity:1; animation: spin 1.2s linear infinite }
-  .btn.cta:hover::before{ animation-duration: .65s } /* faster snake for Start */
+  .btn.cta:hover::before{ animation-duration: .65s }
   @keyframes spin{ to{ transform: rotate(360deg) } }
 
   /* Ripple on click */
@@ -225,7 +225,7 @@
 
   /* slide panel */
   .panel{
-    position: fixed; right:18px; bottom:18px; width:min(520px, 94vw); max-height:82vh; overflow:auto;
+    position: fixed; right:18px; bottom:18px; width:min(620px, 96vw); max-height:82vh; overflow:auto;
     transform: translateY(12px); opacity:0; visibility:hidden; transition:.25s ease;
   }
   .panel.open{ transform:none; opacity:1; visibility:visible }
@@ -235,9 +235,9 @@
 
   footer{ padding:10px 20px; text-align:center; color:var(--muted); font-size:12px }
   a{ color:#c8d2ff; text-decoration:none }
-  a.btn, a.btn:hover { text-decoration: none; }
   body.theme-light a{ color:#5b47ff }
   a:hover{ text-decoration:underline }
+  a.btn, a.btn:hover { text-decoration: none; }
 </style>
 </head>
 <body class="state-idle">
@@ -246,8 +246,8 @@
   <div class="brand">
     <div class="logo" aria-hidden="true"></div>
     <div>
-      <div class="title">🍎 Pomodoro+ <span style="opacity:.6; font-weight:600">Focus & Flow</span></div>
-      <div class="hint">Enhanced visual timer · local stats · motivational quotes</div>
+      <div class="title">Pomodoro+ <span style="opacity:.6; font-weight:600">Focus & Flow</span></div>
+      <div class="hint">Enhanced Timer · Action-Packed · Time Locksmith</div>
     </div>
   </div>
   <div class="actions">
@@ -368,7 +368,7 @@
         </div>
         <div class="hint">You can tweak after applying a preset.</div>
       </div>
-      <div class="hint">Shortcuts: <span class="kbd">Space</span> start/pause · <span class="kbd">R</span> reset · <span class="kbd">N</span> skip · <span class="kbd">T</span> theme · <span class="kbd">S</span> settings · <span class="kbd">Esc</span> close</div>
+      <div class="hint">Shortcuts: <span class="kbd">Space</span> start/pause · <span class="kbd">R</span> reset · <span class="kbd">N</span> skip · <span class="kbd">T</span> theme · <span class="kbd">S</span> settings · <span class="kbd">Esc</span> close · <span class="kbd">H</span> main page</div>
     </div>
   </section>
 </div>
@@ -377,11 +377,9 @@
 
 <script>
 (() => {
-  // ---------- mini DOM helpers ----------
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-  // ---------- elements ----------
   const el = {
     mmss: $('#mmss'),
     sub: $('#subtext'),
@@ -419,27 +417,22 @@
     ["One hour of deep work can outrun a day of busy work.", "Cal Newport"],
     ["Discipline is choosing what you want most over what you want now.", "Abraham Lincoln (attrib.)"]
   ];
-  function randomQuote(){
-    const [t,a] = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-    $('#quoteText').textContent = t;
-    $('#quoteAuthor').textContent = `— ${a}`;
-  }
 
-  // ---------- state ----------
+  // ---------- State ----------
   const state = {
-    mode: 'focus', // 'focus' | 'short' | 'long'
-    total: 25*60,
-    remaining: 25*60,
+    plan: [],       // [{type,label}...]
+    index: 0,       // current plan index
+    durations: {focus:25*60, short:5*60, long:15*60},
     running: false,
-    cyclesDone: 0, // number of completed focuses in this session
-    raf: null,
-    lastDisplayed: null, // last displayed whole second
-    endsAt: null, // epoch ms
+    remaining: 25*60,
+    endsAt: null,
+    lastTickMs: null,
+    lastCountdownSpoken: null,
+    tickHandle: null,
     todayKey: new Date().toISOString().slice(0,10),
-    phaseAnnounced: false,
   };
 
-  // ---------- persistence ----------
+  // ---------- Persistence ----------
   function getStats(){
     const all = JSON.parse(localStorage.getItem('pomoplus:stats')||'{}');
     const d = all[state.todayKey] || {focusSec:0, breakSec:0, idleSec:0, sessions:0};
@@ -449,23 +442,28 @@
   function setStats(all){ localStorage.setItem('pomoplus:stats', JSON.stringify(all)); }
   function saveSettings(){
     const s = {
-      focus:+el.inpFocus.value, short:+el.inpShort.value, long:+el.inpLong.value,
-      cycles:+el.inpCycles.value, sound:!!el.chkSound.checked
+      focus: el.inpFocus.valueAsNumber || 25,
+      short: el.inpShort.valueAsNumber || 5,
+      long:  el.inpLong.valueAsNumber  || 15,
+      cycles: el.inpCycles.valueAsNumber || 4,
+      sound: !!el.chkSound.checked,
     };
     localStorage.setItem('pomoplus:settings', JSON.stringify(s));
   }
   function loadSettings(){
-    const s = JSON.parse(localStorage.getItem('pomoplus:settings')||'{}');
-    if(s.focus) el.inpFocus.value = s.focus;
-    if(s.short) el.inpShort.value = s.short;
-    if(s.long)  el.inpLong.value = s.long;
-    if(s.cycles)el.inpCycles.value = s.cycles;
-    if(typeof s.sound === 'boolean') el.chkSound.checked = s.sound;
-    const theme = localStorage.getItem('pomoplus:theme')||'dark';
-    document.body.classList.toggle('theme-light', theme==='light');
+    try{
+      const s = JSON.parse(localStorage.getItem('pomoplus:settings')||'{}');
+      if(s.focus) el.inpFocus.value = s.focus;
+      if(s.short) el.inpShort.value = s.short;
+      if(s.long)  el.inpLong.value = s.long;
+      if(s.cycles)el.inpCycles.value = s.cycles;
+      if(typeof s.sound === 'boolean') el.chkSound.checked = s.sound;
+      const theme = localStorage.getItem('pomoplus:theme')||'dark';
+      document.body.classList.toggle('theme-light', theme==='light');
+    }catch(e){ console.warn('settings load failed', e); }
   }
 
-  // ---------- helpers ----------
+  // ---------- Helpers ----------
   function fmt(sec){
     const m = Math.floor(sec/60).toString().padStart(2,'0');
     const s = Math.floor(sec%60).toString().padStart(2,'0');
@@ -477,10 +475,10 @@
     return `${m}m ${s}s`;
   }
   function updateTitle(){
-    const apple = state.mode==='focus' ? '🍎' : '🍏';
+    const apple = currentType()==='focus' ? '🍎' : '🍏';
     document.title = `${apple} ${fmt(state.remaining)} · ${el.modePill.textContent}`;
   }
-  function setRingProgress(frac){
+  function ringProgress(frac){
     const C = 2 * Math.PI * 52;
     const off = C - C * Math.max(0, Math.min(1, frac));
     el.progress.style.strokeDashoffset = off.toFixed(1);
@@ -493,73 +491,59 @@
   }
   function setEtas(){
     el.etaPhase.textContent = timePlus(state.remaining*1000);
-    const f = +el.inpFocus.value*60, s = +el.inpShort.value*60, l = +el.inpLong.value*60, N = +el.inpCycles.value;
-    let sec = state.remaining;
-    let cc = state.cyclesDone;
-    let mode = state.mode;
-    let guard = 0;
-    while(guard++<100){
-      if(mode==='focus'){
-        cc++;
-        if(cc % N === 0){ mode='long'; sec += l; break; }
-        else { mode='short'; sec += s; }
-      }else if(mode==='short'){
-        mode='focus'; sec += f;
-      }else if(mode==='long'){ break; }
+    // cycle ETA from current index to the end
+    let secs = state.remaining;
+    for(let i=state.index+1; i<state.plan.length; i++){
+      secs += durationFor(state.plan[i].type);
     }
-    el.etaCycle.textContent = timePlus(sec*1000);
+    el.etaCycle.textContent = timePlus(secs*1000);
   }
+  function durationFor(t){ return state.durations[t]; }
+  function currentType(){ return state.plan[state.index]?.type || 'focus'; }
 
-  // ---------- roadmap ----------
-  function buildRoadmap(){
-    const N = +el.inpCycles.value;
-    const frag = document.createDocumentFragment();
+  // ---------- Plan & Roadmap ----------
+  function buildPlan(){
+    const N = Math.max(2, (el.inpCycles.valueAsNumber||4));
+    state.durations.focus = (el.inpFocus.valueAsNumber||25)*60;
+    state.durations.short = (el.inpShort.valueAsNumber||5)*60;
+    state.durations.long  = (el.inpLong.valueAsNumber||15)*60;
+    const plan = [];
     for(let i=1;i<=N;i++){
-      const focus = document.createElement('div');
-      focus.className = 'step';
-      focus.innerHTML = `<div class="dot"></div><b>Focus #${i}</b> <span>${+el.inpFocus.value} min</span>`;
-      frag.appendChild(focus);
-      if(i<N){
-        const br = document.createElement('div');
-        br.className = 'step';
-        br.innerHTML = `<div class="dot"></div><b>Break #${i}</b> <span>${+el.inpShort.value} min</span>`;
-        frag.appendChild(br);
-      }
+      plan.push({type:'focus', label:`Focus #${i}`});
+      if(i<N) plan.push({type:'short', label:`Break #${i}`});
     }
-    const L = document.createElement('div');
-    L.className = 'step';
-    L.innerHTML = `<div class="dot"></div><b>Long Break</b> <span>${+el.inpLong.value} min</span>`;
-    frag.appendChild(L);
+    plan.push({type:'long', label:`Long Break`});
+    state.plan = plan;
+    renderRoadmap();
+  }
+  function renderRoadmap(){
+    const frag = document.createDocumentFragment();
+    state.plan.forEach(step=>{
+      const node = document.createElement('div');
+      node.className = 'step';
+      node.innerHTML = `<div class="dot"></div><b>${step.label}</b> <span>${Math.round(durationFor(step.type)/60)} min</span>`;
+      frag.appendChild(node);
+    });
     el.roadmap.replaceChildren(frag);
     highlightRoadmap();
   }
   function highlightRoadmap(){
-    const N = +el.inpCycles.value;
-    let idx;
-    if(state.mode==='focus'){
-      idx = 2*state.cyclesDone;
-    }else if(state.mode==='short'){
-      idx = Math.max(0, 2*state.cyclesDone - 1);
-    }else{
-      idx = 2*N - 1;
-    }
     const steps = $$('#roadmap .step');
     steps.forEach((node,i)=>{
-      node.classList.remove('active','done');
-      if(i<idx) node.classList.add('done');
-      if(i===idx) node.classList.add('active');
+      node.classList.toggle('active', i===state.index);
+      node.classList.toggle('done', i<state.index);
     });
   }
 
-  // ---------- KPI & streak ----------
+  // ---------- Stats ----------
   function updateKpis(){
     const {d} = getStats();
     el.kpiToday.textContent = fmtMinSecTotal(d.focusSec||0);
     el.kpiBreak.textContent = fmtMinSecTotal((d.breakSec||0) + (d.idleSec||0));
   }
-  function addFocusSec(sec){ const {all,d}=getStats(); d.focusSec=(d.focusSec||0)+sec; setStats(all); }
-  function addBreakSec(sec){ const {all,d}=getStats(); d.breakSec=(d.breakSec||0)+sec; setStats(all); }
-  function addIdleSec(sec){ const {all,d}=getStats(); d.idleSec=(d.idleSec||0)+sec; setStats(all); }
+  function addFocus(sec){ const {all,d}=getStats(); d.focusSec=(d.focusSec||0)+sec; setStats(all); }
+  function addBreak(sec){ const {all,d}=getStats(); d.breakSec=(d.breakSec||0)+sec; setStats(all); }
+  function addIdle(sec){ const {all,d}=getStats(); d.idleSec=(d.idleSec||0)+sec; setStats(all); }
   function resetTodayStats(){ const {all}=getStats(); all[state.todayKey]={focusSec:0,breakSec:0,idleSec:0,sessions:0}; setStats(all); updateKpis(); updateStreak(); }
   function updateStreak(){
     const stats = JSON.parse(localStorage.getItem('pomoplus:stats')||'{}');
@@ -574,7 +558,7 @@
     el.streakBadge.textContent = `🔥 Streak: ${streak}`;
   }
 
-  // ---------- audio / TTS ----------
+  // ---------- Audio/TTS ----------
   let audioCtx=null;
   function tone(freq=880, ms=160){
     if(!el.chkSound.checked) return;
@@ -588,162 +572,164 @@
       o.start(); o.stop(audioCtx.currentTime + ms/1000 + .02);
     }catch(e){}
   }
-  function chimeStart(){
-    if(state.mode==='focus'){ tone(740,140); setTimeout(()=>tone(1100,180),120); }
-    else { tone(520,140); setTimeout(()=>tone(780,180),120); }
-  }
-  function speak(text){
+  function announceStart(){
     try{
-      if(!('speechSynthesis' in window)) return;
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate=1.0; u.pitch=1.0; u.volume = el.chkSound.checked?1:0;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
+      if(el.chkSound.checked){
+        const mode = currentType();
+        if(mode==='focus'){ tone(740,140); setTimeout(()=>tone(1100,180),120); }
+        else { tone(520,140); setTimeout(()=>tone(780,180),120); }
+      }
+      if('speechSynthesis' in window){
+        const u = new SpeechSynthesisUtterance(currentType()==='focus' ?
+          ["Session start! Go!","Let's rock!","Deep work: engage!"][Math.floor(Math.random()*3)] :
+          ["Break time!","Resting time!","Reset: breathe."][Math.floor(Math.random()*3)]
+        );
+        u.rate=1.0; u.pitch=1.0; u.volume = el.chkSound.checked ? 1 : 0;
+        speechSynthesis.cancel(); speechSynthesis.speak(u);
+      }
     }catch(e){}
   }
-  function announcePhaseStart(){
-    chimeStart();
-    if(state.mode==='focus'){
-      const lines = ["Session start! Go!", "Let's rock!", "Deep work: engage!"];
-      speak(lines[Math.floor(Math.random()*lines.length)]);
-    }else{
-      const lines = ["Break time!", "Resting time!", "Reset: breathe."];
-      speak(lines[Math.floor(Math.random()*lines.length)]);
+
+  // ---------- Phase control ----------
+  function setPhase(idx, {announce=false}={}){
+    state.index = Math.max(0, Math.min(idx, state.plan.length-1));
+    const step = state.plan[state.index];
+    state.remaining = durationFor(step.type);
+    state.endsAt = null;
+    state.lastTickMs = null;
+    state.lastCountdownSpoken = null;
+    el.modePill.textContent = step.label.includes('Break') ? (step.label) : 'Focus';
+    el.sub.textContent = (step.type==='focus') ? 'Deep work in progress…' :
+                         (step.type==='short') ? 'Breathe. Stretch. Sip water.' :
+                         'Step away. Full reset.';
+    el.mmss.textContent = fmt(state.remaining);
+    ringProgress(0);
+    setEtas();
+    highlightRoadmap();
+    const apple = step.type==='focus' ? '🍎' : '🍏';
+    document.title = `${apple} ${fmt(state.remaining)} · ${el.modePill.textContent}`;
+    if(announce) announceStart();
+  }
+  function moveNext({announce=false}={}){
+    if(currentType()==='long'){
+      // end of cycle: stop & reset to start
+      stop();
+      setPhase(0,{announce:false});
+      return;
+    }
+    setPhase(state.index+1,{announce});
+    if(state.running){
+      // seamless continue
+      state.endsAt = Date.now() + state.remaining*1000;
+      state.lastTickMs = Date.now();
     }
   }
 
-  // ---------- timer (rAF, drift-corrected) ----------
-  function loop(){
-    if(!state.running){ return; }
-    const now = Date.now();
-    const rem = Math.max(0, Math.ceil((state.endsAt - now)/1000));
-    if(state.lastDisplayed === null) state.lastDisplayed = state.remaining;
-    if(rem !== state.lastDisplayed){
-      const delta = Math.max(0, state.lastDisplayed - rem);
-      if(delta>0){
-        if(state.mode==='focus') addFocusSec(delta); else addBreakSec(delta);
-        updateKpis();
-      }
-      state.remaining = rem;
-      state.lastDisplayed = rem;
-      el.mmss.textContent = fmt(rem);
-      const frac = 1 - (state.remaining / state.total);
-      setRingProgress(frac);
-      setEtas();
-      updateTitle();
-      // countdown voice 3..2..1
-      if(rem<=3 && rem>=1) speak(String(rem));
-    }
-    if(rem<=0){
-      const finished = state.mode;
-      state.phaseAnnounced = false;
-      if(finished==='long'){
-        // cycle completed
-        resetSession(); // stops & returns to Focus #1 (idle)
-        return;
+  // ---------- Timer ----------
+  function tick(){
+    try{
+      if(!state.running) return;
+      const now = Date.now();
+      // accumulate real seconds since last tick
+      if(state.lastTickMs!=null){
+        const deltaSec = Math.max(0, Math.floor((now - state.lastTickMs)/1000));
+        if(deltaSec>0){
+          if(currentType()==='focus') addFocus(deltaSec); else addBreak(deltaSec);
+          state.lastTickMs += deltaSec*1000;
+          updateKpis();
+        }
       }else{
-        nextPhase(true); // announce
-        if(state.running) start(); // continue
-        return;
+        state.lastTickMs = now;
       }
+      if(state.endsAt==null) state.endsAt = now + state.remaining*1000;
+      const rem = Math.max(0, Math.ceil((state.endsAt - now)/1000));
+      if(rem !== state.remaining){
+        state.remaining = rem;
+        el.mmss.textContent = fmt(rem);
+        ringProgress(1 - (state.remaining / durationFor(currentType())));
+        setEtas();
+        updateTitle();
+        // 3..2..1
+        if(rem<=3 && rem>=1 && state.lastCountdownSpoken !== rem){
+          try{
+            if('speechSynthesis' in window){
+              const u = new SpeechSynthesisUtterance(String(rem));
+              u.volume = el.chkSound.checked ? 1 : 0;
+              speechSynthesis.cancel(); speechSynthesis.speak(u);
+            }
+          }catch(e){}
+          state.lastCountdownSpoken = rem;
+        }
+      }
+      if(rem<=0){
+        // phase complete -> next
+        moveNext({announce:true});
+      }
+    }catch(err){
+      console.error('tick error', err);
+      stop(); // fail-safe
     }
-    state.raf = requestAnimationFrame(loop);
   }
-
   function start(){
     if(state.running) return;
     state.running = true;
     el.btnToggle.textContent = '⏸ Pause';
     el.btnToggle.classList.remove('cta');
     el.btnToggle.setAttribute('aria-pressed','true');
-    if(state.endsAt===null) state.endsAt = Date.now() + state.remaining*1000;
-    // announce once per phase when starting from idle/pause
-    if(!state.phaseAnnounced){ announcePhaseStart(); state.phaseAnnounced=true; }
-    cancelAnimationFrame(state.raf);
-    state.raf = requestAnimationFrame(loop);
-    stopIdleTicker();
-    document.body.classList.remove('state-idle','state-break-running');
-    document.body.classList.add(state.mode==='focus' ? 'state-focus-running' : 'state-break-running');
+    state.endsAt = Date.now() + state.remaining*1000;
+    state.lastTickMs = Date.now();
+    if(state.tickHandle) clearInterval(state.tickHandle);
+    state.tickHandle = setInterval(tick, 250);
+    document.body.classList.remove('state-idle','state-break-running','state-focus-running');
+    document.body.classList.add(currentType()==='focus' ? 'state-focus-running' : 'state-break-running');
+    announceStart();
   }
-
-  function pause(){
-    if(!state.running) return;
+  function stop(){
     state.running = false;
     el.btnToggle.textContent = '▶ Start';
     el.btnToggle.classList.add('cta');
     el.btnToggle.setAttribute('aria-pressed','false');
-    // freeze remaining
-    const rem = Math.max(0, Math.ceil((state.endsAt - Date.now())/1000));
-    if(rem < state.remaining){
-      const delta = state.remaining - rem;
-      if(state.mode==='focus') addFocusSec(delta); else addBreakSec(delta);
-      state.remaining = rem;
-      el.mmss.textContent = fmt(rem);
-    }
+    if(state.tickHandle){ clearInterval(state.tickHandle); state.tickHandle=null; }
     state.endsAt = null;
-    cancelAnimationFrame(state.raf);
-    startIdleTicker();
     document.body.classList.remove('state-focus-running','state-break-running');
     document.body.classList.add('state-idle');
   }
-
   function resetSession(){
-    pause();
-    state.cyclesDone = 0;
-    setMode('focus', false);
-    buildRoadmap();
+    stop();
+    buildPlan();
+    setPhase(0,{announce:false});
   }
 
-  function nextPhase(announce=false){
-    if(state.mode==='focus'){
-      state.cyclesDone++;
-      const N = +el.inpCycles.value;
-      setMode( (state.cyclesDone % N === 0) ? 'long' : 'short', announce );
-    }else{
-      setMode('focus', announce);
+  // ---------- UI Events ----------
+  el.btnToggle.addEventListener('click', ()=> (state.running?stop():start()));
+  el.btnReset.addEventListener('click', resetSession);
+  el.btnSkip.addEventListener('click', ()=>{
+    const wasRunning = state.running;
+    // avoid stat jumps: reset lastTick time to now, do not call stop()
+    if(wasRunning){
+      state.lastTickMs = Date.now();
     }
-  }
-
-  function setMode(m, announce=false){
-    state.mode = m;
-    const focus = +el.inpFocus.value * 60;
-    const short = +el.inpShort.value * 60;
-    const longer = +el.inpLong.value * 60;
-    state.total = m==='focus' ? focus : (m==='short' ? short : longer);
-    state.remaining = state.total;
-    state.endsAt = null;
-    state.lastDisplayed = null;
-    state.phaseAnnounced = false;
-    el.modePill.textContent = m==='focus' ? 'Focus' : (m==='short' ? 'Short Break' : 'Long Break');
-    el.sub.textContent = m==='focus' ? 'Deep work in progress…' : (m==='short' ? 'Breathe. Stretch. Sip water.' : 'Step away. Full reset.');
-    el.mmss.textContent = fmt(state.remaining);
-    setRingProgress(0);
-    setEtas();
-    highlightRoadmap();
-    updateTitle();
-    if(announce){ announcePhaseStart(); state.phaseAnnounced=true; }
-  }
-
-  // ---------- idle ticker ----------
-  let idleHandle=null;
-  function startIdleTicker(){ clearInterval(idleHandle); idleHandle = setInterval(()=>{ addIdleSec(1); updateKpis(); },1000); }
-  function stopIdleTicker(){ clearInterval(idleHandle); idleHandle=null; }
-
-  // ---------- notifications ----------
-  el.btnNotify?.addEventListener('click', async ()=>{
-    try{ const p=await Notification.requestPermission(); el.btnNotify.textContent = p==='granted' ? '✅ Enabled' : 'Try again'; }catch(e){}
+    moveNext({announce:true});
+    if(wasRunning){
+      // ensure we keep running seamlessly
+      state.endsAt = Date.now() + state.remaining*1000;
+      state.lastTickMs = Date.now();
+    }
+  });
+  el.btnResetStats.addEventListener('click', ()=>{
+    if(confirm("Reset today's Focus/Break stats?")) resetTodayStats();
   });
 
-  // ---------- theme ----------
-  function toggleTheme(){
-    const cur = localStorage.getItem('pomoplus:theme')||'dark';
-    const next = cur==='dark' ? 'light' : 'dark';
-    localStorage.setItem('pomoplus:theme', next);
-    document.body.classList.toggle('theme-light', next==='light');
-  }
-  el.toggleTheme.addEventListener('click', toggleTheme);
+  // Mode buttons switch immediately (pause)
+  $$('.modes .btn').forEach(b=> b.addEventListener('click', ()=>{
+    stop();
+    const m = b.dataset.mode;
+    // set index to the first of that type in the plan
+    const idx = state.plan.findIndex(x=>x.type===m);
+    if(idx>=0) setPhase(idx,{announce:false});
+  }));
 
-  // ---------- settings panel ----------
+  // Settings panel & interactions
   function togglePanel(force){
     const open = typeof force==='boolean' ? force : !el.panel.classList.contains('open');
     el.panel.classList.toggle('open', open);
@@ -756,50 +742,53 @@
       togglePanel(false);
     }
   });
-
-  // ---------- controls ----------
-  el.btnToggle.addEventListener('click', ()=> (state.running?pause():start()));
-  el.btnReset.addEventListener('click', resetSession);
-  el.btnSkip.addEventListener('click', ()=>{
-    const wasRunning = state.running;
-    pause();
-    nextPhase(true);
-    if(wasRunning) start();
-  });
-  el.btnResetStats.addEventListener('click', ()=>{
-    if(confirm("Reset today's Focus/Break stats?")) resetTodayStats();
-  });
-
-  // mode buttons
-  $$('.modes .btn').forEach(b => b.addEventListener('click', ()=>{ setMode(b.dataset.mode); pause(); }));
-
-  // settings change
   [el.inpFocus, el.inpShort, el.inpLong, el.inpCycles, el.chkSound].forEach(x=> x.addEventListener('input', ()=>{
-    saveSettings(); buildRoadmap();
-    setMode(state.mode); // refresh current timing with new values
+    saveSettings();
+    const wasRunning = state.running;
+    stop();
+    buildPlan();
+    // keep same type where possible
+    const curType = currentType();
+    let idx = state.plan.findIndex(s=>s.type===curType);
+    if(idx<0) idx = 0;
+    setPhase(idx,{announce:false});
+    if(wasRunning) start();
   }));
 
-  // presets
+  // Presets
   $$('.preset').forEach(p => p.addEventListener('click', ()=>{
     el.inpFocus.value = +p.dataset.f;
     el.inpShort.value = +p.dataset.s;
     el.inpLong.value  = +p.dataset.l;
-    saveSettings(); buildRoadmap(); setMode(state.mode);
+    saveSettings();
+    const wasRunning = state.running;
+    stop();
+    buildPlan();
+    setPhase(0,{announce:false});
+    if(wasRunning) start();
   }));
 
-  // shortcuts
+  // Theme & shortcuts
+  function toggleTheme(){
+    const cur = localStorage.getItem('pomoplus:theme')||'dark';
+    const next = cur==='dark' ? 'light' : 'dark';
+    localStorage.setItem('pomoplus:theme', next);
+    document.body.classList.toggle('theme-light', next==='light');
+  }
+  el.toggleTheme.addEventListener('click', toggleTheme);
   document.addEventListener('keydown', (e)=>{
-    if(e.code==='Space'){ e.preventDefault(); (state.running?pause():start)(); }
+    if(e.code==='Space'){ e.preventDefault(); (state.running?stop():start)(); }
     if(e.key.toLowerCase()==='r') resetSession();
     if(e.key.toLowerCase()==='n') el.btnSkip.click();
     if(e.key.toLowerCase()==='s') togglePanel();
     if(e.key.toLowerCase()==='t') toggleTheme();
+    if(e.key.toLowerCase()==='h') window.location.href='../../index.html';
     if(e.key==='Escape') togglePanel(false);
   });
 
-  // ripple (no-op safety on detached nodes)
+  // Click ripple
   document.addEventListener('click', (e)=>{
-    const b = e.target.closest?.('.btn');
+    const b = e.target.closest?.('.btn, a.btn');
     if(!b) return;
     const r = document.createElement('span');
     const rect = b.getBoundingClientRect();
@@ -810,14 +799,27 @@
     b.appendChild(r); setTimeout(()=>r.remove(), 750);
   });
 
-  // ---------- init ----------
-  loadSettings();
-  setMode('focus', false);
-  buildRoadmap();
-  randomQuote();
-  updateKpis();
-  updateStreak();
-  startIdleTicker(); // accumulate idle until the first start
+  // Notifications
+  el.btnNotify?.addEventListener('click', async ()=>{
+    try{
+      const p = await Notification.requestPermission();
+      el.btnNotify.textContent = p==='granted' ? '✅ Enabled' : 'Try again';
+    }catch(e){}
+  });
+
+  // ---------- Init ----------
+  (function init(){
+    loadSettings();
+    buildPlan();
+    setPhase(0,{announce:false});
+    updateKpis();
+    updateStreak();
+    // Idle accrual while not running
+    setInterval(()=>{ if(!state.running) { addIdle(1); updateKpis(); } }, 1000);
+    // Quote
+    const [t,a] = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+    $('#quoteText').textContent = t; $('#quoteAuthor').textContent = `— ${a}`;
+  })();
 })();
 </script>
 </body>
