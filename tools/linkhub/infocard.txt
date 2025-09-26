@@ -1,0 +1,7 @@
+title: Link Hub
+subtitle: Socials • Core • Extras
+emoji: 💜
+pill: Live
+order: 90
+url: 
+hide: false
