@@ -1,5 +1,5 @@
 title: Mystic Tarot
-subtitle: Menu • Spreads • Auto-reveal • Copy/Save
+subtitle: Menu • Spreads • Wanna see?
 emoji: 🎴
 pill: Live
 order: 85
