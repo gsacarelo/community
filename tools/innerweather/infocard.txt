@@ -1,0 +1,7 @@
+title: Inner Weather
+subtitle: General • Today • Bio charts • Critical days
+emoji: ☯️
+pill: New
+order: 80
+url: 
+hide: false
