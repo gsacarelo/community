@@ -2,6 +2,6 @@ title: Mystic Tarot
 subtitle: Menu • Spreads • Auto-reveal • Copy/Save
 emoji: 🎴
 pill: Live
-order: 80
-url: tarot_mystic_v2.html
+order: 85
+url: 
 hide: false
