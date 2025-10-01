@@ -30,6 +30,7 @@
       linear-gradient(120deg, var(--bg1), var(--bg2));
     overflow-x:hidden;
     transition: background .3s ease, color .2s ease;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   }
   body.theme-light{ background:
       radial-gradient(1200px 1200px at 80% 10%, #ffffff 0%, transparent 60%),
@@ -89,18 +90,20 @@
     .actions{ width:100%; justify-content:space-between; padding-top:6px }
   }
   .streak{
-    padding:6px 10px; border-radius:999px; background:var(--glass);
+    padding:12px 15px; border-radius:999px; background:var(--glass);
     box-shadow: var(--shadow); color:var(--good); font-weight:800; font-variant-numeric:tabular-nums;
-    font-size:12px;
+    font-size:14px;
   }
 
   /* Buttons */
   .btn{
+    display:inline-flex; align-items:center; justify-content:center;
     appearance:none; border:none; color:var(--text); background:var(--glass);
     padding:13px 18px; border-radius:16px; cursor:pointer; font-weight:800;
     box-shadow: 0 12px 28px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.12);
     transition: transform .08s ease, filter .18s ease, background .18s ease, box-shadow .18s ease;
     position:relative; overflow:hidden; isolation:isolate;
+    min-height:44px; -webkit-tap-highlight-color: transparent;
   }
   .btn:disabled{ opacity:.6; cursor:not-allowed }
   body.theme-light .btn{ box-shadow: 0 8px 20px rgba(0,0,0,.12), inset 0 0 0 1px rgba(0,0,0,.06) }
@@ -145,7 +148,7 @@
   .toggle{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; background:var(--glass); box-shadow:var(--shadow) }
   .toggle input{ accent-color:var(--accent) }
 
-  main{ display:grid; place-items:center; padding: 0 16px 40px }
+  main{ display:grid; place-items:center; padding: 0 16px 16px }
   .grid{
     width:min(1020px, 92vw); display:grid; grid-template-columns: 1fr; gap:20px;
   }
@@ -161,13 +164,14 @@
   .card h2{ margin:0 0 10px 2px; font-size:14px; color:var(--muted); font-weight:800; letter-spacing:.15em; text-transform:uppercase }
   .timer-wrap{ display:grid; place-items:center; padding:10px 0 20px }
   .ring{
-    width: min(500px, 94vw); aspect-ratio:1/1; position:relative;
-    display:grid; place-items:center;
+    width: min(500px, 100%); aspect-ratio:1/1; position:relative;
+    display:grid; place-items:center; margin:0 auto;
   }
   @media (min-width: 540px){
     .ring{ width:min(480px, 62vw); }
   }
-  .ring svg{ width:100%; height:100%; transform:rotate(-90deg) }
+  .ring svg{ width:100%; height:100%; transform:rotate(-90deg); display:block; }
+  @media (max-width:560px){.ring{ width: calc(100% - 4px); }}
   .ring .shadow{
     position:absolute; inset:0; border-radius:50%; filter:blur(16px); opacity:.7;
     background:radial-gradient(closest-side, rgba(124,92,255,.25), transparent 70%);
@@ -252,9 +256,9 @@
   </div>
   <div class="actions">
     <div class="streak" id="streakBadge">🔥 Streak: 0</div>
-    <button class="btn ghost" id="toggleTheme" title="Toggle Theme (T)"><span>🌗</span></button>
-    <button class="btn" id="openSettings" title="Settings (S)">⚙️ Settings</button>
-    <a class="btn" id="btnHome" href="../../index.html" title="Main Page (H)" aria-label="Main Page">🏠 Main Page</a>
+    <button class="btn ghost" id="toggleTheme" title="Toggle Theme (T)"><span>🌗 Theme</span></button>
+    <button class="btn" id="openSettings" title="Settings (S)">⚙️ Config</button>
+    <a class="btn" id="btnHome" href="../../index.html" title="Main Page (H)" aria-label="Main Page">🏠 Main</a>
   </div>
 </header>
 
@@ -279,39 +283,41 @@
             <div class="pill" id="modePill">Focus</div>
             <div class="mmss" id="mmss">25:00</div>
             <div class="eta" id="etaPhase">Phase ends ~ <b>--:--</b></div>
-            <div class="eta" id="etaCycle">Cycle ends ~ <b>--:--</b></div>
             <div class="hint" id="subtext">Deep work in progress…</div>
             <div class="controls">
               <button class="btn primary cta" id="btnToggle" role="button" aria-pressed="false">▶ Start</button>
               <button class="btn ghost small" id="btnReset">⟲ Reset</button>
               <button class="btn warn small" id="btnSkip">⤼ Skip</button>
             </div>
-            <div class="modes">
-              <button class="btn ghost" data-mode="focus">Focus</button>
-              <button class="btn ghost" data-mode="short">Short Break</button>
-              <button class="btn ghost" data-mode="long">Long Break</button>
-            </div>
           </div>
         </div>
       </div>
-
+      <h2>Today Stats</h2>
       <div class="meta">
-        <div class="kpi"><span>Today Focus</span><b id="kpiToday">0m 00s</b></div>
-        <div class="kpi"><span>Today Break</span><b id="kpiBreak">0m 00s</b></div>
-        <div class="actions-col">
-          <button class="btn ghost sm" id="btnResetStats">🧹 Reset Today Stats</button>
-        </div>
+        
+        <div class="kpi"><span>Focus Time</span><b id="kpiToday">0m 00s</b></div>
+        <div class="kpi"><span>Break Time</span><b id="kpiBreak">0m 00s</b></div>
+
       </div>
     </section>
 
     <section class="card">
-      <h2>Motivation</h2>
-      <div class="quote-wrap">
+      <!-- Motivational quote (uses existing CSS + JS) -->
+      <div class="quote-wrap" id="motivation" style="margin-top:14px">
         <div class="quote-mark">“</div>
-        <div class="quote"><span id="quoteText">Small, consistent sprints beat rare marathons.</span><small id="quoteAuthor">— Unknown</small></div>
+        <div class="quote">
+          <span id="quoteText">There is no such thing as no work to do.</span>
+          <small id="quoteAuthor">— Unknown</small>
+        </div>
       </div>
-      <div style="height:10px"></div>
       <h2>Roadmap</h2>
+      <div class="eta" id="etaTotals">Session totals — Focus <b>--</b> · Break <b>--</b></div>
+      <div class="eta" id="etaCycle">Cycle ends ~ <b>--:--</b></div>
+      <div style="display:flex; justify-content:center; gap:8px; margin:4px 0 8px;">
+        <button class="btn ghost sm" id="btnAddBlock">＋ Block</button>
+        <button class="btn ghost sm" id="btnRemoveBlock">− Block</button>
+        <button class="btn ghost sm" id="btnResetStats">🧹 Reset Stats</button>
+      </div>
       <div class="roadmap" id="roadmap"></div>
     </section>
   </div>
@@ -342,13 +348,13 @@
       </div>
       <div class="field">
         <div>
-          <b>Cycles to long break</b><div class="hint">After N focus blocks</div>
+          <b>Blocks (Focus → Break)</b><div class="hint">Min 2 blocks. Default 3</div>
         </div>
-        <input type="number" id="inpCycles" min="2" max="10" step="1" value="4">
+        <input type="number" id="inpCycles" min="2" max="10" step="1" value="3">
       </div>
       <div class="field">
         <div>
-          <b>Sound</b><div class="hint">Chimes + voice</div>
+          <b>Sound</b><div class="hint">Chimes + Voice</div>
         </div>
         <label class="toggle"><input type="checkbox" id="chkSound" checked/> <span>Enable</span></label>
       </div>
@@ -368,7 +374,7 @@
         </div>
         <div class="hint">You can tweak after applying a preset.</div>
       </div>
-      <div class="hint">Shortcuts: <span class="kbd">Space</span> start/pause · <span class="kbd">R</span> reset · <span class="kbd">N</span> skip · <span class="kbd">T</span> theme · <span class="kbd">S</span> settings · <span class="kbd">Esc</span> close · <span class="kbd">H</span> main page</div>
+      <div class="hint">Shortcuts: <span class="kbd">Space</span> Start/Pause · <span class="kbd">R</span> Reset · <span class="kbd">N</span> Skip · <span class="kbd">T</span> Theme · <span class="kbd">S</span> Settings · <span class="kbd">Esc</span> Close · <span class="kbd">H</span> Main page</div>
     </div>
   </section>
 </div>
@@ -405,6 +411,9 @@
     toggleTheme: $('#toggleTheme'),
     etaPhase: $('#etaPhase b'),
     etaCycle: $('#etaCycle b'),
+    etaTotals: $('#etaTotals'),
+    btnAddBlock: $('#btnAddBlock'),
+    btnRemoveBlock: $('#btnRemoveBlock'),
   };
 
   const QUOTES = [
@@ -415,8 +424,35 @@
     ["Focus is a muscle—train it daily.", "Unknown"],
     ["Move slow, finish fast.", "Unknown"],
     ["One hour of deep work can outrun a day of busy work.", "Cal Newport"],
-    ["Discipline is choosing what you want most over what you want now.", "Abraham Lincoln (attrib.)"]
+    ["Discipline is choosing what you want most over what you want now.", "Abraham Lincoln"],
+    ["You have power over your mind, not over outside events.", "Marcus Aurelius"],
+    ["It is not that we have a short time to live, but that we waste a lot of it.", "Seneca"],
+    ["What gets measured gets managed.", "Peter Drucker"],
+    ["The successful warrior is the average man, with laser-like focus.", "Bruce Lee"],
+    ["Very successful people say no to almost everything.", "Warren Buffett"],
+    ["Habits are the compound interest of self-improvement.", "James Clear"],
+    ["If you don’t prioritize your life, someone else will.", "Greg McKeown"],
+    ["The sun’s rays do not burn until brought to a focus.", "Alexander Graham Bell"],
+    ["Work expands to fill the time available for its completion.", "C. Northcote Parkinson"],
+    ["The main thing is to keep the main thing the main thing.", "Stephen R. Covey"],
+    ["He who has a why to live can bear almost any how.", "Friedrich Nietzsche"],
+    ["Until you make the unconscious conscious, it will direct your life and you will call it fate.", "Carl Jung"],
+    ["Simplicity is the ultimate sophistication.", "Leonardo da Vinci"],
+    ["Clarity about what matters provides clarity about what does not.", "Greg McKeown"],
+    ["If it’s not on your calendar, it’s not real.", "Michael Hyatt"],
+    ["The ability to simplify means to eliminate the unnecessary so that the necessary may speak.", "Hans Hofmann"],
+    ["It’s not the daily increase but daily decrease. Hack away at the unessential.", "Bruce Lee"],
+    ["Focus is about saying no.", "Steve Jobs"],
+    ["The successful person has the habit of doing the things failures don’t like to do.", "Albert E.N. Gray"],
+    ["Time is what we want most, but what we use worst.", "William Penn"],
+    ["Shallow work stops when you’re tired. Deep work starts then.", "Cal Newport"],
+    ["Don’t mistake motion for progress.", "Alfred A. Montapert"],
+    ["Beware the barrenness of a busy life.", "Socrates"],
+    ["Discipline equals freedom.", "Jocko Willink"],
+    ["Confidence is not gifted, you earn it.", "Unknown"],
+    ["Climb the mountain.","Unknown"]
   ];
+
 
   // ---------- State ----------
   const state = {
@@ -445,7 +481,7 @@
       focus: el.inpFocus.valueAsNumber || 25,
       short: el.inpShort.valueAsNumber || 5,
       long:  el.inpLong.valueAsNumber  || 15,
-      cycles: el.inpCycles.valueAsNumber || 4,
+      cycles: el.inpCycles.valueAsNumber || 3,
       sound: !!el.chkSound.checked,
     };
     localStorage.setItem('pomoplus:settings', JSON.stringify(s));
@@ -456,7 +492,7 @@
       if(s.focus) el.inpFocus.value = s.focus;
       if(s.short) el.inpShort.value = s.short;
       if(s.long)  el.inpLong.value = s.long;
-      if(s.cycles)el.inpCycles.value = s.cycles;
+      el.inpCycles.value = Math.max(2, s.cycles || 3);
       if(typeof s.sound === 'boolean') el.chkSound.checked = s.sound;
       const theme = localStorage.getItem('pomoplus:theme')||'dark';
       document.body.classList.toggle('theme-light', theme==='light');
@@ -473,6 +509,10 @@
     const m = Math.floor(totalSec/60);
     const s = Math.floor(totalSec%60).toString().padStart(2,'0');
     return `${m}m ${s}s`;
+  }
+  function fmtMinTotal(totalSec){
+    const m = Math.floor(totalSec/60);
+    return `${m}m`;
   }
   function updateTitle(){
     const apple = currentType()==='focus' ? '🍎' : '🍏';
@@ -497,13 +537,26 @@
       secs += durationFor(state.plan[i].type);
     }
     el.etaCycle.textContent = timePlus(secs*1000);
+    setSessionTotals();
   }
   function durationFor(t){ return state.durations[t]; }
   function currentType(){ return state.plan[state.index]?.type || 'focus'; }
+  function computeSessionTotals(){
+    let f = 0, b = 0;
+    for(const step of state.plan){
+      const d = durationFor(step.type);
+      if(step.type==='focus') f += d; else b += d;
+    }
+    return {f, b};
+  }
+  function setSessionTotals(){
+    const {f,b} = computeSessionTotals();
+    el.etaTotals.innerHTML = `Session = <b>${fmtMinTotal(f+b)}</b> — Focus <b>${fmtMinSecTotal(f)}</b> + Break <b>${fmtMinSecTotal(b)}</b>`;
+  }
 
   // ---------- Plan & Roadmap ----------
   function buildPlan(){
-    const N = Math.max(2, (el.inpCycles.valueAsNumber||4));
+    const N = Math.max(2, (el.inpCycles.valueAsNumber||3));
     state.durations.focus = (el.inpFocus.valueAsNumber||25)*60;
     state.durations.short = (el.inpShort.valueAsNumber||5)*60;
     state.durations.long  = (el.inpLong.valueAsNumber||15)*60;
@@ -515,6 +568,7 @@
     plan.push({type:'long', label:`Long Break`});
     state.plan = plan;
     renderRoadmap();
+    setSessionTotals();
   }
   function renderRoadmap(){
     const frag = document.createDocumentFragment();
@@ -544,18 +598,12 @@
   function addFocus(sec){ const {all,d}=getStats(); d.focusSec=(d.focusSec||0)+sec; setStats(all); }
   function addBreak(sec){ const {all,d}=getStats(); d.breakSec=(d.breakSec||0)+sec; setStats(all); }
   function addIdle(sec){ const {all,d}=getStats(); d.idleSec=(d.idleSec||0)+sec; setStats(all); }
+  function bumpSession(){ const {all,d}=getStats(); d.sessions=(d.sessions||0)+1; setStats(all); updateStreak(); }
   function resetTodayStats(){ const {all}=getStats(); all[state.todayKey]={focusSec:0,breakSec:0,idleSec:0,sessions:0}; setStats(all); updateKpis(); updateStreak(); }
   function updateStreak(){
-    const stats = JSON.parse(localStorage.getItem('pomoplus:stats')||'{}');
-    const days = Object.keys(stats).filter(k => (stats[k].focusSec||0) >= 15*60).sort();
-    let streak=0;
-    const today = new Date(state.todayKey);
-    for(let i=0;i<999;i++){
-      const d = new Date(today); d.setDate(d.getDate()-i);
-      const key = d.toISOString().slice(0,10);
-      if(days.includes(key)) streak++; else break;
-    }
-    el.streakBadge.textContent = `🔥 Streak: ${streak}`;
+    // Show completed sessions TODAY (per your request)
+    const {d} = getStats();
+    el.streakBadge.textContent = `🔥 Streak: ${d.sessions||0}`;
   }
 
   // ---------- Audio/TTS ----------
@@ -599,9 +647,7 @@
     state.lastTickMs = null;
     state.lastCountdownSpoken = null;
     el.modePill.textContent = step.label.includes('Break') ? (step.label) : 'Focus';
-    el.sub.textContent = (step.type==='focus') ? 'Deep work in progress…' :
-                         (step.type==='short') ? 'Breathe. Stretch. Sip water.' :
-                         'Step away. Full reset.';
+    el.sub.textContent = step.type==='focus' ? 'Deep work in progress…' : (step.type==='short' ? 'Breathe. Stretch. Sip water.' : 'Step away. Full reset.');
     el.mmss.textContent = fmt(state.remaining);
     ringProgress(0);
     setEtas();
@@ -612,7 +658,8 @@
   }
   function moveNext({announce=false}={}){
     if(currentType()==='long'){
-      // end of cycle: stop & reset to start
+      // end of cycle: count session, stop & reset to start
+      bumpSession();
       stop();
       setPhase(0,{announce:false});
       return;
@@ -699,19 +746,24 @@
     buildPlan();
     setPhase(0,{announce:false});
   }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && state.running) {
+      // instantly sync to wall-clock on return
+      tick();
+    }
+  });
+
 
   // ---------- UI Events ----------
   el.btnToggle.addEventListener('click', ()=> (state.running?stop():start()));
   el.btnReset.addEventListener('click', resetSession);
   el.btnSkip.addEventListener('click', ()=>{
     const wasRunning = state.running;
-    // avoid stat jumps: reset lastTick time to now, do not call stop()
     if(wasRunning){
       state.lastTickMs = Date.now();
     }
     moveNext({announce:true});
     if(wasRunning){
-      // ensure we keep running seamlessly
       state.endsAt = Date.now() + state.remaining*1000;
       state.lastTickMs = Date.now();
     }
@@ -720,14 +772,17 @@
     if(confirm("Reset today's Focus/Break stats?")) resetTodayStats();
   });
 
-  // Mode buttons switch immediately (pause)
-  $$('.modes .btn').forEach(b=> b.addEventListener('click', ()=>{
-    stop();
-    const m = b.dataset.mode;
-    // set index to the first of that type in the plan
-    const idx = state.plan.findIndex(x=>x.type===m);
-    if(idx>=0) setPhase(idx,{announce:false});
-  }));
+  // Add/Remove block buttons (affect cycles)
+  el.btnAddBlock.addEventListener('click', ()=>{
+    el.inpCycles.value = Math.max(2, (el.inpCycles.valueAsNumber||3)+1);
+    saveSettings();
+    const wasRunning = state.running; stop(); buildPlan(); setPhase(0,{announce:false}); if(wasRunning) start();
+  });
+  el.btnRemoveBlock.addEventListener('click', ()=>{
+    el.inpCycles.value = Math.max(2, (el.inpCycles.valueAsNumber||3)-1);
+    saveSettings();
+    const wasRunning = state.running; stop(); buildPlan(); setPhase(0,{announce:false}); if(wasRunning) start();
+  });
 
   // Settings panel & interactions
   function togglePanel(force){
@@ -777,7 +832,7 @@
   }
   el.toggleTheme.addEventListener('click', toggleTheme);
   document.addEventListener('keydown', (e)=>{
-    if(e.code==='Space'){ e.preventDefault(); (state.running?stop():start)(); }
+    if(e.code==='Space'){ e.preventDefault(); (state.running ? stop : start)(); }
     if(e.key.toLowerCase()==='r') resetSession();
     if(e.key.toLowerCase()==='n') el.btnSkip.click();
     if(e.key.toLowerCase()==='s') togglePanel();
@@ -815,10 +870,11 @@
     updateKpis();
     updateStreak();
     // Idle accrual while not running
-    setInterval(()=>{ if(!state.running) { addIdle(1); updateKpis(); } }, 1000);
+    setInterval(()=>{ if(!state.running) { addIdle(1); updateKpis(); setEtas();} }, 1000);
     // Quote
     const [t,a] = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-    $('#quoteText').textContent = t; $('#quoteAuthor').textContent = `— ${a}`;
+    const qt = document.getElementById('quoteText'); const qa = document.getElementById('quoteAuthor');
+    if(qt && qa){ qt.textContent = t; qa.textContent = `— ${a}`; }
   })();
 })();
 </script>
