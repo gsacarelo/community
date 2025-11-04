@@ -35,13 +35,26 @@
   .kbd{background:#0b0e15;border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:calc(12px * var(--ui));color:var(--muted)}
 
   /* Workspace */
-  .workspace{height:58vh; min-height:420px; padding:10px}
+  .workspace{height:58vh; min-height:80px; padding:10px}
   #svgRoot{width:100%; height:100%; background:#0b0e15; border:1px solid var(--line); border-radius:12px; cursor:grab;
     background-image: linear-gradient(transparent 23px, var(--line) 24px), linear-gradient(90deg, transparent 23px, var(--line) 24px);
     background-size:24px 24px}
   #svgRoot.draggingPan{cursor:grabbing}
   .tooltip{position:fixed; background:#141a26; border:1px solid var(--line); padding:8px 10px; border-radius:8px;
     font-size:calc(12px * var(--ui)); color:var(--ink); max-width:280px; pointer-events:none; z-index:10; display:none}
+
+  /* Splitter */
+  .ws-splitter {
+    height: 6px;
+    background: #1b2030;
+    border-top: 1px solid #0d1017;
+    border-bottom: 1px solid #0d1017;
+    cursor: row-resize;
+    user-select: none;
+  }
+  .ws-splitter:hover {
+    background: #222a40;
+  }
 
   /* Panels container */
   .panels{
@@ -112,10 +125,13 @@
 </div>
 
 <!-- WORKSPACE -->
-<div class="workspace">
+<div class="workspace" id="workspace">
   <svg id="svgRoot"></svg>
   <div id="tooltip" class="tooltip"></div>
 </div>
+
+<!-- NEW: splitter -->
+<div id="wsSplitter" class="ws-splitter"></div>
 
 <!-- PANELS -->
 <div class="panels">
@@ -161,6 +177,7 @@
       <div class="grow"></div>
       <button id="btnExportPNG" class="btn" title="Export what you see (PNG)">Export PNG</button>
       <button id="btnExportJPG" class="btn" title="Export what you see (JPG)">Export JPG</button>
+      <button id="btnExportSVG" class="btn" title="Download SVG">Export SVG</button>
       <button id="btnSave" class="btn primary" title="Save project JSON">Save JSON</button>
       <input id="fileLoad" type="file" accept=".json" />
     </div>
@@ -303,6 +320,7 @@ const btnSave = document.getElementById('btnSave');
 const fileLoad = document.getElementById('fileLoad');
 const btnExportPNG = document.getElementById('btnExportPNG');
 const btnExportJPG = document.getElementById('btnExportJPG');
+const btnExportSVG = document.getElementById('btnExportSVG'); 
 
 const layerName = document.getElementById('layerName');
 const layerNotes = document.getElementById('layerNotes');
@@ -618,6 +636,7 @@ function render(){
 
     // Title
     const title = document.createElementNS("http://www.w3.org/2000/svg","text");
+    title.setAttribute('data-layer-title', '1');
     title.setAttribute('x', 12); title.setAttribute('y', 18);
     title.setAttribute('fill', layer.id===focusLayerId? '#c9d1e1' : '#8b94a8');
     title.setAttribute('font-size', String(layerTitleSize));
@@ -758,6 +777,7 @@ function render(){
 
     // focus outline (fit to layer width, not viewport)
     const outline = document.createElementNS("http://www.w3.org/2000/svg","rect");
+    outline.setAttribute('data-layer-outline', '1');
     outline.setAttribute('x', 6); outline.setAttribute('y', 10);
     outline.setAttribute('width', totalW - 12);
     outline.setAttribute('rx', 10); outline.setAttribute('ry', 10);
@@ -876,6 +896,7 @@ fileLoad.onchange = async e=>{
 
 btnExportPNG.onclick = ()=> exportWorkspace('image/png');
 btnExportJPG.onclick = ()=> exportWorkspace('image/jpeg');
+btnExportSVG.onclick = ()=> exportSVG();
 
 function triggerDownload(blob, name){
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
@@ -893,6 +914,10 @@ async function exportWorkspace(type){
     clone.setAttribute('height', String(H));
     // A viewBox helps some browsers render transforms reliably
     if(!clone.hasAttribute('viewBox')) clone.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    clone.querySelectorAll('[data-layer-outline="1"]').forEach(n => n.remove());
+    // make layer titles dark for white export background
+    clone.querySelectorAll('[data-layer-title="1"]').forEach(n => n.setAttribute('fill', '#000000'));
+
 
     const serializer = new XMLSerializer();
     const svgStr = serializer.serializeToString(clone);
@@ -902,12 +927,20 @@ async function exportWorkspace(type){
 
     const img = new Image();
     await new Promise(res=>{ img.onload=res; img.src=url; });
-
-    const canvas = document.createElement('canvas'); canvas.width=W; canvas.height=H;
+    
+    // --- HIGHER RES HERE ---
+    const SCALE = 4;  // 2 or 3 is good for slides
+    const canvas = document.createElement('canvas');
+    canvas.width  = W * SCALE;
+    canvas.height = H * SCALE;
     const ctx = canvas.getContext('2d');
-    // WHITE background as requested
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.setTransform(SCALE,0,0,SCALE,0,0);   // scale drawing
     ctx.drawImage(img,0,0);
+    // -----------------------
+    
     URL.revokeObjectURL(url);
 
     const dataURL = canvas.toDataURL(type, 0.95);
@@ -917,6 +950,26 @@ async function exportWorkspace(type){
     console.error(err);
     alert('Export failed: ' + (err?.message||'unknown'));
   }
+}
+
+function exportSVG(){
+  const W = svgRoot.clientWidth, H = svgRoot.clientHeight;
+
+  const clone = svgRoot.cloneNode(true);
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  clone.setAttribute('width',  String(W));
+  clone.setAttribute('height', String(H));
+  if(!clone.hasAttribute('viewBox')) clone.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  // strip UI-only outlines (we tagged them earlier with data-layer-outline="1")
+  clone.querySelectorAll('[data-layer-outline="1"]').forEach(n => n.remove());
+  // make layer titles dark for white export background
+  clone.querySelectorAll('[data-layer-title="1"]').forEach(n => n.setAttribute('fill', '#000000'));
+
+  const serializer = new XMLSerializer();
+  const svgStr = serializer.serializeToString(clone);
+  const blob = new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'});
+  triggerDownload(blob, 'protocol_workspace.svg');
 }
 
 
@@ -947,6 +1000,36 @@ function initSample(){
 /* ================== WIRES ============================ */
 function updatePanels(){ renderLayerList(); refreshInspector(); }
 initSample(); updatePanels(); safeRender();
+  
+// === workspace <-> panels splitter ===
+const wsEl = document.getElementById('workspace');
+const splitter = document.getElementById('wsSplitter');
+
+if (splitter && wsEl) {
+  splitter.addEventListener('mousedown', (e)=>{
+    e.preventDefault();
+    const startY = e.clientY;
+    const startH = wsEl.getBoundingClientRect().height;
+
+    const onMove = (ev)=>{
+      const dy = ev.clientY - startY;
+      const newH = startH + dy;     // no clamp, no max
+      wsEl.style.height = newH + 'px';
+      safeRender();
+    };
+
+
+    const onUp = ()=>{
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  });
+}
+
+
 </script>
 </body>
 </html>
