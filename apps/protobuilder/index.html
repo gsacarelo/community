@@ -346,6 +346,13 @@ function clampNum(v, lo, hi, fallback){ v=parseFloat(v); if(Number.isNaN(v)) ret
 function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 function safe(fn, fallback){ try{ return fn(); } catch(e){ console.warn(e); warnStat.textContent = e?.message || 'Render error'; return fallback; } }
 
+function ptFromEvent(e){
+  if (e.touches && e.touches.length) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+  return { x: e.clientX, y: e.clientY };
+}  
+
 function createTemplate(name){
   const nextOrder = project.templates.length
     ? Math.max(...project.templates.map(x => x.order)) + 1
@@ -766,7 +773,48 @@ function render(){
         };
         window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp);
       });
+      
+      frameG.addEventListener('touchstart',(e)=>{
+        const p = ptFromEvent(e);
+        const startX = p.x;
+        e.preventDefault();
 
+        const onMove = (ev)=>{
+          const p2 = ptFromEvent(ev);
+          const dx=(p2.x-startX)/view.zoom;
+          frameG.setAttribute('transform', `translate(${dx},0)`);
+        };
+
+        const onUp = (ev)=>{
+          try {
+            frameG.removeAttribute('transform');
+            const layout = layoutLayerFields(layer.fields);
+            const slot2  = layout.slots.find(s => s.id === F.id);
+            if (!slot2) return;
+
+            const p3 = ptFromEvent(ev);
+            const dz  = Math.max(0.001, view.zoom);
+            const cx  = slot2.x + (p3.x - startX)/dz + slot2.w/2;
+            const arr = [...layout.slots].sort((a,b)=> (a.x+a.w/2)-(b.x+b.w/2));
+            const ni  = arr.findIndex(s => cx <= s.x + s.w/2);
+
+            const from = layer.fields.findIndex(ff => ff.id === F.id);
+            const to   = ni < 0 ? layer.fields.length-1 : ni;
+            if (to !== from){
+              const [it] = layer.fields.splice(from,1);
+              layer.fields.splice(to,0,it);
+              safeRender();
+            }
+          } finally {
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend',  onUp);
+          }
+        };
+
+        window.addEventListener('touchmove', onMove, {passive:false});
+        window.addEventListener('touchend',  onUp);
+      }, {passive:false});
+      
       // Save frame center for connectors
       frameCenters.set(`${layer.id}_${F.id}`, { 
           x: (layer.offsetX||0) + slot.x + slot.w/2, 
@@ -809,6 +857,26 @@ function render(){
             window.addEventListener('mousemove', onMove);
             window.addEventListener('mouseup', onUp);
         });
+        // touch
+        targetEl.addEventListener('touchstart', (e)=>{
+          e.stopPropagation();
+          const p = ptFromEvent(e);
+          const start = { x:p.x, y:p.y, ox:layerRef.offsetX||0, oy:layerRef.offsetY||0 };
+          const onMove = (ev)=>{
+            const p2 = ptFromEvent(ev);
+            const dx = (p2.x - start.x) / (view.zoom||1);
+            const dy = (p2.y - start.y) / (view.zoom||1);
+            layerRef.offsetX = start.ox + dx;
+            layerRef.offsetY = start.oy + dy;
+            safeRender();
+          };
+          const onUp = ()=>{
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onUp);
+          };
+          window.addEventListener('touchmove', onMove, {passive:false});
+          window.addEventListener('touchend', onUp);
+        }, {passive:false});
     }
     makeLayerDraggable(title, layer);
     makeLayerDraggable(outline, layer);
@@ -868,6 +936,29 @@ svgRoot.addEventListener('mousedown', (e)=>{ if(e.target===svgRoot){ panning=tru
 svgRoot.addEventListener('click', (e)=>{ if (e.target === svgRoot) { selectedFrameId = null; refreshInspector(); safeRender(); } });
 window.addEventListener('mousemove',(e)=>{ if(!panning) return; view.panX = viewStart.x + (e.clientX-panStart.x); view.panY = viewStart.y + (e.clientY-panStart.y); safeRender(); });
 window.addEventListener('mouseup', ()=>{ panning=false; svgRoot.classList.remove('draggingPan'); });
+
+svgRoot.addEventListener('touchstart', (e)=>{
+  if (e.target === svgRoot) {
+    const p = ptFromEvent(e);
+    panning = true;
+    svgRoot.classList.add('draggingPan');
+    panStart = { x: p.x, y: p.y };
+    viewStart = { x: view.panX, y: view.panY };
+  }
+}, {passive:false});
+
+window.addEventListener('touchmove', (e)=>{
+  if (!panning) return;
+  const p = ptFromEvent(e);
+  view.panX = viewStart.x + (p.x - panStart.x);
+  view.panY = viewStart.y + (p.y - panStart.y);
+  safeRender();
+}, {passive:false});
+
+window.addEventListener('touchend', ()=>{
+  panning=false;
+  svgRoot.classList.remove('draggingPan');
+});
 
 /* ================= SAVE / LOAD / EXPORT ============== */
 generalNotes.oninput = ()=> project.generalNotes = generalNotes.value;
