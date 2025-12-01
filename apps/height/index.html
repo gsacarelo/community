@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>📐 7-Min Height Routine</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <style>
     :root {
       --bg1: #050816;
@@ -25,16 +25,23 @@
       padding: 0;
     }
 
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text-main);
-      min-height: 100vh;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden; /* prevent scroll + blank areas */
       display: flex;
       justify-content: center;
       align-items: center;
       background:
         radial-gradient(circle at 0% 0%, #1d2659, #050816 60%, #000000);
-      overflow: hidden;
       position: relative;
     }
 
@@ -83,11 +90,17 @@
       position: relative;
       width: 100%;
       max-width: 420px;
+      height: 100%;
+      max-height: 780px;
       padding: 14px;
       z-index: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .app-card {
+      width: 100%;
       background: var(--card-bg);
       border-radius: 24px;
       border: 1px solid var(--border-soft);
@@ -589,9 +602,9 @@
       }
     }
 
-    /* ABOUT OVERLAY */
+    /* ABOUT OVERLAY – now inside app-shell */
     .about-overlay {
-      position: fixed;
+      position: absolute;
       inset: 0;
       background: rgba(3, 6, 18, 0.9);
       display: none;
@@ -599,6 +612,7 @@
       justify-content: center;
       padding: 16px;
       z-index: 20;
+      border-radius: 24px; /* matches card */
     }
 
     .about-overlay.visible {
@@ -727,6 +741,15 @@
       color: var(--accent-strong);
     }
 
+    .contact-list a {
+      color: var(--accent-strong);
+      text-decoration: none;
+    }
+
+    .contact-list a:hover {
+      text-decoration: underline;
+    }
+
     .mini-note {
       margin-top: 6px;
       font-size: 0.72rem;
@@ -767,38 +790,39 @@
   </style>
 </head>
 <body>
-  <!-- ABOUT OVERLAY -->
-  <div class="about-overlay" id="aboutOverlay">
-    <div class="about-card">
-      <div class="about-inner">
-        <div class="about-header-row">
-          <div>
-            <div class="about-title">7-Min Height Routine</div>
-            <div class="about-tag">Info & Sequence</div>
+  <div class="app-shell">
+    <!-- ABOUT OVERLAY (now inside app-shell, centered on app) -->
+    <div class="about-overlay" id="aboutOverlay">
+      <div class="about-card">
+        <div class="about-inner">
+          <div class="about-header-row">
+            <div>
+              <div class="about-title">7-Min Height Routine</div>
+              <div class="about-tag">Info & Sequence</div>
+            </div>
+            <button class="about-close-btn" id="aboutCloseBtn" aria-label="Close about panel">&times;</button>
           </div>
-          <button class="about-close-btn" id="aboutCloseBtn" aria-label="Close about panel">&times;</button>
-        </div>
-        <div class="about-section">
-          <strong>Purpose:</strong> Short sequence focused on spinal decompression, posture and pelvic alignment.
-        </div>
-        <div class="about-section">
-          <strong>Structure:</strong> 7 timed steps, bodyweight only, designed for daily use.
-        </div>
-        <div class="about-section">
-          <strong>Sequence:</strong>
-          <ol class="sequence-list">
-            <li>Doorframe Decompression – 60 s</li>
-            <li>Cobra Stretch – 45 s</li>
-            <li>Hip Flexor Stretch (Left) – 45 s</li>
-            <li>Hip Flexor Stretch (Right) – 45 s</li>
-            <li>Thoracic Extension – 60 s</li>
-            <li>Cat–Cow Flow – 60 s</li>
-            <li>Glute Bridge Hold – 60 s</li>
-          </ol>
-        </div>
-        <div class="about-section">
-          <strong>Contact Info:</strong>
-          <ul class="contact-list">
+          <div class="about-section">
+            <strong>Purpose:</strong> short sequence focused on spinal decompression, posture and pelvic alignment.
+          </div>
+          <div class="about-section">
+            <strong>Structure:</strong> 7 timed steps, bodyweight only, designed for daily use.
+          </div>
+          <div class="about-section">
+            <strong>Sequence:</strong>
+            <ol class="sequence-list">
+              <li>Doorframe Decompression – 60 s</li>
+              <li>Cobra Stretch – 45 s</li>
+              <li>Hip Flexor Stretch (Left) – 45 s</li>
+              <li>Hip Flexor Stretch (Right) – 45 s</li>
+              <li>Thoracic Extension – 60 s</li>
+              <li>Cat–Cow Flow – 60 s</li>
+              <li>Glute Bridge Hold – 60 s</li>
+            </ol>
+          </div>
+          <div class="about-section">
+            <strong>Contacts Information:</strong>
+            <ul class="contact-list">
             <li>
               <span class="contact-tag">Author</span>
               <span>Gerardo Sacarelo V.</span>
@@ -814,16 +838,15 @@
               <span>@GerardoSacarelo</span>
             </li>
           </ul>
-          <div class="mini-note">
-            "Excuses don’t exist anywhere besides your mind"
+            <div class="mini-note">
+              "Excuses don’t exist anywhere besides your mind"
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- MAIN APP -->
-  <div class="app-shell">
+    <!-- MAIN APP -->
     <div class="app-card" id="routineCard">
       <header class="app-header">
         <div class="title-block">
@@ -831,18 +854,13 @@
             <div class="app-title-dot"></div>
             <div class="app-title-text">Height Routine</div>
           </div>
-          <div class="app-subtitle">A 7-minute micro-session</div>
+          <div class="app-subtitle">7-minute micro-session</div>
         </div>
         <div class="header-actions">
-          <button class="icon-btn" id="mainPageBtn" title="Main page">
-            🏠
-          </button>
-          <button class="icon-btn" id="soundBtn" title="Sound on/off">
-            🔊
-          </button>
-          <button class="icon-btn" id="aboutBtn" title="About & sequence">
-            ℹ️
-          </button>
+          <button class="icon-btn" id="mainPageBtn" title="Main page">🏠</button>
+          <button class="icon-btn" id="soundBtn" title="Sound on/off">🔊</button>
+          <button class="icon-btn" id="screenBtn" title="Screen on/off">💡</button>
+          <button class="icon-btn" id="aboutBtn" title="About & sequence">ℹ️</button>
         </div>
       </header>
 
@@ -974,18 +992,21 @@
     ];
 
     const totalRoutineSeconds = steps.reduce((sum, s) => sum + s.seconds, 0);
-    const preEndWarningSeconds = 3; // few seconds before end
 
     let currentStepIndex = 0;
     let remainingSeconds = steps[0].seconds;
     let isRunning = false;
     let timerId = null;
     let stepElapsed = steps.map(() => 0); // seconds spent per step
-    let preEndPlayed = false;
 
     // Sound + TTS
     let soundEnabled = true;
     let audioCtx = null;
+    let selectedVoice = null;
+
+    // Screen Wake Lock
+    let wakeLock = null;
+    let wakeLockEnabled = true; // default ON
 
     function getAudioContext() {
       if (!audioCtx) {
@@ -1015,21 +1036,50 @@
       osc.stop(now + duration / 1000);
     }
 
-    function playDoubleBeep() {
-      if (!soundEnabled) return;
-      playBeep(160, 1100, 0.4);
-      setTimeout(() => playBeep(160, 1100, 0.4), 220);
+    function chooseVoice() {
+      if (!("speechSynthesis" in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || !voices.length) return;
+
+      const preferredNames = [
+        "Google US English",
+        "Microsoft Zira",
+        "Samantha",
+        "Jenny",
+        "Aria"
+      ];
+
+      let found =
+        voices.find(v =>
+          preferredNames.some(name => v.name.toLowerCase().includes(name.toLowerCase()))
+        ) ||
+        voices.find(v =>
+          /female|woman|zira|samantha|linda|eva|susan|jenny|aria/i.test(v.name)
+        ) ||
+        voices.find(v => v.lang && v.lang.startsWith("en")) ||
+        voices[0];
+
+      selectedVoice = found || null;
     }
 
-    function speak(text) {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = chooseVoice;
+      chooseVoice();
+    }
+
+    function speak(text, rate = 1.1) {
       if (!soundEnabled) return;
       if (!("speechSynthesis" in window)) return;
       try {
-        window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        u.lang = "en-US";
-        u.rate = 1.0;
-        u.pitch = 1.0;
+        if (selectedVoice) {
+          u.voice = selectedVoice;
+          u.lang = selectedVoice.lang || "en-US";
+        } else {
+          u.lang = "en-US";
+        }
+        u.rate = rate;
+        u.pitch = 1.25; // more feminine
         window.speechSynthesis.speak(u);
       } catch (e) {
         // ignore
@@ -1038,12 +1088,45 @@
 
     function playStartCue() {
       playBeep(200, 1000, 0.4);
-      speak(`Step ${currentStepIndex + 1}: ${steps[currentStepIndex].name}`);
+      speak(`Step ${currentStepIndex + 1}: ${steps[currentStepIndex].name}`, 1.0);
     }
 
-    function playPreEndCue() {
-      playDoubleBeep();
+    // Wake Lock logic
+    async function requestWakeLock() {
+      if (!wakeLockEnabled) return;
+      if (!("wakeLock" in navigator)) return;
+
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+        wakeLock.addEventListener("release", () => {
+          wakeLock = null;
+          // Try to re-acquire if still enabled
+          if (wakeLockEnabled && document.visibilityState === "visible") {
+            requestWakeLock();
+          }
+        });
+      } catch (err) {
+        // likely unsupported or blocked; ignore silently
+        wakeLock = null;
+      }
     }
+
+    async function releaseWakeLock() {
+      if (wakeLock) {
+        try {
+          await wakeLock.release();
+        } catch (e) {}
+        wakeLock = null;
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        if (wakeLockEnabled) requestWakeLock();
+      } else {
+        releaseWakeLock();
+      }
+    });
 
     // --- DOM ELEMENTS ---
     const routineCardEl = document.getElementById("routineCard");
@@ -1074,6 +1157,7 @@
     const aboutCloseBtn = document.getElementById("aboutCloseBtn");
     const mainPageBtn = document.getElementById("mainPageBtn");
     const soundBtn = document.getElementById("soundBtn");
+    const screenBtn = document.getElementById("screenBtn");
 
     // Build step indicators
     const stepDots = [];
@@ -1101,6 +1185,14 @@
       return stepElapsed.reduce((s, v) => s + v, 0);
     }
 
+    function getDisplayIndex() {
+      // After a step finishes, show next step's name/description (if exists)
+      if (remainingSeconds === 0 && currentStepIndex < steps.length - 1) {
+        return currentStepIndex + 1;
+      }
+      return currentStepIndex;
+    }
+
     function updateTimerCircle() {
       const step = steps[currentStepIndex];
       const elapsed = currentStepElapsed();
@@ -1117,11 +1209,12 @@
     }
 
     function updateStepDots() {
+      const displayIndex = getDisplayIndex();
       stepDots.forEach((dot, idx) => {
         dot.classList.remove("active", "current");
-        if (idx < currentStepIndex) {
+        if (idx < displayIndex) {
           dot.classList.add("active");
-        } else if (idx === currentStepIndex) {
+        } else if (idx === displayIndex) {
           dot.classList.add("current");
         }
       });
@@ -1131,18 +1224,25 @@
       const step = steps[currentStepIndex];
 
       if (remainingSeconds === 0) {
-        primaryBtn.disabled = true;
-        primaryLabelEl.textContent = "Done";
-        primaryIconEl.textContent = "✅";
-      } else {
         primaryBtn.disabled = false;
+        if (currentStepIndex < steps.length - 1) {
+          primaryLabelEl.textContent = "Next";
+          primaryIconEl.textContent = "⏭️";
+        } else {
+          primaryLabelEl.textContent = "Done";
+          primaryIconEl.textContent = "✅";
+        }
+      } else {
         if (!isRunning && remainingSeconds === step.seconds) {
+          primaryBtn.disabled = false;
           primaryLabelEl.textContent = "Start";
           primaryIconEl.textContent = "▶️";
         } else if (isRunning) {
+          primaryBtn.disabled = false;
           primaryLabelEl.textContent = "Pause";
           primaryIconEl.textContent = "⏸️";
         } else if (!isRunning && remainingSeconds < step.seconds) {
+          primaryBtn.disabled = false;
           primaryLabelEl.textContent = "Resume";
           primaryIconEl.textContent = "▶️";
         }
@@ -1166,10 +1266,14 @@
     }
 
     function updateUI() {
-      const step = steps[currentStepIndex];
-      stepCounterEl.textContent = `Step ${currentStepIndex + 1} of ${steps.length}`;
-      exerciseNameEl.textContent = step.name;
-      exerciseDescriptionEl.textContent = step.description;
+      const logicalStep = steps[currentStepIndex];
+      const displayIndex = getDisplayIndex();
+      const displayStep = steps[displayIndex];
+
+      stepCounterEl.textContent = `Step ${displayIndex + 1} of ${steps.length}`;
+      exerciseNameEl.textContent = displayStep.name;
+      exerciseDescriptionEl.textContent = displayStep.description;
+
       timeDisplayEl.textContent = formatTime(remainingSeconds);
       updateTimerCircle();
       updateRoutineProgress();
@@ -1199,15 +1303,15 @@
         if (remainingSeconds > 0) {
           remainingSeconds--;
           const step = steps[currentStepIndex];
-          // increment elapsed for this step
+
           if (stepElapsed[currentStepIndex] < step.seconds) {
             stepElapsed[currentStepIndex]++;
           }
 
-          // pre-end cue
-          if (!preEndPlayed && remainingSeconds === preEndWarningSeconds) {
-            preEndPlayed = true;
-            playPreEndCue();
+          // Countdown 3, 2, 1 with beep + female voice
+          if (remainingSeconds > 0 && remainingSeconds <= 3) {
+            playBeep(120, 1200, 0.45);
+            speak(String(remainingSeconds), 1.15);
           }
 
           updateUI();
@@ -1215,6 +1319,7 @@
           if (remainingSeconds === 0) {
             // ensure elapsed = full step
             stepElapsed[currentStepIndex] = step.seconds;
+            playBeep(180, 900, 0.45); // final beep on step end
             stopTimer();
             updateUI();
           }
@@ -1230,7 +1335,6 @@
       currentStepIndex = bounded;
       const step = steps[bounded];
       remainingSeconds = Math.max(0, step.seconds - stepElapsed[bounded]);
-      preEndPlayed = false;
       stopTimer();
       triggerStepAnimation();
       updateUI();
@@ -1240,7 +1344,6 @@
       currentStepIndex = 0;
       remainingSeconds = steps[0].seconds;
       stepElapsed = steps.map(() => 0);
-      preEndPlayed = false;
       stopTimer();
       triggerStepAnimation();
       updateUI();
@@ -1250,17 +1353,36 @@
       soundBtn.textContent = soundEnabled ? "🔊" : "🔈";
     }
 
+    function updateScreenIcon() {
+      screenBtn.textContent = wakeLockEnabled ? "💡" : "💤";
+    }
+
     // --- EVENT HANDLERS ---
     primaryBtn.addEventListener("click", () => {
       const step = steps[currentStepIndex];
+
+      // ensure wake lock when user interacts
+      if (wakeLockEnabled) requestWakeLock();
+
+      // If step finished
       if (remainingSeconds === 0) {
+        if (currentStepIndex < steps.length - 1) {
+          currentStepIndex++;
+          remainingSeconds = steps[currentStepIndex].seconds;
+          triggerStepAnimation();
+          stopTimer();
+          updateUI();
+        } else {
+          resetRoutine();
+        }
         return;
       }
-      // Step just starting from the beginning
+
+      // Step not finished yet
       if (!isRunning && remainingSeconds === step.seconds) {
-        preEndPlayed = false;
         playStartCue();
       }
+
       if (!isRunning) {
         startTimer();
       } else {
@@ -1279,7 +1401,6 @@
       if (currentStepIndex < steps.length - 1) {
         goToStep(currentStepIndex + 1);
       } else {
-        // After last step, move back to first in ready state
         resetRoutine();
       }
     });
@@ -1300,7 +1421,7 @@
       }
     });
 
-    // Keyboard shortcuts: Space = start/pause, ArrowLeft/Right = prev/next, R = reset
+    // Keyboard shortcuts
     document.addEventListener("keydown", (e) => {
       if (e.code === "Space") {
         e.preventDefault();
@@ -1345,13 +1466,32 @@
       }
     });
 
+    // SCREEN TOGGLE
+    screenBtn.addEventListener("click", async () => {
+      wakeLockEnabled = !wakeLockEnabled;
+      updateScreenIcon();
+      if (wakeLockEnabled) {
+        requestWakeLock();
+      } else {
+        await releaseWakeLock();
+      }
+    });
+
     // Initial state: description hidden
     exerciseDescriptionEl.classList.remove("visible");
     exerciseNameContainer.classList.remove("expanded");
 
     // Initial paint
     updateSoundIcon();
+    updateScreenIcon();
     updateUI();
+
+    // Try to acquire wake lock on load (may require gesture in some browsers)
+    window.addEventListener("load", () => {
+      if (wakeLockEnabled) {
+        requestWakeLock();
+      }
+    });
   </script>
 </body>
 </html>
