@@ -4,4 +4,4 @@ emoji: 🥊
 pill: Live
 order: 20
 url:
-hide: false
+hide: true
