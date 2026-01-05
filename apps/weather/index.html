@@ -11,21 +11,24 @@
     --card: #161b22;
     --muted:#9aa4b2;
     --fg: #e6edf3;
-    --accent:#fe4242;   /* Temp now/future (light blue) */
-    --accentY:#c47777;  /* Temp yesterday (dark blue) */
-    --accent2:#55aafd;  /* Precip (light green) */
-    --accent3:#ffe97b;  /* UV (yellow) */
-    --accent4:#a561ff;  /* AQI (light purple) */
+    --accent:#fe4242;   /* Temp now/future */
+    --accentY:#c47777;  /* Temp yesterday */
+    --accent2:#55aafd;  /* Precip */
+    --accent3:#ffe97b;  /* UV */
+    --accent4:#a561ff;  /* AQI */
+    --accent5:#3de0c2;  /* Humidity */
     --border:#222834;
     --hover:#243043;
     --active:#0b1626;
-    --nowline:#dedede;  /* red vertical line for current time */
+    --nowline:#dedede;  /* vertical "now" line */
   }
   *{box-sizing:border-box}
   body{
     margin:0; background:var(--bg); color:var(--fg);
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", Arial;
     line-height:1.35;
+    opacity: 0;
+    animation: pageIn .25s ease forwards;
   }
   header{
     padding:14px clamp(14px,2.2vw,28px); border-bottom:1px solid var(--border);
@@ -38,14 +41,35 @@
     background:var(--card); color:var(--fg); border:1px solid var(--border);
     padding:8px 12px; border-radius:10px; font-size:14px; transition:all .12s ease;
   }
-  button:hover, a.btn:hover, input:hover, select:hover{ background:var(--hover); border-color:#2c3547; }
-  button:active, a.btn:active{ background:var(--active); transform:translateY(1px); }
+  button:hover, a.btn:hover{
+    background: var(--hover);
+    border-color: rgba(255,255,255,.18);
+    transform: translateY(-1px);
+  }
+  input:hover, select:hover{
+    background: var(--hover);
+    border-color: rgba(255,255,255,.18);
+  }
+  button:active, a.btn:active{
+    background:var(--active);
+    transform:translateY(1px);
+    box-shadow: inset 0 0 0 999px rgba(0,0,0,.15);
+  }
   button:disabled{opacity:.6; cursor:not-allowed}
   input[type="text"]{width:min(52vw,340px)}
   main{padding:16px clamp(14px,2.2vw,28px)}
   .grid{ display:grid; gap:12px; grid-template-columns: 1fr; }
   @media (min-width:900px){ .grid{grid-template-columns: 1.2fr .8fr} }
-  .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; position:relative; overflow:hidden; }
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:14px; position:relative; overflow:hidden;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .card:hover{
+    transform: translateY(-7px);
+    box-shadow: 0 12px 34px rgba(0,0,0,.35);
+    border-color: rgba(255,255,255,.12);
+  }
   .summary{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
   @media (min-width:720px){ .summary{grid-template-columns: repeat(4, minmax(0,1fr));} }
   .chip{ display:flex; flex-direction:column; gap:4px; min-height:68px; }
@@ -63,26 +87,35 @@
   .swP{background:var(--accent2)}
   .swU{background:var(--accent3)}
   .swA{background:var(--accent4)}
+  .swH{background:var(--accent5)}
   .footer-controls{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px }
   a.btn{ text-decoration:none; display:inline-block; }
   .note{color:var(--muted); font-size:12px; margin-top:6px}
+  @keyframes pageIn{ to { opacity: 1; } }
+  button.is-active{
+    border-color: rgba(255,255,255,.22);
+    background: rgba(255,255,255,.06);
+    box-shadow: 0 8px 18px rgba(0,0,0,.25);
+  }
 </style>
 </head>
 <body>
 <header>
-  <div class="brand">Local Weather Forecast</div>
+  <div class="brand">☀️ Weather Forecast</div>
   <div class="controls">
     <input id="locationInput" type="text" placeholder="Search city (e.g., Seoul)" />
-    <button id="searchBtn" title="Search by city">Search</button>
-    <button id="geoBtn" title="Use my location">My Location</button>
-    <select id="rangeSelect" title="Forward range">
-      <option value="24">Next 24h</option>
-      <option value="48">Next 48h</option>
-      <option value="96" selected>Next 96h</option>
+    <button id="searchBtn" title="Search by City">🔍 Search</button>
+    <button id="geoBtn" title="Use My Location">📍</button>
+    <select id="rangeSelect" title="Time range">
+      <option value="24">24h</option>
+      <option value="48">48h</option>
+      <option value="72">72h</option>
+      <option value="96" selected>96h</option>
     </select>
-    <button id="refreshBtn" title="Refresh now">Refresh</button>
-    <button id="toggleDetailsBtn" title="Show/Hide Y-axes for Precip/UV/AQI">Show Y axes</button>
-    <a class="btn" href="../../index.html">Main Page</a>
+    <button id="refreshBtn" title="Refresh Now">♻️</button>
+    <button id="toggleDetailsBtn" title="Show/Hide Y-axes">📊</button>
+    <button id="savePngBtn" title="Save chart as PNG">💾 Save</button>
+    <a class="btn" href="index.html" title="Main Page">🏡 Main</a>
   </div>
 </header>
 
@@ -91,9 +124,11 @@
     <section class="card">
       <div class="summary" id="summaryChips">
         <div class="chip"><div class="label">Current Temperature</div><div class="value" id="chipTemp">—</div></div>
+        <div class="chip"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
         <div class="chip"><div class="label">Precipitation Prob.</div><div class="value" id="chipPrecip">—</div></div>
         <div class="chip"><div class="label">UV Index</div><div class="value" id="chipUV">—</div></div>
-        <div class="chip"><div class="label">US AQI</div><div class="value" id="chipAQI">—</div></div>
+        <div class="chip"><div class="label">Air Quality Index</div><div class="value" id="chipAQI">—</div></div>
+        <div class="chip"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
       </div>
 
       <div class="statusbar" id="statusbar">
@@ -109,11 +144,13 @@
         <span class="lg"><span class="sw swP"></span> Precip %</span>
         <span class="lg"><span class="sw swU"></span> UV Index</span>
         <span class="lg"><span class="sw swA"></span> US AQI</span>
+        <span class="lg"><span class="sw swH"></span> Humidity %</span>
       </div>
 
       <div class="footer-controls">
         <button id="btn24">24h</button>
         <button id="btn48">48h</button>
+        <button id="btn72">72h</button>
         <button id="btn96">96h</button>
         <span class="note" id="locNote">Location: —</span>
       </div>
@@ -121,13 +158,21 @@
 
     <aside class="card">
       <div style="font-weight:700; margin-bottom:6px;">Notes</div>
-      <div class="note">
-        • “Yesterday” line is a 24h Temperature left‑shifted overlay.<br/>
-        • Use the toggle to show/hide only the Y‑axes for Precip/UV/AQI.<br/>
-        • By: Gerardo Sacarelo V. - IG: <a href="https://www.instagram.com/gerardo711" style="color: aliceblue">@gerardo711</a>
+      <div class="note" id="insightBox">
+        Analyzing local conditions…
       </div>
     </aside>
   </div>
+  <footer style="margin-top:10px;  padding:6px 0;  text-align:center;  font-size:12px;  color:var(--muted);  border-top:1px solid var(--border);">
+    Built with ❤️ by
+    <a href="https://www.instagram.com/gerardo711"
+       target="_blank"
+       rel="noopener"
+       style="color:var(--fg); text-decoration:none;">
+      Gerardo Sacarelo V.
+    </a>
+  </footer>
+    
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -141,34 +186,39 @@
   // ---- Colors ----
   const css = (v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const COLORS = {
-    tNow: css('--accent') || '#a8d8ff',
-    tY: css('--accentY') || '#4da3ff',
-    precip: css('--accent2') || '#8bd17c',
-    uv: css('--accent3') || '#ffd60a',
-    aqi: css('--accent4') || '#c9a0ff',
-    nowline: css('--nowline') || '#ff3b30'
+    tNow: css('--accent') || '#fe4242',
+    tY: css('--accentY') || '#c47777',
+    precip: css('--accent2') || '#55aafd',
+    uv: css('--accent3') || '#ffe97b',
+    aqi: css('--accent4') || '#a561ff',
+    hum: css('--accent5') || '#3de0c2',
+    nowline: css('--nowline') || '#dedede'
   };
 
   // ---- DOM ----
   const statusbar = document.getElementById('statusbar');
   const statusText = document.getElementById('statusText');
   const chipTemp = document.getElementById('chipTemp');
+  const chipTempY = document.getElementById('chipTempY');    
   const chipPrecip = document.getElementById('chipPrecip');
   const chipUV = document.getElementById('chipUV');
   const chipAQI = document.getElementById('chipAQI');
+  const chipHum = document.getElementById('chipHum');
   const rangeSelect = document.getElementById('rangeSelect');
   const btn24 = document.getElementById('btn24');
   const btn48 = document.getElementById('btn48');
+  const btn72 = document.getElementById('btn72');
   const btn96 = document.getElementById('btn96');
   const refreshBtn = document.getElementById('refreshBtn');
   const toggleDetailsBtn = document.getElementById('toggleDetailsBtn');
+  const savePngBtn = document.getElementById('savePngBtn');
   const locationInput = document.getElementById('locationInput');
   const searchBtn = document.getElementById('searchBtn');
   const geoBtn = document.getElementById('geoBtn');
   const locNote = document.getElementById('locNote');
 
   // ---- State ----
-  let currentCoords = { lat: 37.5665, lon: 126.9780, name: "Seoul" };
+  let currentCoords = { lat: 37.5665, lon: 126.9780, name: "Seoul" }; // fallback
   let chart = null;
   let autoTimer = null;
   let showDetails = false; // y-axes hidden by default
@@ -186,13 +236,11 @@
   const fmt = (n, unit="") => (n==null || Number.isNaN(n)) ? "—" : `${Math.round(n*10)/10}${unit}`;
 
   function hourIndexNow(labels, offsetSeconds){
-    // Compute "now" in the LOCATION timezone using utc_offset_seconds from Open‑Meteo
     const nowUTC = new Date();
     const local = new Date(nowUTC.getTime() + (offsetSeconds||0)*1000);
     const key = local.toISOString().slice(0,13); // YYYY-MM-DDTHH in that tz
     let idx = labels.findIndex(s => s.startsWith(key));
     if (idx === -1){
-      // fallback: pick first label >= local hour by string compare (safe because labels are ISO-like)
       const keyNum = parseInt(key.replace(/[-T:]/g,''),10);
       idx = labels.findIndex(s => parseInt(s.slice(0,13).replace(/[-T:]/g,''),10) >= keyNum);
       if (idx === -1) idx = labels.length-1;
@@ -213,13 +261,49 @@
     return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dd.getUTCDay()];
   }
 
+  // ---- IP location (no API key) ----
+  async function getLocationFromIP(){
+    const providers = [
+      async () => {
+        const r = await fetch("https://ipapi.co/json/");
+        if (!r.ok) throw new Error("ipapi failed");
+        const j = await r.json();
+        if (j && j.latitude != null && j.longitude != null) {
+          return {
+            lat: Number(j.latitude),
+            lon: Number(j.longitude),
+            name: `${j.city || "IP Location"}${j.country_name ? ", " + j.country_name : ""}`
+          };
+        }
+        throw new Error("ipapi missing coords");
+      },
+      async () => {
+        const r = await fetch("https://ipwho.is/");
+        if (!r.ok) throw new Error("ipwho.is failed");
+        const j = await r.json();
+        if (j && j.success !== false && j.latitude != null && j.longitude != null) {
+          return {
+            lat: Number(j.latitude),
+            lon: Number(j.longitude),
+            name: `${j.city || "IP Location"}${j.country ? ", " + j.country : ""}`
+          };
+        }
+        throw new Error("ipwho.is missing coords");
+      }
+    ];
+    for (const fn of providers){
+      try { return await fn(); } catch(e) {}
+    }
+    return null;
+  }
+
   // ---- Fetchers ----
   async function fetchWeather(lat, lon){
     const params = new URLSearchParams({
       latitude: lat, longitude: lon, timezone: "auto",
       past_days: "1", forecast_days: "4",
-      hourly: "temperature_2m,precipitation_probability,uv_index",
-      current: "temperature_2m,precipitation_probability,uv_index"
+      hourly: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m",
+      current: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m"
     });
     const r = await fetch(WEATHER_URL + "?" + params.toString());
     if (!r.ok) throw new Error("weather fetch failed");
@@ -244,18 +328,17 @@
     const t = Array.isArray(wh.temperature_2m) ? wh.temperature_2m : [];
     const p = Array.isArray(wh.precipitation_probability) ? wh.precipitation_probability : [];
     const uv = Array.isArray(wh.uv_index) ? wh.uv_index : [];
+    const hum = Array.isArray(wh.relative_humidity_2m) ? wh.relative_humidity_2m : [];
 
-    if (labels.length === 0) return null; // cannot render without timebase
+    if (labels.length === 0) return null;
 
     const offsetSeconds = weather?.utc_offset_seconds ?? 0;
     const nowIdx = hourIndexNow(labels, offsetSeconds);
     const end = Math.min(labels.length, nowIdx + fwdHours + 1);
     const xLabels = labels.slice(nowIdx, end);
 
-    // temp now (solid)
     const tempNow = t.slice(nowIdx, end);
 
-    // temp yesterday shifted by 24h
     const tempY = [];
     for (let k=0; k<xLabels.length; k++){
       const idx = nowIdx - 24 + k;
@@ -264,8 +347,8 @@
 
     const precipNow = p.slice(nowIdx, end);
     const uvNow = uv.slice(nowIdx, end);
+    const humNow = hum.slice(nowIdx, end);
 
-    // AQI aligned by timestamp map
     let aqiNow = new Array(xLabels.length).fill(null);
     if (air && air.hourly){
       const at = Array.isArray(air.hourly.time) ? air.hourly.time : [];
@@ -275,13 +358,12 @@
       aqiNow = xLabels.map(ts => map.has(ts) ? map.get(ts) : null);
     }
 
-    // current chips fallback
     const curTemp   = weather?.current?.temperature_2m ?? (tempNow[0] ?? null);
     const curPrecip = weather?.current?.precipitation_probability ?? (precipNow[0] ?? null);
     const curUV     = weather?.current?.uv_index ?? (uvNow[0] ?? null);
     const curAQI    = air?.current?.us_aqi ?? (aqiNow[0] ?? null);
+    const curHum    = weather?.current?.relative_humidity_2m ?? (humNow[0] ?? null);
 
-    // mark indices where it's midnight in label strings (T00)
     const midnightIdxs = xLabels.reduce((acc, ts, i) => { if (ts.slice(11,13) === "00") acc.push(i); return acc; }, []);
 
     return {
@@ -290,29 +372,27 @@
       precip: precipNow,
       uv: uvNow,
       aqi: aqiNow,
+      humidity: humNow,
       midnightIdxs,
       offsetSeconds,
-      current: { temp: curTemp, precip: curPrecip, uv: curUV, aqi: curAQI }
+      current: { temp: curTemp, tempY: tempY[0] ?? null, precip: curPrecip, uv: curUV, aqi: curAQI, hum: curHum }
     };
   }
 
-  // ---- Chart ----
-  // Plugin: red lines — "now" within current hour (using location offset), plus lines at every midnight label
+  // ---- Chart plugin: markers ----
   const MarkersPlugin = {
     id: 'markers',
-    afterDatasetsDraw(chart, args, pluginOptions) {
+    afterDatasetsDraw(chart) {
       const {ctx, chartArea, scales} = chart;
       const xScale = scales.x;
       if (!xScale || chart.data.labels.length === 0) return;
 
       const labels = chart.data.labels;
-      // compute pixel positions for category 0 and 1
       const px0 = xScale.getPixelForValue(labels[0]);
       let px1 = px0;
       if (labels.length > 1) px1 = xScale.getPixelForValue(labels[1]);
       const hourWidth = px1 - px0;
 
-      // fraction within the current hour in the LOCATION timezone
       const offset = chart.$offsetSeconds || 0;
       const nowUTC = new Date();
       const local = new Date(nowUTC.getTime() + offset*1000);
@@ -324,13 +404,14 @@
       ctx.strokeStyle = COLORS.nowline;
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6,4]);
+
       // Now line
       ctx.beginPath();
       ctx.moveTo(Math.round(xNow)+.5, chartArea.top);
       ctx.lineTo(Math.round(xNow)+.5, chartArea.bottom);
       ctx.stroke();
 
-      // Midnight lines each 24h (where label hour == "00")
+      // Midnight lines
       const midIdxs = chart.$midnightIdxs || [];
       ctx.setLineDash([4,4]);
       for (const i of midIdxs){
@@ -354,25 +435,74 @@
         { label:'Temp Yesterday (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tY, borderWidth:2, borderDash:[6,6], tension:.2, pointRadius:0, spanGaps:true },
         { label:'Precip (%)', data:[], yAxisID:'yPerc', borderColor:COLORS.precip, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
         { label:'UV Index', data:[], yAxisID:'yUV', borderColor:COLORS.uv, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
-        { label:'US AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true }
+        { label:'US AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
+        { label:'Humidity (%)', data:[], yAxisID:'yHum', borderColor:COLORS.hum, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true }
       ]},
       options:{
         animation:{duration:0},
-        responsive:true, maintainAspectRatio:false,
+        responsive:true,
+        maintainAspectRatio:false,
         interaction:{mode:'index', intersect:false},
         scales:{
-          x:{ ticks:{color:'#aab2bf', maxRotation:0, autoSkip:true, callback:(value, index)=>{
+          x:{
+            ticks:{
+              color:'#aab2bf',
+              maxRotation:0,
+              autoSkip:true,
+              callback:(value, index)=>{
                 const s = chart.data.labels[index];
-                const hour = s.slice(11,13); // 'HH'
-                const isMidnight = hour === "00";
-                return isMidnight ? (dayNameFromISO(s) + " 00") : hour;
-              }}, grid:{color:'rgba(255,255,255,0.05)'} },
-          yTemp:{ position:'left', title:{display:true,text:'°C'}, ticks:{color:'#cfd6e4'}, grid:{color:'rgba(255,255,255,0.10)'} },
-          yPerc:{ position:'right', display: false, offset:true, title:{display:true,text:'Precip %'}, min:0, max:100, ticks:{color:'#cfd6e4'}, grid:{drawOnChartArea:false} },
-          yUV:{ position:'right', display: false, offset:true, title:{display:true,text:'UV'}, min:0, suggestedMax:12, ticks:{color:'#cfd6e4'}, grid:{drawOnChartArea:false} },
-          yAQI:{ position:'right', display: false, offset:true, title:{display:true,text:'US AQI'}, min:0, suggestedMax:150, ticks:{color:'#cfd6e4'}, grid:{drawOnChartArea:false} }
+                const hour = s.slice(11,13);
+                return hour === "00" ? (dayNameFromISO(s) + " 00") : hour;
+              }
+            },
+            grid:{color:'rgba(255,255,255,0.05)'}
+          },
+          yTemp:{
+            position:'left',
+            title:{display:true,text:'°C'},
+            ticks:{color:'#cfd6e4'},
+            grid:{color:'rgba(255,255,255,0.10)'}
+          },
+          yPerc:{
+            position:'right',
+            display:false,
+            offset:true,
+            title:{display:true,text:'Precip %'},
+            min:0, max:100,
+            ticks:{color:'#cfd6e4'},
+            grid:{drawOnChartArea:false}
+          },
+          yUV:{
+            position:'right',
+            display:false,
+            offset:true,
+            title:{display:true,text:'UV'},
+            min:0,
+            suggestedMax:12,
+            ticks:{color:'#cfd6e4'},
+            grid:{drawOnChartArea:false}
+          },
+          yAQI:{
+            position:'right',
+            display:false,
+            offset:true,
+            title:{display:true,text:'US AQI'},
+            min:0,
+            suggestedMax:150,
+            ticks:{color:'#cfd6e4'},
+            grid:{drawOnChartArea:false}
+          },
+          yHum:{
+            position:'right',
+            display:false,
+            offset:true,
+            title:{display:true,text:'Humidity %'},
+            min:0, max:100,
+            ticks:{color:'#cfd6e4'},
+            grid:{drawOnChartArea:false}
+          }
         },
-        plugins:{ legend:{display:false} },
+        plugins:{ legend:{display:false} }
       },
       plugins:[MarkersPlugin]
     });
@@ -387,25 +517,91 @@
     c.data.datasets[2].data = series.precip;
     c.data.datasets[3].data = series.uv;
     c.data.datasets[4].data = series.aqi;
-    // dynamic ceilings
+    c.data.datasets[5].data = series.humidity;
+
     const aqiMax = Math.max.apply(null, series.aqi.filter(v => v!=null).concat([0]));
     const niceAQI = aqiMax<=100?100: aqiMax<=150?150: aqiMax<=200?200: aqiMax<=300?300: 500;
     const uvMax = Math.max.apply(null, series.uv.filter(v => v!=null).concat([0]));
     const niceUV = Math.max(12, Math.ceil(uvMax/2)*2);
     c.options.scales.yAQI.suggestedMax = niceAQI;
     c.options.scales.yUV.suggestedMax = niceUV;
-    // midnight indices and offset for plugin
+
     c.$midnightIdxs = series.midnightIdxs || [];
     c.$offsetSeconds = series.offsetSeconds || 0;
+
+    // Keep axis display consistent after data refresh
+    c.options.scales.yPerc.display = showDetails;
+    c.options.scales.yUV.display = showDetails;
+    c.options.scales.yAQI.display = showDetails;
+    c.options.scales.yHum.display = showDetails;
+
     c.update();
   }
 
   function updateChips(cur){
     chipTemp.textContent = fmt(cur.temp, "°C");
+    chipTempY.textContent = fmt(cur.tempY, "°C");  
     chipPrecip.textContent = fmt(cur.precip, "%");
     chipUV.textContent = fmt(cur.uv, "");
     chipAQI.textContent = fmt(cur.aqi, "");
+    chipHum.textContent = fmt(cur.hum, "%");
   }
+    function generateInsights(series){
+      const insights = [];
+
+      // --- Temperature trend ---
+      if (series.tempNow.length >= 2){
+        const tNow = series.tempNow[0];
+        const tLater = series.tempNow[Math.min(6, series.tempNow.length-1)];
+        if (tLater > tNow + 1){
+          insights.push("🌡️ Temperature rising in the next hours");
+        } else if (tLater < tNow - 1){
+          insights.push("❄️ Cooling down later today");
+        } else {
+          insights.push("🌤️ Temperature staying stable");
+        }
+      }
+
+      // --- UV ---
+      const maxUV = Math.max(...series.uv.filter(v => v != null));
+      if (maxUV >= 8){
+        insights.push("☀️ Very high UV — sun protection recommended");
+      } else if (maxUV >= 5){
+        insights.push("😎 Moderate UV around midday");
+      }
+
+      // --- Precipitation ---
+      const maxPrecip = Math.max(...series.precip.filter(v => v != null));
+      if (maxPrecip >= 60){
+        insights.push("🌧️ High chance of rain — plan accordingly");
+      } else if (maxPrecip >= 30){
+        insights.push("🌦️ Possible rain later today");
+      }
+
+      // --- Air quality ---
+      const maxAQI = Math.max(...series.aqi.filter(v => v != null));
+      if (maxAQI >= 150){
+        insights.push("🚫 Poor air quality — avoid heavy outdoor activity");
+      } else if (maxAQI >= 80){
+        insights.push("😷 Moderate air quality — sensitive users take care");
+      } else {
+        insights.push("🍃 Air quality is good");
+      }
+
+      // --- Humidity ---
+      const avgHum =
+        series.humidity.filter(v => v != null)
+          .reduce((a,b)=>a+b,0) / Math.max(1, series.humidity.filter(v=>v!=null).length);
+
+      if (avgHum >= 70){
+        insights.push("💦 High humidity — may feel warmer and heavier");
+      } else if (avgHum <= 30){
+        insights.push("🏜️ Dry air — stay hydrated");
+      }
+
+      return insights;
+    }
+
 
   async function runUpdate(){
     setOnlineState();
@@ -431,6 +627,13 @@
       }
       updateChart(series);
       updateChips(series.current);
+
+      // Update insights
+      const insightBox = document.getElementById('insightBox');
+      if (insightBox){
+        const tips = generateInsights(series);
+        insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+      }
       locNote.textContent = `Location: ${currentCoords.name}  [${currentCoords.lat.toFixed(3)}, ${currentCoords.lon.toFixed(3)}]`;
       statusbar.classList.remove('offline');
       statusText.textContent = "Online • Auto-update hourly";
@@ -449,7 +652,7 @@
     autoTimer = setTimeout(runUpdate, Math.max(ms, 20000));
   }
 
-  // ---- Geocoding / Geolocation ----
+  // ---- Geocoding / Location ----
   async function geocodeCity(q){
     const url = GEOCODE_URL+"?name="+encodeURIComponent(q)+"&count=1&language=en&format=json";
     const res = await fetch(url);
@@ -459,41 +662,107 @@
     const r = json.results[0];
     return { lat:r.latitude, lon:r.longitude, name:(r.name + (r.admin1?", "+r.admin1:"") + (r.country?", "+r.country:"")) };
   }
-  function useGeolocation(){
-    if (!('geolocation' in navigator)) { alert("Geolocation not available."); return; }
-    navigator.geolocation.getCurrentPosition(
-      (pos)=>{ currentCoords = { lat:pos.coords.latitude, lon:pos.coords.longitude, name:"My Location" }; runUpdate(); },
-      (err)=>{ alert("Could not get location. Use city search instead."); console.warn(err); },
-      { enableHighAccuracy:false, timeout:8000, maximumAge:600000 }
-    );
+
+  // My Location: GPS first; fallback to IP
+  function useGeolocationOrIP(){
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos)=>{
+          currentCoords = { lat:pos.coords.latitude, lon:pos.coords.longitude, name:"My Location (GPS)" };
+          runUpdate();
+        },
+        async ()=>{
+          const ipLoc = await getLocationFromIP();
+          if (ipLoc) {
+            currentCoords = ipLoc;
+            currentCoords.name += " (IP)";
+          }
+          runUpdate();
+        },
+        { enableHighAccuracy:false, timeout:8000, maximumAge:600000 }
+      );
+    } else {
+      (async () => {
+        const ipLoc = await getLocationFromIP();
+        if (ipLoc) {
+          currentCoords = ipLoc;
+          currentCoords.name += " (IP)";
+        }
+        runUpdate();
+      })();
+    }
+  }
+
+  // ---- Save chart as PNG ----
+  function saveChartAsPNG(){
+    const canvas = document.getElementById('forecastChart');
+    if (!canvas) return;
+    const fwd = rangeSelect.value;
+    const safeName = (currentCoords.name || "location").replace(/[^\w\-]+/g, "_");
+    const ts = new Date().toISOString().slice(0,16).replace("T","_").replace(":","");
+    const filename = `weather_${safeName}_${fwd}h_${ts}.png`;
+    const url = canvas.toDataURL('image/png');
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
 
   // ---- UI wiring ----
+  function setActiveRangeButton(hours){
+    [btn24, btn48, btn72, btn96].forEach(b => b && b.classList.remove('is-active'));
+    const map = { "24": btn24, "48": btn48, "72": btn72, "96": btn96 };
+    const target = map[String(hours)];
+    if (target) target.classList.add('is-active');
+  }
+
   refreshBtn.addEventListener('click', runUpdate);
-  btn24.addEventListener('click', ()=>{ rangeSelect.value="24"; runUpdate(); });
-  btn48.addEventListener('click', ()=>{ rangeSelect.value="48"; runUpdate(); });
-  btn96.addEventListener('click', ()=>{ rangeSelect.value="96"; runUpdate(); });
-  rangeSelect.addEventListener('change', runUpdate);
+  btn24.addEventListener('click', ()=>{ rangeSelect.value="24"; setActiveRangeButton(24); runUpdate(); });
+  btn48.addEventListener('click', ()=>{ rangeSelect.value="48"; setActiveRangeButton(48); runUpdate(); });
+  btn72.addEventListener('click', ()=>{ rangeSelect.value="72"; setActiveRangeButton(72); runUpdate(); });
+  btn96.addEventListener('click', ()=>{ rangeSelect.value="96"; setActiveRangeButton(96); runUpdate(); });
+
+  rangeSelect.addEventListener('change', ()=>{
+    setActiveRangeButton(rangeSelect.value);
+    runUpdate();
+  });
+
   searchBtn.addEventListener('click', async ()=>{
     const q = locationInput.value.trim(); if(!q) return;
     try{ currentCoords = await geocodeCity(q); runUpdate(); }
     catch(e){ alert("City not found. Try another name."); }
   });
-  geoBtn.addEventListener('click', useGeolocation);
+
+  geoBtn.addEventListener('click', useGeolocationOrIP);
 
   toggleDetailsBtn.addEventListener('click', ()=>{
     showDetails = !showDetails;
     const c = ensureChart();
-    // Only toggle axis visibility; keep datasets always visible
     c.options.scales.yPerc.display = showDetails;
     c.options.scales.yUV.display = showDetails;
     c.options.scales.yAQI.display = showDetails;
+    c.options.scales.yHum.display = showDetails;
     toggleDetailsBtn.textContent = showDetails ? "Hide Y axes" : "Show Y axes";
     c.update();
   });
 
+  savePngBtn.addEventListener('click', saveChartAsPNG);
+
   // ---- Boot ----
-  runUpdate();
+  (async () => {
+    setActiveRangeButton(rangeSelect.value);
+    try{
+      const ipLoc = await getLocationFromIP();
+      if (ipLoc){
+        currentCoords = ipLoc;
+        currentCoords.name += " (IP)";
+      }
+    } catch(e) {}
+    runUpdate();
+  })();
 })();
 </script>
 </body>
