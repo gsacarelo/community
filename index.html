@@ -19,6 +19,7 @@
   <!-- Browser UI color -->
   <meta name="theme-color" content="#000000">
 
+
   <style>
     :root{
       --bg:#0b0b0c;
@@ -56,12 +57,39 @@
     .topbar{display:flex;flex-direction:column;align-items:center;gap:8px}
     .brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
     .brand .dot{width:12px;height:12px;border-radius:50%;background:conic-gradient(#7b5cff,#b79bff,#7b5cff);box-shadow:0 0 12px rgba(183,155,255,.7)}
+    @media (prefers-reduced-motion: no-preference) {
+      .brand .dot{
+        animation: dotPulse 2.7s ease-in-out infinite;
+      }
+      @keyframes dotPulse{
+        0%,100% { box-shadow: 0 0 12px rgba(183,155,255,.55); transform: scale(1); }
+        50%     { box-shadow: 0 0 22px rgba(183,155,255,.85); transform: scale(1.2); }
+      }
+    }
     nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
     nav a{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;line-height:1;border:1px solid var(--stroke);background:rgba(255,255,255,.02);transition:border-color .15s,background .15s,box-shadow .15s,transform .05s;font-size:14px}
     nav a:hover{border-color:#2a2c33;background:#151721;box-shadow:0 0 0 2px rgba(183,155,255,.18) inset}
     nav a:active{transform:translateY(1px);box-shadow:0 0 0 2px rgba(183,155,255,.28) inset}
 
-    .hero{margin-top:10px;text-align:center}
+    .hero{margin-top:10px;text-align:center; position:relative; overflow:hidden}
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background: radial-gradient(600px 220px at 50% 20%, rgba(183,155,255,.16), transparent 65%);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .hero::before{
+        animation: heroBreathe 5.5s ease-in-out infinite;
+      }
+      @keyframes heroBreathe{
+        0%,100% { transform: translateY(0) scale(1); opacity:.75; }
+        50%     { transform: translateY(10px) scale(1.03); opacity:1; }
+      }
+    }
     .hero h1{margin:0 0 6px;font-size:clamp(20px,3vw,28px)}
     .hero p{margin:0;color:var(--muted)}
     .badges{display:flex;flex-wrap:wrap;gap:6px;row-gap:6px;margin-top:10px;justify-content:center}
@@ -130,6 +158,22 @@
       section{padding:10px}
     }
     footer{margin-top:18px;font-size:12.5px;color:var(--muted);text-align:center}
+    .heart{
+      display:inline-block;
+      margin-left:6px;
+      filter: drop-shadow(0 0 10px rgba(183,155,255,.55));
+      transform-origin:center;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .heart{
+        animation: heartBeat 2.1s ease-in-out infinite;
+      }
+      @keyframes heartBeat{
+        0%,100% { transform: scale(1);   filter: drop-shadow(0 0 10px rgba(231, 226, 246, 0.96)); }
+        35%     { transform: scale(1.22); filter: drop-shadow(0 0 18px rgba(183,155,255,.85)); }
+        55%     { transform: scale(1.07); filter: drop-shadow(0 0 14px rgba(183,155,255,.70)); }
+      }
+    }
   </style>
 </head>
 <body>
@@ -156,7 +200,7 @@
         <span class="chip">Charm Engineer</span>
         <span class="chip">Loop Escape Consultant</span>
         <span class="chip">Tiger Hugger</span>
-        <span class="chip">Emoji Prophet</span>
+        <!-- <span class="chip">Emoji Prophet</span> -->
       </div>
     </section>
 
@@ -165,7 +209,7 @@
       <div id="status-projects" class="load-status">Loading apps…</div>
       <div class="grid" id="grid-projects">
         <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Another project is brewing.</p><span class="link">Coming soon</span></div>
-        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Stay tuned for updates.</p><span class="link">Coming soon</span></div>
+        <!--<div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Stay tuned for updates.</p><span class="link">Coming soon</span></div> -->
       </div>
     </section>
 
@@ -174,7 +218,7 @@
       <div id="status-tools" class="load-status">Loading tools…</div>
       <div class="grid" id="grid-tools">
         <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Utility arriving shortly.</p><span class="link">Coming soon</span></div>
-        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Small lab, big ideas.</p><span class="link">Coming soon</span></div>
+        <!-- <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Small lab, big ideas.</p><span class="link">Coming soon</span></div> -->
       </div>
     </section>
 
@@ -191,12 +235,13 @@
         <div class="btn-grid">
           <a class="mini-card" href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">📸 Instagram</a>
           <a class="mini-card" href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">🔗 Linktree</a>
+          <a class="mini-card" href="https://discord.gg/w4tFSTe89U" target="_blank" rel="noopener">🏪 Discord</a>
           <a class="mini-card" href="#" aria-disabled="true">➕ Another link (soon)</a>
         </div>
       </div>
     </section>
 
-    <footer>© 1990 – <span id="year"></span> Gerardo Sacarelo V. All rights reserved.</footer>
+    <footer>© 1990 – <span id="year"></span> Gerardo Sacarelo V.<span class="heart" aria-hidden="true">💜</span> All rights reserved.</footer>
   </div>
 
   <script>
@@ -238,8 +283,8 @@
         const a = document.createElement("a");
         a.className = "card";
         a.href = (meta.url && meta.url.trim() !== "") ? meta.url : href;
-        a.target = "_self";
-        a.rel = "noopener";
+        a.target = "_blank"; // ← open in new tab
+        a.rel = "noopener noreferrer";
         a.dataset.order = meta.order || "999";
         a.innerHTML = `<h3>${emoji}${title}${pill}</h3><p>${subtitle}</p><span class="link">Open →</span>`;
         return a;
@@ -309,7 +354,7 @@
             insertSortedBeforePlaceholders(grid, newCards);
             if (status) status.remove();
           } else {
-            if (status) status.textContent = "No items found.";
+            if (status) status.textContent = "No items found :/";
           }
         } catch (e) {
           if (status) status.textContent = "Failed to load.";
