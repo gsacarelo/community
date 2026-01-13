@@ -4,4 +4,4 @@ emoji: ☯️
 pill: New
 order: 80
 url: 
-hide: false
+hide: true
