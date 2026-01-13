@@ -4,4 +4,4 @@ emoji: 📐
 pill: Active
 order: 22
 url:
-hide: false
+hide: true
