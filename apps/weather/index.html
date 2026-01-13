@@ -72,7 +72,7 @@
   }
   .summary{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
   @media (min-width:720px){ .summary{grid-template-columns: repeat(4, minmax(0,1fr));} }
-  .chip{ display:flex; flex-direction:column; gap:4px; min-height:68px; }
+  .chip{ display:flex; flex-direction:column; gap:1px; min-height:50px; }
   .label{font-size:12px; color:var(--muted)}
   .value{font-size:20px; font-weight:700}
   .statusbar{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; padding:8px 0; }
@@ -105,7 +105,7 @@
   <div class="controls">
     <input id="locationInput" type="text" placeholder="Search city (e.g., Seoul)" />
     <button id="searchBtn" title="Search by City">🔍 Search</button>
-    <button id="geoBtn" title="Use My Location">📍</button>
+    <button id="geoBtn" title="Use My Location">📍 GPS</button>
     <select id="rangeSelect" title="Time range">
       <option value="24">24h</option>
       <option value="48">48h</option>
@@ -127,6 +127,14 @@
         <div id="statusText">Online • Auto-update hourly</div>
       </div>
 
+      <div class="footer-controls">
+        <button id="btn24">24h</button>
+        <button id="btn48">48h</button>
+        <button id="btn72">72h</button>
+        <button id="btn96">96h</button>
+        <span class="note" id="locNote">Location: —</span>
+      </div>
+      
       <div style="height:360px"><canvas id="forecastChart"></canvas></div>
 
       <div class="legend">
@@ -138,20 +146,14 @@
         <span class="lg"><span class="sw swH"></span> Humidity %</span>
       </div>
 
-      <div class="footer-controls">
-        <button id="btn24">24h</button>
-        <button id="btn48">48h</button>
-        <button id="btn72">72h</button>
-        <button id="btn96">96h</button>
-        <span class="note" id="locNote">Location: —</span>
-      </div>
+      
     </section>
 
     <aside class="card">
       <div class="summary" id="summaryChips">
-        <div class="chip"><div class="label">Current Temperature</div><div class="value" id="chipTemp">—</div></div>
+        <div class="chip"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
         <div class="chip"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
-        <div class="chip"><div class="label">Precipitation Prob.</div><div class="value" id="chipPrecip">—</div></div>
+        <div class="chip"><div class="label">Precip %</div><div class="value" id="chipPrecip">—</div></div>
         <div class="chip"><div class="label">UV Index</div><div class="value" id="chipUV">—</div></div>
         <div class="chip"><div class="label">Air Quality Index</div><div class="value" id="chipAQI">—</div></div>
         <div class="chip"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
@@ -445,7 +447,7 @@
         scales:{
           x:{
             ticks:{
-              color:'#aab2bf',
+              color:'#ffffff',
               maxRotation:0,
               autoSkip:true,
               callback:(value, index)=>{
@@ -459,7 +461,7 @@
           yTemp:{
             position:'left',
             title:{display:true,text:'°C'},
-            ticks:{color:'#cfd6e4'},
+            ticks:{color:'#ffffff'},
             grid:{color:'rgba(255,255,255,0.10)'}
           },
           yPerc:{
