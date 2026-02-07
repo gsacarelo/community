@@ -1,4 +1,4 @@
-title: Software Tools
+title: Tool Library
 subtitle: A curated list of powerful open-source and utility software.
 emoji: 🧰
 pill: New
