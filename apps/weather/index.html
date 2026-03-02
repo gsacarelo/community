@@ -38,10 +38,10 @@
   }
   header{
     padding:14px clamp(14px,2.2vw,28px); border-bottom:1px solid var(--border);
-    display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:space-between;
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;
     background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
   }
-  .brand{ font-weight:700; letter-spacing:.3px; font-size:clamp(18px,2.4vw,22px); }
+  .brand{ font-weight:700; letter-spacing:.3px; font-size:clamp(18px,2.4vw,22px);}
   .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   button, .chip, input, select, a.btn{
     background:var(--card); color:var(--fg); border:1px solid var(--border);
@@ -213,9 +213,9 @@
     <button id="refreshBtn" title="Refresh Now">♻️ <span>Refresh</span></button>
     <select id="rangeSelect" title="Time range">
       <option value="24">1 day</option>
-      <option value="48">2 days</option>
+      <option value="48" selected>2 days</option>
       <option value="72">3 days</option>
-      <option value="96" selected>4 days</option>
+      <option value="96">4 days</option>
     </select>
     <button id="toggleDetailsBtn" title="Show/Hide Y-axes">📊 <span>Y-Axes</span> </button>
     <button id="savePngBtn" title="Save chart as PNG">💾 <span>Save</span></button>
@@ -247,7 +247,7 @@
         <span class="lg"><span class="sw swTY"></span> Yesterday</span>
         <span class="lg"><span class="sw swP"></span> Precip %</span>
         <span class="lg"><span class="sw swU"></span> UV Index</span>
-        <span class="lg"><span class="sw swA"></span> US AQI</span>
+        <span class="lg"><span class="sw swA"></span> AQI</span>
         <span class="lg"><span class="sw swH"></span> Humidity %</span>
       </div>
 
@@ -255,7 +255,7 @@
     </section>
 
     <aside class="card">
-      <div id="currentWeatherTitle" style="font-weight:700; margin-bottom:7px; margin-top:7px">Current Weather Loading— —</div>
+      <div id="currentWeatherTitle" style="font-weight:700; margin-bottom:7px; margin-top:7px;">Current Weather Loading— —</div>
       <div class="summary" id="summaryChips">
         <div class="chip" data-metric="temp"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
         <div class="chip" data-metric="tempY"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
@@ -264,9 +264,24 @@
         <div class="chip" data-metric="aqi"><div class="label">Air Quality Index</div><div class="value" id="chipAQI">—</div></div>
         <div class="chip" data-metric="hum"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
       </div>
-      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Notes</div>
+      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Forecast Notes</div>
       <div class="note" id="insightBox">
         Analyzing local conditions…
+      </div>
+      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">AQI — Thresholds</div>
+      <div class="note">
+        <div>🟢 0–75 → Safe air. Normal activity ✅</div>
+        <div>🟡 76–100 → Mild irritation possible ⚠️</div>
+        <div>🟠 101–150 → Lung stress begins. Wear a MASK! 😷</div>
+        <div>🔴 151+ → Unhealthy for everyone. 🚫</div>
+      </div>
+      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">UV Index — Thresholds</div>
+      <div class="note">
+        <div>🟢 0–2 → Minimal risk. Protection unnecessary ✅</div>
+        <div>🟡 3–5 → Microscopic skin damage over time 🧬</div>
+        <div>🟠 6–7 → Sunburn risk in ~15–25 min 🧴</div>
+        <div>🔴 8+ → Extreme exposure. Strong protection required 🧢</div>
+
       </div>
     </aside>
   </div>
@@ -596,7 +611,7 @@
         { label:'Temp Yesterday (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tY, borderWidth:2, borderDash:[6,6], tension:.2, pointRadius:0, spanGaps:true },
         { label:'Precip (%)', data:[], yAxisID:'yPerc', borderColor:COLORS.precip, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
         { label:'UV Index', data:[], yAxisID:'yUV', borderColor:COLORS.uv, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
-        { label:'US AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
+        { label:'AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
         { label:'Humidity (%)', data:[], yAxisID:'yHum', borderColor:COLORS.hum, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true }
       ]},
       options:{
@@ -647,7 +662,7 @@
             position:'right',
             display:false,
             offset:true,
-            title:{display:true,text:'US AQI'},
+            title:{display:true,text:'AQI'},
             min:0,
             suggestedMax:150,
             ticks:{color:'#cfd6e4'},
