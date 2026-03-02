@@ -17,6 +17,12 @@
     --accent3:#ffe97b;  /* UV */
     --accent4:#a561ff;  /* AQI */
     --accent5:#3de0c2;  /* Humidity */
+    --accentHover:  rgba(254, 66, 66, .14); /* TRANPARENCIES */
+    --accentYHover: rgba(196,119,119, .14);
+    --accent2Hover: rgba( 85,170,253, .14);
+    --accent3Hover: rgba(255,233,123, .14);
+    --accent4Hover: rgba(165, 97,255, .14);
+    --accent5Hover: rgba( 61,224,194, .14);
     --border:#222834;
     --hover:#243043;
     --active:#0b1626;
@@ -72,7 +78,26 @@
   }
   .summary{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
   @media (min-width:720px){ .summary{grid-template-columns: repeat(4, minmax(0,1fr));} }
-  .chip{ display:flex; flex-direction:column; gap:1px; min-height:50px; }
+  .chip{ display:flex; flex-direction:column; gap:1px; min-height:50px; border-left: 7px solid transparent; padding-left: 10px; border-radius: 10px;}
+  .chip[data-metric="temp"]   { border-left-color: var(--accent); }
+  .chip[data-metric="tempY"]  { border-left-color: var(--accentY); }
+  .chip[data-metric="precip"] { border-left-color: var(--accent2); }
+  .chip[data-metric="uv"]     { border-left-color: var(--accent3); }
+  .chip[data-metric="aqi"]    { border-left-color: var(--accent4); }
+  .chip[data-metric="hum"]    { border-left-color: var(--accent5); }
+  .chip[data-metric="temp"]:hover   { background: var(--accentHover); }
+  .chip[data-metric="tempY"]:hover  { background: var(--accentYHover); }
+  .chip[data-metric="precip"]:hover { background: var(--accent2Hover); }
+  .chip[data-metric="uv"]:hover     { background: var(--accent3Hover); }
+  .chip[data-metric="aqi"]:hover    { background: var(--accent4Hover); }
+  .chip[data-metric="hum"]:hover    { background: var(--accent5Hover); }
+  /* Locked/selected chip keeps same hover color */
+  .chip.is-selected[data-metric="temp"]   { background: var(--accentHover); }
+  .chip.is-selected[data-metric="tempY"]  { background: var(--accentYHover); }
+  .chip.is-selected[data-metric="precip"] { background: var(--accent2Hover); }
+  .chip.is-selected[data-metric="uv"]     { background: var(--accent3Hover); }
+  .chip.is-selected[data-metric="aqi"]    { background: var(--accent4Hover); }
+  .chip.is-selected[data-metric="hum"]    { background: var(--accent5Hover); }
   .label{font-size:12px; color:var(--muted)}
   .value{font-size:20px; font-weight:700}
   .statusbar{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; padding:8px 0; }
@@ -97,6 +122,58 @@
     background: rgba(255,255,255,.06);
     box-shadow: 0 8px 18px rgba(0,0,0,.25);
   }
+  
+  /* Modal Overlay */
+  .modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    backdrop-filter:blur(6px);
+    z-index:999;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+  }
+
+  /* Modal Box */
+  .modal-content{
+    position: relative;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    max-width:600px;
+    width:100%;
+    max-height:80vh;
+    overflow:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+    animation:fadeIn .2s ease;
+  }
+
+  .modal-content h2{
+    margin-top:0;
+  }
+
+  .modal-close{
+    position:absolute;
+    top:14px;
+    right:18px;
+    background:none;
+    border:none;
+    font-size:18px;
+    cursor:pointer;
+    color:var(--muted);
+  }
+
+  .modal-close:hover{
+    color:var(--fg);
+  }
+
+  @keyframes fadeIn{
+    from{opacity:0; transform:scale(.96);}
+    to{opacity:1; transform:scale(1);}
+  }
 </style>
 </head>
 <body>
@@ -107,15 +184,16 @@
     <button id="searchBtn" title="Search by City">🔍 Search</button>
     <button id="geoBtn" title="Use My Location">📍 GPS</button>
     <select id="rangeSelect" title="Time range">
-      <option value="24">24h</option>
-      <option value="48">48h</option>
-      <option value="72">72h</option>
-      <option value="96" selected>96h</option>
+      <option value="24">1 day</option>
+      <option value="48">2 days</option>
+      <option value="72">3 days</option>
+      <option value="96" selected>4 days</option>
     </select>
-    <button id="refreshBtn" title="Refresh Now">♻️</button>
-    <button id="toggleDetailsBtn" title="Show/Hide Y-axes">📊</button>
+    <button id="refreshBtn" title="Refresh Now">♻️ Refresh</button>
+    <button id="toggleDetailsBtn" title="Show/Hide Y-axes">📊 Y-Axes </button>
     <button id="savePngBtn" title="Save chart as PNG">💾 Save</button>
-    <a class="btn" href="index.html" title="Main Page">🏡 Main</a>
+    <button id="helpBtn" title="How to use this page">❓ Help</button>
+    <a class="btn" href="../../index.html" title="Main Page">🏡 Main</a>
   </div>
 </header>
 
@@ -151,12 +229,12 @@
 
     <aside class="card">
       <div class="summary" id="summaryChips">
-        <div class="chip"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
-        <div class="chip"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
-        <div class="chip"><div class="label">Precip %</div><div class="value" id="chipPrecip">—</div></div>
-        <div class="chip"><div class="label">UV Index</div><div class="value" id="chipUV">—</div></div>
-        <div class="chip"><div class="label">Air Quality Index</div><div class="value" id="chipAQI">—</div></div>
-        <div class="chip"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
+        <div class="chip" data-metric="temp"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
+        <div class="chip" data-metric="tempY"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
+        <div class="chip" data-metric="precip"><div class="label">Precip %</div><div class="value" id="chipPrecip">—</div></div>
+        <div class="chip" data-metric="uv"><div class="label">UV Index</div><div class="value" id="chipUV">—</div></div>
+        <div class="chip" data-metric="aqi"><div class="label">Air Quality Index</div><div class="value" id="chipAQI">—</div></div>
+        <div class="chip" data-metric="hum"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
       </div>
       <div style="font-weight:700; margin-bottom:6px;">Notes</div>
       <div class="note" id="insightBox">
@@ -173,8 +251,38 @@
       Gerardo Sacarelo V.
     </a>
   </footer>
-    
+  
 </main>
+  
+  <!-- HELP MODAL -->
+  <div id="helpModal" class="modal">
+    <div class="modal-content">
+      <button id="closeHelpBtn" class="modal-close">✖</button>
+      <h2>How to Use This Weather Page</h2>
+
+      <p><strong>📍 Location</strong><br>
+      • Use "Search" to enter a city name.<br>
+      • Use "GPS" to detect your current location automatically.</p>
+
+      <p><strong>⏱ Time Range</strong><br>
+      • 24h / 48h / 72h / 96h adjusts how far into the future the chart shows.</p>
+
+      <p><strong>📊 Graph</strong><br>
+      • Solid line = Current temperature forecast.<br>
+      • Dashed line = Yesterday’s temperature (shifted for comparison).<br>
+      • Vertical line = Current time.<br>
+      • Extra lines = Midnight markers.</p>
+
+      <p><strong>🧠 Smart Cards</strong><br>
+      • Hover over a card to highlight its line on the chart.<br>
+      • Click a card to lock the highlight.</p>
+
+      <p><strong>💾 Save</strong><br>
+      • Save downloads the chart as a PNG image.</p>
+
+      <p>This page updates automatically every hour.</p>
+    </div>
+  </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -217,12 +325,27 @@
   const searchBtn = document.getElementById('searchBtn');
   const geoBtn = document.getElementById('geoBtn');
   const locNote = document.getElementById('locNote');
+  const helpBtn = document.getElementById('helpBtn');
+  const helpModal = document.getElementById('helpModal');
+  const closeHelpBtn = document.getElementById('closeHelpBtn');
 
   // ---- State ----
   let currentCoords = { lat: 37.5665, lon: 126.9780, name: "Seoul" }; // fallback
   let chart = null;
   let autoTimer = null;
   let showDetails = false; // y-axes hidden by default
+  
+  // ---- Chip → dataset mapping (for line highlight) ----
+  const metricToDataset = {
+    temp: 0,   // Temp (°C)
+    tempY: 1,  // Temp Yesterday (°C)
+    precip: 2, // Precip (%)
+    uv: 3,     // UV Index
+    aqi: 4,    // US AQI
+    hum: 5     // Humidity (%)
+  };
+
+  let lockedMetric = null; // click/tap locks highlight
 
   // ---- Helpers ----
   function setOnlineState() {
@@ -509,7 +632,35 @@
     });
     return chart;
   }
+  
+  // ---- Line highlight helpers (pop line thickness) ----
+  function applyHighlight(metric) {
+    const c = ensureChart();
 
+    // Base widths must match your dataset defaults (from ensureChart)
+    const baseWidths = [2, 2, 1.8, 1.8, 1.8, 1.8];
+    const popWidth = 4.2;
+
+    // Reset all datasets to base widths
+    c.data.datasets.forEach((ds, i) => {
+      ds.borderWidth = baseWidths[i] ?? 2;
+    });
+
+    // Apply highlight if metric is valid
+    if (metric && metricToDataset[metric] != null) {
+      const idx = metricToDataset[metric];
+      c.data.datasets[idx].borderWidth = popWidth;
+    }
+
+    // Fast redraw without animation
+    c.update('none');
+  }
+
+  function clearHighlightIfNotLocked() {
+    if (lockedMetric) return;
+    applyHighlight(null);
+  }
+  
   function updateChart(series){
     const c = ensureChart();
     c.data.labels = series.labels;
@@ -537,6 +688,11 @@
     c.options.scales.yHum.display = showDetails;
 
     c.update();
+    
+    // Re-apply locked highlight after data refresh
+    if (lockedMetric) {
+      applyHighlight(lockedMetric);
+    }
   }
 
   function updateChips(cur){
@@ -719,6 +875,36 @@
     const target = map[String(hours)];
     if (target) target.classList.add('is-active');
   }
+  
+  // ---- Chip interactions: hover = temporary highlight, click/tap = lock highlight ----
+  document.querySelectorAll('.chip[data-metric]').forEach(chip => {
+    const metric = chip.getAttribute('data-metric');
+
+    // Desktop hover
+    chip.addEventListener('mouseenter', () => {
+      if (!lockedMetric) applyHighlight(metric);
+    });
+    chip.addEventListener('mouseleave', () => {
+      clearHighlightIfNotLocked();
+    });
+
+    // Click/tap toggles lock (works on mobile too)
+    chip.addEventListener('click', () => {
+      // Remove selection from all chips
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-selected'));
+
+      if (lockedMetric === metric) {
+        // Unlock
+        lockedMetric = null;
+        applyHighlight(null);
+      } else {
+        // Lock new metric
+        lockedMetric = metric;
+        chip.classList.add('is-selected');
+        applyHighlight(metric);
+      }
+    });
+  });
 
   refreshBtn.addEventListener('click', runUpdate);
   btn24.addEventListener('click', ()=>{ rangeSelect.value="24"; setActiveRangeButton(24); runUpdate(); });
@@ -746,12 +932,33 @@
     c.options.scales.yUV.display = showDetails;
     c.options.scales.yAQI.display = showDetails;
     c.options.scales.yHum.display = showDetails;
-    toggleDetailsBtn.textContent = showDetails ? "Hide Y axes" : "Show Y axes";
+    toggleDetailsBtn.textContent = showDetails ? "📊 Hide" : "📊 Show";
     c.update();
   });
 
   savePngBtn.addEventListener('click', saveChartAsPNG);
+  
+  // Help modal (safe wiring)
+  if (helpBtn && helpModal) {
+    helpBtn.addEventListener('click', () => {
+      helpModal.style.display = 'flex';
+    });
+  }
 
+  if (closeHelpBtn && helpModal) {
+    closeHelpBtn.addEventListener('click', () => {
+      helpModal.style.display = 'none';
+    });
+  }
+
+  if (helpModal) {
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) {
+        helpModal.style.display = 'none';
+      }
+    });
+  }
+  
   // ---- Boot ----
   (async () => {
     setActiveRangeButton(rangeSelect.value);
@@ -765,6 +972,6 @@
     runUpdate();
   })();
 })();
-</script>
+</script>  
 </body>
 </html>
