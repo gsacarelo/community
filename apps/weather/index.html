@@ -17,14 +17,14 @@
     --accent3:#ffe97b;  /* UV */
     --accent4:#a561ff;  /* AQI */
     --accent5:#3de0c2;  /* Humidity */
-    --accentHover:  rgba(254, 66, 66, .14); /* TRANPARENCIES */
-    --accentYHover: rgba(196,119,119, .14);
-    --accent2Hover: rgba( 85,170,253, .14);
-    --accent3Hover: rgba(255,233,123, .14);
-    --accent4Hover: rgba(165, 97,255, .14);
-    --accent5Hover: rgba( 61,224,194, .14);
+    --accentHover:  rgba(254, 66, 66, .3); /* CARDS TRANPARENCIES */
+    --accentYHover: rgba(196,119,119, .3);
+    --accent2Hover: rgba( 85,170,253, .3);
+    --accent3Hover: rgba(255,233,123, .3);
+    --accent4Hover: rgba(165, 97,255, .3);
+    --accent5Hover: rgba( 61,224,194, .3);
     --border:#222834;
-    --hover:#243043;
+    --hover:rgba(112, 154, 222, 0.67);
     --active:#0b1626;
     --nowline:#dedede;  /* vertical "now" line */
   }
@@ -228,6 +228,7 @@
     </section>
 
     <aside class="card">
+      <div id="currentWeatherTitle" style="font-weight:700; margin-bottom:7px; margin-top:7px">Current Weather Loading— —</div>
       <div class="summary" id="summaryChips">
         <div class="chip" data-metric="temp"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
         <div class="chip" data-metric="tempY"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
@@ -236,7 +237,7 @@
         <div class="chip" data-metric="aqi"><div class="label">Air Quality Index</div><div class="value" id="chipAQI">—</div></div>
         <div class="chip" data-metric="hum"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
       </div>
-      <div style="font-weight:700; margin-bottom:6px;">Notes</div>
+      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Notes</div>
       <div class="note" id="insightBox">
         Analyzing local conditions…
       </div>
@@ -270,8 +271,8 @@
       <p><strong>📊 Graph</strong><br>
       • Solid line = Current temperature forecast.<br>
       • Dashed line = Yesterday’s temperature (shifted for comparison).<br>
-      • Vertical line = Current time.<br>
-      • Extra lines = Midnight markers.</p>
+      • First vertical line = Current time.<br>
+      • Extra vertical lines = Midnight markers.</p>
 
       <p><strong>🧠 Smart Cards</strong><br>
       • Hover over a card to highlight its line on the chart.<br>
@@ -280,7 +281,13 @@
       <p><strong>💾 Save</strong><br>
       • Save downloads the chart as a PNG image.</p>
 
-      <p>This page updates automatically every hour.</p>
+      <p style="text-align:center; font-size:13px; color:var(--muted);">Built with ❤️ by
+        <a href="https://www.instagram.com/gerardo711"
+           target="_blank"
+           rel="noopener"
+           style="color:var(--fg); text-decoration:none;">
+          Gerardo Sacarelo V.
+        </a></p>
     </div>
   </div>
 
@@ -307,6 +314,7 @@
   // ---- DOM ----
   const statusbar = document.getElementById('statusbar');
   const statusText = document.getElementById('statusText');
+  const currentWeatherTitle = document.getElementById('currentWeatherTitle');
   const chipTemp = document.getElementById('chipTemp');
   const chipTempY = document.getElementById('chipTempY');    
   const chipPrecip = document.getElementById('chipPrecip');
@@ -453,6 +461,7 @@
     const p = Array.isArray(wh.precipitation_probability) ? wh.precipitation_probability : [];
     const uv = Array.isArray(wh.uv_index) ? wh.uv_index : [];
     const hum = Array.isArray(wh.relative_humidity_2m) ? wh.relative_humidity_2m : [];
+    const currentTimeLocal = weather?.current?.time ?? xLabels[0]; // already local to the location
 
     if (labels.length === 0) return null;
 
@@ -499,6 +508,7 @@
       humidity: humNow,
       midnightIdxs,
       offsetSeconds,
+      currentTimeLocal,
       current: { temp: curTemp, tempY: tempY[0] ?? null, precip: curPrecip, uv: curUV, aqi: curAQI, hum: curHum }
     };
   }
@@ -784,6 +794,20 @@
       }
       updateChart(series);
       updateChips(series.current);
+      
+      // ---- Update header title with city + local time ----
+      if (currentWeatherTitle && series.currentTimeLocal) {
+        const ts = series.currentTimeLocal; // "YYYY-MM-DDTHH:MM" in local time
+
+        const cityOnly = currentCoords.name
+          ? currentCoords.name.split(",")[0].replace(/\(.*?\)/g, "").trim()
+          : "";
+
+        const weekday = dayNameFromISO(ts);     // uses your existing helper
+        const hhmm = ts.slice(11, 16);          // "HH:MM"
+
+        currentWeatherTitle.textContent = `Weather — ${cityOnly} — ${weekday} ${hhmm}`;
+      }
 
       // Update insights
       const insightBox = document.getElementById('insightBox');
