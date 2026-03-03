@@ -1,0 +1,7 @@
+title: Biorhythm
+subtitle: Physical • Emotional • Intellectual
+emoji: 🌕
+pill: New
+order: 15
+url:
+hide: false
