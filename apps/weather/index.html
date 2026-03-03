@@ -72,7 +72,7 @@
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
   .card:hover{
-    transform: translateY(-3px);
+    transform: translateY(-1px);
     box-shadow: 0 12px 34px rgba(0,0,0,.35);
     border-color: rgba(255,255,255,.12);
   }
@@ -100,7 +100,7 @@
   .chip.is-selected[data-metric="hum"]    { background: var(--accent5Hover); }
   .label{font-size:12px; color:var(--muted)}
   .value{font-size:20px; font-weight:700}
-  .statusbar{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; padding:8px 0; }
+  .statusbar{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; padding:3px 0; justify-content: center;}
   .statusbar .dot{width:8px; height:8px; border-radius:99px; background:#3fb950}
   .statusbar.offline .dot{background:#d97706}
   .legend{ display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin-top:8px }
@@ -113,7 +113,7 @@
   .swU{background:var(--accent3)}
   .swA{background:var(--accent4)}
   .swH{background:var(--accent5)}
-  .footer-controls{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px }
+  .footer-controls{ display:flex; flex-wrap:wrap; gap:8px; margin-top:3px }
   a.btn{ text-decoration:none; display:inline-block; }
   .note{color:var(--muted); font-size:12px; margin-top:6px}
   @keyframes pageIn{ to { opacity: 1; } }
@@ -201,6 +201,28 @@
     }
 
   }
+  
+  /* Heart beat animation */
+  .heart-beat{
+    display:inline-block;
+    transform-origin:center;
+    animation: heartBeat 2.4s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes heartBeat{
+    0%   { transform: scale(1); }
+    18%  { transform: scale(1.18); }
+    36%  { transform: scale(1); }
+    54%  { transform: scale(1.12); }
+    72%  { transform: scale(1); }
+    100% { transform: scale(1); }
+  }
+
+  /* Respect reduced motion settings */
+  @media (prefers-reduced-motion: reduce){
+    .heart-beat{ animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -270,23 +292,23 @@
       </div>
       <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">AQI — Thresholds</div>
       <div class="note">
-        <div>🟢 0–75 → Safe air. Normal activity ✅</div>
-        <div>🟡 76–100 → Mild irritation possible ⚠️</div>
-        <div>🟠 101–150 → Lung stress begins. Wear a MASK! 😷</div>
-        <div>🔴 151+ → Unhealthy for everyone. 🚫</div>
+        <div>🟢 0–75: Safe air. Normal activity ✅</div>
+        <div>🟡 76–100: Mild irritation possible ⚠️</div>
+        <div>🟠 101–150: Lung stress. MASK now! 😷</div>
+        <div>🔴 151+: Unhealthy for everyone. 🚫</div>
       </div>
       <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">UV Index — Thresholds</div>
       <div class="note">
-        <div>🟢 0–2 → Minimal risk. Protection unnecessary ✅</div>
-        <div>🟡 3–5 → Microscopic skin damage over time 🧬</div>
-        <div>🟠 6–7 → Sunburn risk in ~15–25 min 🧴</div>
-        <div>🔴 8+ → Extreme exposure. Strong protection required 🧢</div>
+        <div>🟢 0–2: No risk. Protection unnecessary ✅</div>
+        <div>🟡 3–5: Tiny skin damage over time 🧬</div>
+        <div>🟠 6–7: Sunburn risk. Sunscreen! 🧴</div>
+        <div>🔴 8+: Avoid sun. Use strong protection 🧢</div>
 
       </div>
     </aside>
   </div>
   <footer style="margin-top:10px;  padding:6px 0;  text-align:center;  font-size:12px;  color:var(--muted);  border-top:1px solid var(--border);">
-    Built with ❤️ by
+    Built with <span class="heart-beat">❤️</span> by
     <a href="https://www.instagram.com/gerardo711"
        target="_blank"
        rel="noopener"
@@ -323,7 +345,7 @@
       <p><strong>💾 Save</strong><br>
       • Save downloads the chart as a PNG image.</p>
 
-      <p style="text-align:center; font-size:13px; color:var(--muted);">Built with ❤️ by
+      <p style="text-align:center; font-size:13px; color:var(--muted);">Built with <span class="heart-beat">❤️</span> by
         <a href="https://www.instagram.com/gerardo711"
            target="_blank"
            rel="noopener"
@@ -608,7 +630,7 @@
       type:'line',
       data:{ labels:[], datasets:[
         { label:'Temp (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tNow, borderWidth:2, tension:.3, pointRadius:0, spanGaps:true },
-        { label:'Temp Yesterday (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tY, borderWidth:2, borderDash:[6,6], tension:.2, pointRadius:0, spanGaps:true },
+        { label:'Yesterday (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tY, borderWidth:2, borderDash:[6,6], tension:.2, pointRadius:0, spanGaps:true },
         { label:'Precip (%)', data:[], yAxisID:'yPerc', borderColor:COLORS.precip, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
         { label:'UV Index', data:[], yAxisID:'yUV', borderColor:COLORS.uv, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
         { label:'AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
