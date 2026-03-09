@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"/>
+<meta name="author" content="Gerardo Sacarelo V.">
+<meta name="description" content="Interactive weather forecast with hourly temperature, precipitation probability, UV index, air quality (AQI), and humidity. Compare today's temperature with yesterday and view up to a 4-day forecast for any city worldwide.">
 <title>☀️ Weather Forecast</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <style>
@@ -50,7 +52,7 @@
   button:hover, a.btn:hover{
     background: var(--hover);
     border-color: rgba(255,255,255,.18);
-    transform: translateY(-1px);
+    transform: translateY(-3px);
   }
   input:hover, select:hover{
     background: var(--hover);
@@ -58,7 +60,7 @@
   }
   button:active, a.btn:active{
     background:var(--active);
-    transform:translateY(1px);
+    transform:translateY(3px);
     box-shadow: inset 0 0 0 999px rgba(0,0,0,.15);
   }
   button:disabled{opacity:.6; cursor:not-allowed}
@@ -77,7 +79,7 @@
     border-color: rgba(255,255,255,.12);
   }
   .summary{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
-  @media (min-width:720px){ .summary{grid-template-columns: repeat(4, minmax(0,1fr));} }
+  @media (min-width:720px){ .summary{grid-template-columns: repeat(3, minmax(0,1fr));} }
   .chip{ display:flex; flex-direction:column; gap:1px; min-height:50px; border-left: 7px solid transparent; padding-left: 10px; border-radius: 10px;}
   .chip[data-metric="temp"]   { border-left-color: var(--accent); }
   .chip[data-metric="tempY"]  { border-left-color: var(--accentY); }
@@ -282,15 +284,15 @@
         <div class="chip" data-metric="temp"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
         <div class="chip" data-metric="tempY"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
         <div class="chip" data-metric="precip"><div class="label">Precip %</div><div class="value" id="chipPrecip">—</div></div>
-        <div class="chip" data-metric="uv"><div class="label">UV Index</div><div class="value" id="chipUV">—</div></div>
-        <div class="chip" data-metric="aqi"><div class="label">Air Quality Index</div><div class="value" id="chipAQI">—</div></div>
+        <div class="chip" data-metric="uv"><div class="label" id="labelUV">✅ UV Index</div><div class="value" id="chipUV">—</div></div>
+        <div class="chip" data-metric="aqi"><div class="label" id="labelAQI">✅ AQI</div><div class="value" id="chipAQI">—</div></div>
         <div class="chip" data-metric="hum"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
       </div>
       <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Forecast Notes</div>
       <div class="note" id="insightBox">
         Analyzing local conditions…
       </div>
-      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">AQI — Thresholds</div>
+      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Air Quality Index — Thresholds</div>
       <div class="note">
         <div>🟢 0–75: Safe air. Normal activity ✅</div>
         <div>🟡 76–100: Mild irritation possible ⚠️</div>
@@ -303,7 +305,6 @@
         <div>🟡 3–5: Tiny skin damage over time 🧬</div>
         <div>🟠 6–7: Sunburn risk. Sunscreen! 🧴</div>
         <div>🔴 8+: Avoid sun. Use strong protection 🧢</div>
-
       </div>
     </aside>
   </div>
@@ -352,6 +353,44 @@
            style="color:var(--fg); text-decoration:none;">
           Gerardo Sacarelo V.
         </a></p>
+      
+      <p style="text-align:center; font-size:10px; color:var(--muted); margin-top:8px;">
+        Powered by:
+        <a href="https://open-meteo.com/"
+           target="_blank"
+           rel="noopener"
+           style="color:var(--fg); text-decoration:none;">
+          Open-Meteo Weather
+        </a>
+        ·
+        <a href="https://open-meteo.com/en/docs/air-quality-api"
+           target="_blank"
+           rel="noopener"
+           style="color:var(--fg); text-decoration:none;">
+          AQI
+        </a>
+        ·
+        <a href="https://open-meteo.com/en/docs/geocoding-api"
+           target="_blank"
+           rel="noopener"
+           style="color:var(--fg); text-decoration:none;">
+          Geocoding
+        </a>
+        ·
+        <a href="https://ipapi.co/"
+           target="_blank"
+           rel="noopener"
+           style="color:var(--fg); text-decoration:none;">
+          ipapi
+        </a>
+        ·
+        <a href="https://ipwhois.io/"
+           target="_blank"
+           rel="noopener"
+           style="color:var(--fg); text-decoration:none;">
+          ipwho.is
+        </a>
+      </p>
     </div>
   </div>
 
@@ -384,6 +423,8 @@
   const chipPrecip = document.getElementById('chipPrecip');
   const chipUV = document.getElementById('chipUV');
   const chipAQI = document.getElementById('chipAQI');
+  const labelUV = document.getElementById('labelUV');
+  const labelAQI = document.getElementById('labelAQI');
   const chipHum = document.getElementById('chipHum');
   const rangeSelect = document.getElementById('rangeSelect');
   const btn24 = document.getElementById('btn24');
@@ -430,6 +471,22 @@
   setOnlineState();
 
   const fmt = (n, unit="") => (n==null || Number.isNaN(n)) ? "—" : `${Math.round(n*10)/10}${unit}`;
+
+  function getAQIEmoji(aqi){
+    if (aqi == null || Number.isNaN(aqi)) return "";
+    if (aqi <= 75) return "✅";
+    if (aqi <= 100) return "🟡";
+    if (aqi <= 150) return "🟠❗️";
+    return "🔴‼️";
+  }
+
+  function getUVEmoji(uv){
+    if (uv == null || Number.isNaN(uv)) return "";
+    if (uv <= 2) return "✅";
+    if (uv <= 5) return "🟡";
+    if (uv <= 7) return "🟠❗️";
+    return "🔴‼️";
+  }
 
   function hourIndexNow(labels, offsetSeconds){
     const nowUTC = new Date();
@@ -776,6 +833,14 @@
     chipUV.textContent = fmt(cur.uv, "");
     chipAQI.textContent = fmt(cur.aqi, "");
     chipHum.textContent = fmt(cur.hum, "%");
+    
+    // Dynamic label emojis
+    if (labelUV) {
+      labelUV.textContent = `${getUVEmoji(cur.uv)} UV Index`;
+    }
+    if (labelAQI) {
+      labelAQI.textContent = `${getAQIEmoji(cur.aqi)} AQI`;
+    }
   }
     function generateInsights(series){
       const insights = [];
