@@ -11,7 +11,7 @@
   :root{
     --bg: #0e1116;
     --card: #161b22;
-    --muted:#9aa4b2;
+    --muted:#dce7f6;
     --fg: #e6edf3;
     --accent:#fe4242;   /* Temp now/future */
     --accentY:#c47777;  /* Temp yesterday */
@@ -67,7 +67,7 @@
   input[type="text"]{width:min(52vw,340px)}
   main{padding:16px clamp(14px,2.2vw,28px)}
   .grid{ display:grid; gap:12px; grid-template-columns: 1fr; }
-  @media (min-width:900px){ .grid{grid-template-columns: 1.2fr .8fr} }
+  @media (min-width:900px){ .grid{grid-template-columns: 1.35fr .65fr} }
   .card{
     background:var(--card); border:1px solid var(--border); border-radius:14px;
     padding:14px; position:relative; overflow:hidden;
@@ -225,13 +225,45 @@
   @media (prefers-reduced-motion: reduce){
     .heart-beat{ animation: none; }
   }
+  
+  .refresh-cooldown{
+    background: var(--active) !important;
+    border-color: rgba(255,255,255,.14) !important;
+    opacity: .8;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  
+  .chart-loading{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    color:var(--muted);
+    background:linear-gradient(
+      90deg,
+      rgba(255,255,255,.04) 0%,
+      rgba(255,255,255,.08) 50%,
+      rgba(255,255,255,.04) 100%
+    );
+    background-size:200% 100%;
+    animation:loadingMove 1.4s infinite linear;
+    border-radius:12px;
+  }
+
+  @keyframes loadingMove{
+    0%{background-position:200% 0;}
+    100%{background-position:-200% 0;}
+  }
 </style>
 </head>
 <body>
 <header>
   <div class="brand">☀️ Weather Forecast</div>
   <div class="controls">
-    <input id="locationInput" type="text" placeholder="Search city (e.g., Seoul)" />
+    <input id="locationInput" type="text" maxlength="60" placeholder="Search city (e.g., Seoul)" />
     <button id="searchBtn" title="Search by City">🔍 <span>Search</span></button>
     <button id="geoBtn" title="Use My Location">📍 <span>GPS</span></button>
     <button id="refreshBtn" title="Refresh Now">♻️ <span>Refresh</span></button>
@@ -264,7 +296,10 @@
         <span class="note" id="locNote">Location: —</span>
       </div>
       
-      <div style="height:360px"><canvas id="forecastChart"></canvas></div>
+      <div style="height:360px; position:relative">
+        <canvas id="forecastChart"></canvas>
+        <div id="chartLoading" class="chart-loading">Loading weather data…</div>
+      </div>
 
       <div class="legend">
         <span class="lg"><span class="sw swT"></span> Temperature</span>
@@ -280,6 +315,9 @@
 
     <aside class="card">
       <div id="currentWeatherTitle" style="font-weight:700; margin-bottom:7px; margin-top:7px;">Current Weather Loading— —</div>
+      <div id="envRow" class="note" style="margin-bottom:6px;">
+      🗻 Elevation: — m • 🤿 Pressure: — hPa
+      </div>
       <div class="summary" id="summaryChips">
         <div class="chip" data-metric="temp"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
         <div class="chip" data-metric="tempY"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
@@ -287,6 +325,9 @@
         <div class="chip" data-metric="uv"><div class="label" id="labelUV">✅ UV Index</div><div class="value" id="chipUV">—</div></div>
         <div class="chip" data-metric="aqi"><div class="label" id="labelAQI">✅ AQI</div><div class="value" id="chipAQI">—</div></div>
         <div class="chip" data-metric="hum"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
+      </div>
+      <div id="comfortRow" class="note" style="margin-top:6px;">
+      🥭 Feels like: — °C • 💨 Wind: — km/h
       </div>
       <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Forecast Notes</div>
       <div class="note" id="insightBox">
@@ -360,10 +401,10 @@
            target="_blank"
            rel="noopener"
            style="color:var(--fg); text-decoration:none;">
-          Open-Meteo Weather
+          Open-Meteo
         </a>
         ·
-        <a href="https://open-meteo.com/en/docs/air-quality-api"
+        <!--<a href="https://open-meteo.com/en/docs/air-quality-api"
            target="_blank"
            rel="noopener"
            style="color:var(--fg); text-decoration:none;">
@@ -376,7 +417,7 @@
            style="color:var(--fg); text-decoration:none;">
           Geocoding
         </a>
-        ·
+        · -->
         <a href="https://ipapi.co/"
            target="_blank"
            rel="noopener"
@@ -401,6 +442,7 @@
   const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
   const AIR_URL     = "https://air-quality-api.open-meteo.com/v1/air-quality";
   const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
+  const REFRESH_COOLDOWN_SEC = 30;
 
   // ---- Colors ----
   const css = (v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -426,6 +468,8 @@
   const labelUV = document.getElementById('labelUV');
   const labelAQI = document.getElementById('labelAQI');
   const chipHum = document.getElementById('chipHum');
+  const envRow = document.getElementById('envRow');
+  const comfortRow = document.getElementById('comfortRow');
   const rangeSelect = document.getElementById('rangeSelect');
   const btn24 = document.getElementById('btn24');
   const btn48 = document.getElementById('btn48');
@@ -441,12 +485,16 @@
   const helpBtn = document.getElementById('helpBtn');
   const helpModal = document.getElementById('helpModal');
   const closeHelpBtn = document.getElementById('closeHelpBtn');
+  const chartLoading = document.getElementById('chartLoading');
 
   // ---- State ----
   let currentCoords = { lat: 37.5665, lon: 126.9780, name: "Seoul" }; // fallback
   let chart = null;
   let autoTimer = null;
   let showDetails = false; // y-axes hidden by default
+  let refreshCooldownRemaining = 0;
+  let refreshCooldownTimer = null;
+  let fullSeries = null; // stores the full 96h dataset
   
   // ---- Chip → dataset mapping (for line highlight) ----
   const metricToDataset = {
@@ -472,6 +520,18 @@
 
   const fmt = (n, unit="") => (n==null || Number.isNaN(n)) ? "—" : `${Math.round(n*10)/10}${unit}`;
 
+  function windDirToCompass(deg){
+    if (deg == null || Number.isNaN(deg)) return "";
+    const dirs = ["N","NE","E","SE","S","SW","W","NW"];
+    return dirs[Math.round(deg / 45) % 8];
+  }
+
+  function windDirArrow(deg){
+    if (deg == null || Number.isNaN(deg)) return "";
+    const arrows = ["↑","↗","→","↘","↓","↙","←","↖"];
+    return arrows[Math.round(deg / 45) % 8];
+  }
+  
   function getAQIEmoji(aqi){
     if (aqi == null || Number.isNaN(aqi)) return "";
     if (aqi <= 75) return "✅";
@@ -505,6 +565,62 @@
     const now = new Date();
     return (60-now.getMinutes())*60*1000 - now.getSeconds()*1000 - now.getMilliseconds();
   }
+  
+  function isMobileView(){
+    return window.matchMedia("(max-width: 640px)").matches;
+  }
+
+  function setRefreshButtonLabel(){
+    if (!refreshBtn) return;
+
+    if (refreshCooldownRemaining > 0) {
+      if (isMobileView()) {
+        refreshBtn.innerHTML = `${refreshCooldownRemaining}s`;
+      } else {
+        refreshBtn.innerHTML = `♻️ <span>${refreshCooldownRemaining} sec</span>`;
+      }
+      refreshBtn.classList.add('refresh-cooldown');
+      refreshBtn.disabled = true;
+      refreshBtn.title = `Refresh available in ${refreshCooldownRemaining} seconds`;
+    } else {
+      if (isMobileView()) {
+        refreshBtn.innerHTML = `♻️`;
+      } else {
+        refreshBtn.innerHTML = `♻️ <span>Refresh</span>`;
+      }
+      refreshBtn.classList.remove('refresh-cooldown');
+      refreshBtn.disabled = false;
+      refreshBtn.title = "Refresh Now";
+    }
+  }
+  
+  function setApiButtonsLocked(lock){
+    searchBtn.disabled = lock;
+    geoBtn.disabled = lock;
+  }
+
+  function startRefreshCooldown(){
+    refreshCooldownRemaining = REFRESH_COOLDOWN_SEC;
+    setApiButtonsLocked(true);
+    setRefreshButtonLabel();
+
+    if (refreshCooldownTimer) {
+      clearInterval(refreshCooldownTimer);
+    }
+
+    refreshCooldownTimer = setInterval(() => {
+      refreshCooldownRemaining--;
+
+      if (refreshCooldownRemaining <= 0) {
+        refreshCooldownRemaining = 0;
+        clearInterval(refreshCooldownTimer);
+        refreshCooldownTimer = null;
+        setApiButtonsLocked(false);
+      }
+
+      setRefreshButtonLabel();
+    }, 1000);
+  }
 
   function dayNameFromISO(iso){
     const y = parseInt(iso.slice(0,4),10);
@@ -512,6 +628,31 @@
     const d = parseInt(iso.slice(8,10),10);
     const dd = new Date(Date.UTC(y, m-1, d));
     return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dd.getUTCDay()];
+  }
+  
+  function hourWeight(hour){
+    if (hour <= 6) return 1.0;
+    if (hour <= 12) return 0.8;
+    if (hour <= 24) return 0.6;
+    if (hour <= 48) return 0.4;
+    return 0.2;
+  }
+
+  function timePhrase(hour){
+    if (hour <= 2) return "soon";
+    if (hour <= 6) return "in the next few hours";
+    if (hour <= 12) return "later today";
+    if (hour <= 24) return "today";
+    if (hour <= 48) return "tomorrow";
+    return "later";
+  }
+
+  function firstIndexWhere(arr, predicate){
+    for (let i = 0; i < arr.length; i++) {
+      const v = arr[i];
+      if (v != null && predicate(v, i)) return i;
+    }
+    return -1;
   }
 
   // ---- IP location (no API key) ----
@@ -555,8 +696,8 @@
     const params = new URLSearchParams({
       latitude: lat, longitude: lon, timezone: "auto",
       past_days: "1", forecast_days: "4",
-      hourly: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m",
-      current: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m"
+      hourly: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,surface_pressure",
+      current: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,surface_pressure"
     });
     const r = await fetch(WEATHER_URL + "?" + params.toString());
     if (!r.ok) throw new Error("weather fetch failed");
@@ -582,7 +723,10 @@
     const p = Array.isArray(wh.precipitation_probability) ? wh.precipitation_probability : [];
     const uv = Array.isArray(wh.uv_index) ? wh.uv_index : [];
     const hum = Array.isArray(wh.relative_humidity_2m) ? wh.relative_humidity_2m : [];
-    const currentTimeLocal = weather?.current?.time ?? xLabels[0]; // already local to the location
+    const feel = Array.isArray(wh.apparent_temperature) ? wh.apparent_temperature : [];
+    const wind = Array.isArray(wh.wind_speed_10m) ? wh.wind_speed_10m : [];
+    const windDir = Array.isArray(wh.wind_direction_10m) ? wh.wind_direction_10m : [];
+    const press = Array.isArray(wh.surface_pressure) ? wh.surface_pressure : [];
 
     if (labels.length === 0) return null;
 
@@ -590,6 +734,7 @@
     const nowIdx = hourIndexNow(labels, offsetSeconds);
     const end = Math.min(labels.length, nowIdx + fwdHours + 1);
     const xLabels = labels.slice(nowIdx, end);
+    const currentTimeLocal = weather?.current?.time ?? xLabels[0]; // already local to the location
 
     const tempNow = t.slice(nowIdx, end);
 
@@ -617,6 +762,11 @@
     const curUV     = weather?.current?.uv_index ?? (uvNow[0] ?? null);
     const curAQI    = air?.current?.us_aqi ?? (aqiNow[0] ?? null);
     const curHum    = weather?.current?.relative_humidity_2m ?? (humNow[0] ?? null);
+    const curFeel = weather?.current?.apparent_temperature ?? (feel[nowIdx] ?? null);
+    const curWind = weather?.current?.wind_speed_10m ?? (wind[nowIdx] ?? null);
+    const curWindDir = weather?.current?.wind_direction_10m ?? (windDir[nowIdx] ?? null);
+    const curPress = weather?.current?.surface_pressure ?? (press[nowIdx] ?? null);
+    const elevation = weather?.elevation ?? null;
 
     const midnightIdxs = xLabels.reduce((acc, ts, i) => { if (ts.slice(11,13) === "00") acc.push(i); return acc; }, []);
 
@@ -627,10 +777,26 @@
       uv: uvNow,
       aqi: aqiNow,
       humidity: humNow,
+      feel: feel.slice(nowIdx, end),
+      wind: wind.slice(nowIdx, end),
+      windDir: windDir.slice(nowIdx, end),
+      pressure: press.slice(nowIdx, end),
       midnightIdxs,
       offsetSeconds,
       currentTimeLocal,
-      current: { temp: curTemp, tempY: tempY[0] ?? null, precip: curPrecip, uv: curUV, aqi: curAQI, hum: curHum }
+      current: {
+        temp: curTemp,
+        tempY: tempY[0] ?? null,
+        precip: curPrecip,
+        uv: curUV,
+        aqi: curAQI,
+        hum: curHum,
+        feel: curFeel,
+        wind: curWind,
+        windDir: curWindDir,
+        press: curPress,
+        elevation: elevation
+      }
     };
   }
 
@@ -792,6 +958,30 @@
     applyHighlight(null);
   }
   
+  function sliceSeries(hours){
+    if (!fullSeries) return null;
+
+    const len = Math.min(hours, fullSeries.labels.length);
+
+    return {
+      labels: fullSeries.labels.slice(0, len),
+      tempNow: fullSeries.tempNow.slice(0, len),
+      tempY: fullSeries.tempY.slice(0, len),
+      precip: fullSeries.precip.slice(0, len),
+      uv: fullSeries.uv.slice(0, len),
+      aqi: fullSeries.aqi.slice(0, len),
+      humidity: fullSeries.humidity.slice(0, len),
+      feel: fullSeries.feel.slice(0, len),
+      wind: fullSeries.wind.slice(0, len),
+      windDir: fullSeries.windDir.slice(0, len),
+      pressure: fullSeries.pressure.slice(0, len),
+      midnightIdxs: fullSeries.midnightIdxs.filter(i => i < len),
+      offsetSeconds: fullSeries.offsetSeconds,
+      currentTimeLocal: fullSeries.currentTimeLocal,
+      current: fullSeries.current
+    };
+  }
+  
   function updateChart(series){
     const c = ensureChart();
     c.data.labels = series.labels;
@@ -841,68 +1031,235 @@
     if (labelAQI) {
       labelAQI.textContent = `${getAQIEmoji(cur.aqi)} AQI`;
     }
+    
+    if (envRow){
+      envRow.textContent =
+        `🗻 Elevation: ${fmt(cur.elevation," m")} • 🤿 Pressure: ${fmt(cur.press," hPa")}`;
+    }
+
+    if (comfortRow){
+      const dir = windDirToCompass(cur.windDir);
+      const arrow = windDirArrow(cur.windDir);
+
+      comfortRow.textContent =
+        `🥭 Feels like: ${fmt(cur.feel,"°C")} • 💨 Wind: ${fmt(cur.wind," km/h")} ${arrow} ${dir}`;
+    }
   }
     function generateInsights(series){
-      const insights = [];
+      const events = [];
 
-      // --- Temperature trend ---
-      if (series.tempNow.length >= 2){
-        const tNow = series.tempNow[0];
-        const tLater = series.tempNow[Math.min(6, series.tempNow.length-1)];
-        if (tLater > tNow + 1){
-          insights.push("🌡️ Temperature rising in the next hours");
-        } else if (tLater < tNow - 1){
-          insights.push("❄️ Cooling down later today");
-        } else {
-          insights.push("🌤️ Temperature staying stable");
+      const len = series.labels.length;
+
+      const addEvent = (key, text, risk, hour) => {
+        if (hour < 0) return;
+        events.push({
+          key,
+          text,
+          risk,
+          hour,
+          score: risk * hourWeight(hour)
+        });
+      };
+
+      // ---- Rain / precipitation ----
+      const heavyRainIdx = firstIndexWhere(series.precip, v => v >= 70);
+      const medRainIdx   = firstIndexWhere(series.precip, v => v >= 40);
+
+      if (heavyRainIdx >= 0) {
+        addEvent(
+          "rain",
+          `🌧️ Heavy rain expected ${timePhrase(heavyRainIdx)}`,
+          5,
+          heavyRainIdx
+        );
+      } else if (medRainIdx >= 0) {
+        addEvent(
+          "rain",
+          `🌦️ Rain possible ${timePhrase(medRainIdx)}`,
+          3,
+          medRainIdx
+        );
+      }
+
+      // ---- AQI / air quality ----
+      const badAQIIdx = firstIndexWhere(series.aqi, v => v >= 151);
+      const modAQIIdx = firstIndexWhere(series.aqi, v => v >= 101);
+      const mildAQIIdx = firstIndexWhere(series.aqi, v => v >= 76);
+
+      if (badAQIIdx >= 0) {
+        addEvent(
+          "aqi",
+          `🚫 Unhealthy air quality ${timePhrase(badAQIIdx)}`,
+          5,
+          badAQIIdx
+        );
+      } else if (modAQIIdx >= 0) {
+        addEvent(
+          "aqi",
+          `😷 Lung stress possible ${timePhrase(modAQIIdx)}`,
+          4,
+          modAQIIdx
+        );
+      } else if (mildAQIIdx >= 0) {
+        addEvent(
+          "aqi",
+          `⚠️ Mild air irritation possible ${timePhrase(mildAQIIdx)}`,
+          2,
+          mildAQIIdx
+        );
+      }
+
+      // ---- UV ----
+      const highUVIdx = firstIndexWhere(series.uv, v => v >= 8);
+      const medUVIdx  = firstIndexWhere(series.uv, v => v >= 6);
+      const lowUVIdx  = firstIndexWhere(series.uv, v => v >= 3);
+
+      if (highUVIdx >= 0) {
+        addEvent(
+          "uv",
+          `🧢 Very high UV ${timePhrase(highUVIdx)}`,
+          4,
+          highUVIdx
+        );
+      } else if (medUVIdx >= 0) {
+        addEvent(
+          "uv",
+          `🧴 High UV ${timePhrase(medUVIdx)}`,
+          3,
+          medUVIdx
+        );
+      } else if (lowUVIdx >= 0) {
+        addEvent(
+          "uv",
+          `🧬 Moderate UV ${timePhrase(lowUVIdx)}`,
+          1,
+          lowUVIdx
+        );
+      }
+
+      // ---- Wind ----
+      const strongWindIdx = firstIndexWhere(series.wind, v => v >= 35);
+      const breezyIdx     = firstIndexWhere(series.wind, v => v >= 20);
+
+      if (strongWindIdx >= 0) {
+        const dir = windDirToCompass(series.windDir?.[strongWindIdx]);
+        const arrow = windDirArrow(series.windDir?.[strongWindIdx]);
+        addEvent(
+          "wind",
+          `💨 Strong winds ${timePhrase(strongWindIdx)} ${arrow} ${dir}`.trim(),
+          4,
+          strongWindIdx
+        );
+      } else if (breezyIdx >= 0) {
+        const dir = windDirToCompass(series.windDir?.[breezyIdx]);
+        const arrow = windDirArrow(series.windDir?.[breezyIdx]);
+        addEvent(
+          "wind",
+          `🌬️ Breezy conditions ${timePhrase(breezyIdx)} ${arrow} ${dir}`.trim(),
+          2,
+          breezyIdx
+        );
+      }
+
+      // ---- Heat / cold / comfort ----
+      const heatStressIdx = firstIndexWhere(
+        series.feel,
+        (v, i) => v >= 32 && (series.humidity?.[i] ?? 0) >= 60
+      );
+
+      const freezingIdx = firstIndexWhere(series.feel, v => v <= 0);
+
+      const dryAirIdx = firstIndexWhere(
+        series.humidity,
+        (v, i) => v <= 30 && (series.feel?.[i] ?? 99) > 5
+      );
+
+      if (heatStressIdx >= 0) {
+        addEvent(
+          "comfort",
+          `🔥 Muggy heat stress possible ${timePhrase(heatStressIdx)}`,
+          4,
+          heatStressIdx
+        );
+      } else if (freezingIdx >= 0) {
+        addEvent(
+          "comfort",
+          `❄️ Freezing conditions possible ${timePhrase(freezingIdx)}`,
+          4,
+          freezingIdx
+        );
+      } else if (dryAirIdx >= 0) {
+        addEvent(
+          "comfort",
+          `🏜️ Dry air expected ${timePhrase(dryAirIdx)}`,
+          1,
+          dryAirIdx
+        );
+      }
+
+      // ---- Pressure trend / instability ----
+      if (series.pressure && series.pressure.length >= 6) {
+        const p0 = series.pressure[0];
+        const pLater = series.pressure[Math.min(12, series.pressure.length - 1)];
+        if (p0 != null && pLater != null) {
+          const drop = p0 - pLater;
+          if (drop >= 6) {
+            addEvent(
+              "pressure",
+              "📉 Falling pressure may signal changing weather",
+              2,
+              Math.min(12, series.pressure.length - 1)
+            );
+          }
         }
       }
 
-      // --- UV ---
-      const maxUV = Math.max(...series.uv.filter(v => v != null));
-      if (maxUV >= 8){
-        insights.push("☀️ Very high UV — sun protection recommended");
-      } else if (maxUV >= 5){
-        insights.push("😎 Moderate UV around midday");
+      // ---- Temperature trend (only if no stronger comfort event) ----
+      if (!events.some(e => e.key === "comfort")) {
+        if (series.tempNow.length >= 2) {
+          const tNow = series.tempNow[0];
+          const tLater = series.tempNow[Math.min(6, series.tempNow.length - 1)];
+
+          if (tNow != null && tLater != null) {
+            if (tLater > tNow + 3) {
+              addEvent("temptrend", "🌡️ Temperature rising in the next few hours", 1, 6);
+            } else if (tLater < tNow - 3) {
+              addEvent("temptrend", "🧊 Temperature dropping in the next few hours", 1, 6);
+            }
+          }
+        }
       }
 
-      // --- Precipitation ---
-      const maxPrecip = Math.max(...series.precip.filter(v => v != null));
-      if (maxPrecip >= 60){
-        insights.push("🌧️ High chance of rain — plan accordingly");
-      } else if (maxPrecip >= 30){
-        insights.push("🌦️ Possible rain later today");
+      // ---- Remove duplicate categories, keep best one per key ----
+      const bestByKey = new Map();
+      for (const ev of events) {
+        const existing = bestByKey.get(ev.key);
+        if (!existing || ev.score > existing.score || (ev.score === existing.score && ev.hour < existing.hour)) {
+          bestByKey.set(ev.key, ev);
+        }
       }
 
-      // --- Air quality ---
-      const maxAQI = Math.max(...series.aqi.filter(v => v != null));
-      if (maxAQI >= 150){
-        insights.push("🚫 Poor air quality — avoid heavy outdoor activity");
-      } else if (maxAQI >= 80){
-        insights.push("😷 Moderate air quality — sensitive users take care");
-      } else {
-        insights.push("🍃 Air quality is good");
+      const finalEvents = Array.from(bestByKey.values())
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          if (b.risk !== a.risk) return b.risk - a.risk;
+          return a.hour - b.hour;
+        })
+        .slice(0, 4);
+
+      if (finalEvents.length === 0) {
+        return ["🌤️ Conditions look stable for now"];
       }
 
-      // --- Humidity ---
-      const avgHum =
-        series.humidity.filter(v => v != null)
-          .reduce((a,b)=>a+b,0) / Math.max(1, series.humidity.filter(v=>v!=null).length);
-
-      if (avgHum >= 70){
-        insights.push("💦 High humidity — may feel warmer and heavier");
-      } else if (avgHum <= 30){
-        insights.push("🏜️ Dry air — stay hydrated");
-      }
-
-      return insights;
+      return finalEvents.map(e => e.text);
     }
 
 
   async function runUpdate(){
+    if (chartLoading) chartLoading.style.display = "flex";
     setOnlineState();
     if (!navigator.onLine) { scheduleNextAuto(); return; }
-    const fwd = parseInt(rangeSelect.value, 10);
+    const fwd = 96; // always fetch full range 96h
     try{
       const [wRes, aRes] = await Promise.allSettled([
         fetchWeather(currentCoords.lat, currentCoords.lon),
@@ -916,12 +1273,14 @@
         scheduleNextAuto(); return;
       }
       const series = buildShiftedSeries(weather, air, fwd);
+      fullSeries = series;
       if (!series){
         statusbar.classList.add('offline');
         statusText.textContent = "No timeline available";
         scheduleNextAuto(); return;
       }
-      updateChart(series);
+      updateChart(sliceSeries(parseInt(rangeSelect.value,10)));
+      if (chartLoading) chartLoading.style.display = "none";
       updateChips(series.current);
       
       // ---- Update header title with city + local time ----
@@ -1059,24 +1418,83 @@
     });
   });
 
-  refreshBtn.addEventListener('click', runUpdate);
-  btn24.addEventListener('click', ()=>{ rangeSelect.value="24"; setActiveRangeButton(24); runUpdate(); });
-  btn48.addEventListener('click', ()=>{ rangeSelect.value="48"; setActiveRangeButton(48); runUpdate(); });
-  btn72.addEventListener('click', ()=>{ rangeSelect.value="72"; setActiveRangeButton(72); runUpdate(); });
-  btn96.addEventListener('click', ()=>{ rangeSelect.value="96"; setActiveRangeButton(96); runUpdate(); });
+  refreshBtn.addEventListener('click', () => {
+    if (refreshCooldownRemaining > 0) return;
+    runUpdate();
+    startRefreshCooldown();
+  });
+  
+  btn24.addEventListener('click', ()=>{
+    rangeSelect.value="24";
+    setActiveRangeButton(24);
+    const s = sliceSeries(24);
+    if (s){
+      updateChart(s);
+
+      const tips = generateInsights(s);
+      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+    }
+  });
+
+  btn48.addEventListener('click', ()=>{
+    rangeSelect.value="48";
+    setActiveRangeButton(48);
+    const s = sliceSeries(48);
+    if (s){
+      updateChart(s);
+
+      const tips = generateInsights(s);
+      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+    }
+  });
+
+  btn72.addEventListener('click', ()=>{
+    rangeSelect.value="72";
+    setActiveRangeButton(72);
+    const s = sliceSeries(72);
+    if (s){
+      updateChart(s);
+
+      const tips = generateInsights(s);
+      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+    }
+  });
+
+  btn96.addEventListener('click', ()=>{
+    rangeSelect.value="96";
+    setActiveRangeButton(96);
+    const s = sliceSeries(96);
+    if (s){
+      updateChart(s);
+
+      const tips = generateInsights(s);
+      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+    }
+  });
 
   rangeSelect.addEventListener('change', ()=>{
     setActiveRangeButton(rangeSelect.value);
-    runUpdate();
+    const s = sliceSeries(parseInt(rangeSelect.value,10));
+    if (s){
+      updateChart(s);
+
+      const tips = generateInsights(s);
+      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+    }
   });
 
   searchBtn.addEventListener('click', async ()=>{
+    if (refreshCooldownRemaining > 0) return;
     const q = locationInput.value.trim(); if(!q) return;
-    try{ currentCoords = await geocodeCity(q); runUpdate(); }
+    try{ currentCoords = await geocodeCity(q); runUpdate(); startRefreshCooldown();}
     catch(e){ alert("City not found. Try another name."); }
   });
 
-  geoBtn.addEventListener('click', useGeolocationOrIP);
+  geoBtn.addEventListener('click', ()=>{
+    if (refreshCooldownRemaining > 0) return;
+    useGeolocationOrIP();
+    startRefreshCooldown();
+  });
 
   toggleDetailsBtn.addEventListener('click', ()=>{
     showDetails = !showDetails;
@@ -1112,9 +1530,15 @@
     });
   }
   
+  window.addEventListener('resize', () => {
+    setRefreshButtonLabel();
+  });
+  
   // ---- Boot ----
   (async () => {
     setActiveRangeButton(rangeSelect.value);
+    setRefreshButtonLabel();
+
     try{
       const ipLoc = await getLocationFromIP();
       if (ipLoc){
@@ -1122,7 +1546,9 @@
         currentCoords.name += " (IP)";
       }
     } catch(e) {}
+
     runUpdate();
+    startRefreshCooldown();
   })();
 })();
 </script>  
