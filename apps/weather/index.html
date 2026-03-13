@@ -13,235 +13,212 @@
     --card: #161b22;
     --muted:#dce7f6;
     --fg: #e6edf3;
-    --accent:#fe4242;   /* Temp now/future */
-    --accentY:#c47777;  /* Temp yesterday */
-    --accent2:#55aafd;  /* Precip */
-    --accent3:#ffe97b;  /* UV */
-    --accent4:#a561ff;  /* AQI */
-    --accent5:#3de0c2;  /* Humidity */
-    --accentHover:  rgba(254, 66, 66, .3); /* CARDS TRANPARENCIES */
+    --accent:#fe4242;
+    --accentY:#c47777;
+    --accent2:#55aafd;
+    --accent3:#ffe97b;
+    --accent4:#a561ff;
+    --accent5:#3de0c2;
+    --accentHover:  rgba(254, 66, 66, .3);
     --accentYHover: rgba(196,119,119, .3);
-    --accent2Hover: rgba( 85,170,253, .3);
+    --accent2Hover: rgba(85,170,253, .3);
     --accent3Hover: rgba(255,233,123, .3);
-    --accent4Hover: rgba(165, 97,255, .3);
-    --accent5Hover: rgba( 61,224,194, .3);
+    --accent4Hover: rgba(165,97,255, .3);
+    --accent5Hover: rgba(61,224,194, .3);
     --border:#222834;
     --hover:rgba(112, 154, 222, 0.67);
     --active:#0b1626;
-    --nowline:#dedede;  /* vertical "now" line */
+    --nowline:#dedede;
   }
   *{box-sizing:border-box}
   body{
     margin:0; background:var(--bg); color:var(--fg);
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", Arial;
     line-height:1.35;
-    opacity: 0;
-    animation: pageIn .25s ease forwards;
+    opacity:0;
+    animation:pageIn .25s ease forwards;
   }
   header{
-    padding:14px clamp(14px,2.2vw,28px); border-bottom:1px solid var(--border);
+    padding:14px clamp(14px,2.2vw,28px);
+    border-bottom:1px solid var(--border);
     display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;
     background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
   }
-  .brand{ font-weight:700; letter-spacing:.3px; font-size:clamp(18px,2.4vw,22px);}
+  .brand{ font-weight:700; letter-spacing:.3px; font-size:clamp(18px,2.4vw,22px); }
   .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   button, .chip, input, select, a.btn{
     background:var(--card); color:var(--fg); border:1px solid var(--border);
     padding:8px 12px; border-radius:10px; font-size:14px; transition:all .12s ease;
   }
   button:hover, a.btn:hover{
-    background: var(--hover);
-    border-color: rgba(255,255,255,.18);
-    transform: translateY(-3px);
+    background:var(--hover);
+    border-color:rgba(255,255,255,.18);
+    transform:translateY(-3px);
   }
   input:hover, select:hover{
-    background: var(--hover);
-    border-color: rgba(255,255,255,.18);
+    background:var(--hover);
+    border-color:rgba(255,255,255,.18);
   }
   button:active, a.btn:active{
     background:var(--active);
     transform:translateY(3px);
-    box-shadow: inset 0 0 0 999px rgba(0,0,0,.15);
+    box-shadow:inset 0 0 0 999px rgba(0,0,0,.15);
   }
-  button:disabled{opacity:.6; cursor:not-allowed}
-  input[type="text"]{width:min(52vw,340px)}
-  main{padding:16px clamp(14px,2.2vw,28px)}
-  .grid{ display:grid; gap:12px; grid-template-columns: 1fr; }
-  @media (min-width:900px){ .grid{grid-template-columns: 1.35fr .65fr} }
+  button:disabled{ opacity:.6; cursor:not-allowed }
+  input[type="text"]{ width:min(52vw,340px) }
+  main{ padding:7px clamp(3px,2.2vw,7px) }
+  .grid{ display:grid; gap:10px; grid-template-columns:1fr; }
+  @media (min-width:900px){ .grid{ grid-template-columns:1.3fr .7fr } }
+
   .card{
     background:var(--card); border:1px solid var(--border); border-radius:14px;
-    padding:14px; position:relative; overflow:hidden;
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    padding:11px; position:relative; overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
   .card:hover{
-    transform: translateY(-1px);
-    box-shadow: 0 12px 34px rgba(0,0,0,.35);
-    border-color: rgba(255,255,255,.12);
+    transform:translateY(-1px);
+    box-shadow:0 12px 34px rgba(0,0,0,.35);
+    border-color:rgba(255,255,255,.12);
   }
-  .summary{ display:grid; gap:10px; grid-template-columns: repeat(2, minmax(0,1fr)); }
-  @media (min-width:720px){ .summary{grid-template-columns: repeat(3, minmax(0,1fr));} }
-  .chip{ display:flex; flex-direction:column; gap:1px; min-height:50px; border-left: 7px solid transparent; padding-left: 10px; border-radius: 10px;}
-  .chip[data-metric="temp"]   { border-left-color: var(--accent); }
-  .chip[data-metric="tempY"]  { border-left-color: var(--accentY); }
-  .chip[data-metric="precip"] { border-left-color: var(--accent2); }
-  .chip[data-metric="uv"]     { border-left-color: var(--accent3); }
-  .chip[data-metric="aqi"]    { border-left-color: var(--accent4); }
-  .chip[data-metric="hum"]    { border-left-color: var(--accent5); }
-  .chip[data-metric="temp"]:hover   { background: var(--accentHover); }
-  .chip[data-metric="tempY"]:hover  { background: var(--accentYHover); }
-  .chip[data-metric="precip"]:hover { background: var(--accent2Hover); }
-  .chip[data-metric="uv"]:hover     { background: var(--accent3Hover); }
-  .chip[data-metric="aqi"]:hover    { background: var(--accent4Hover); }
-  .chip[data-metric="hum"]:hover    { background: var(--accent5Hover); }
-  /* Locked/selected chip keeps same hover color */
-  .chip.is-selected[data-metric="temp"]   { background: var(--accentHover); }
-  .chip.is-selected[data-metric="tempY"]  { background: var(--accentYHover); }
-  .chip.is-selected[data-metric="precip"] { background: var(--accent2Hover); }
-  .chip.is-selected[data-metric="uv"]     { background: var(--accent3Hover); }
-  .chip.is-selected[data-metric="aqi"]    { background: var(--accent4Hover); }
-  .chip.is-selected[data-metric="hum"]    { background: var(--accent5Hover); }
-  .label{font-size:12px; color:var(--muted)}
-  .value{font-size:20px; font-weight:700}
-  .statusbar{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; padding:3px 0; justify-content: center;}
-  .statusbar .dot{width:8px; height:8px; border-radius:99px; background:#3fb950}
-  .statusbar.offline .dot{background:#d97706}
-  .legend{ display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin-top:8px }
-  .lg{display:inline-flex; align-items:center; gap:8px}
-  .sw{width:18px; height:3px; border-radius:6px}
-  .swT{background:var(--accent)}
-  .swTY{background:var(--accentY); position:relative}
-  .swTY::after{content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent 0 6px, var(--card) 6px 12px);}
-  .swP{background:var(--accent2)}
-  .swU{background:var(--accent3)}
-  .swA{background:var(--accent4)}
-  .swH{background:var(--accent5)}
+
+  .summary{ display:grid; gap:7px; grid-template-columns:repeat(2, minmax(0,1fr)); }
+  @media (min-width:600px){ .summary{ grid-template-columns:repeat(3, minmax(0,1fr)); } }
+
+  .chip{
+    display:flex; flex-direction:column; gap:1px; min-height:50px;
+    border-left:7px solid transparent; padding-left:10px; border-radius:10px;
+  }
+  .chip[data-metric="temp"]   { border-left-color:var(--accent); }
+  .chip[data-metric="tempY"]  { border-left-color:var(--accentY); }
+  .chip[data-metric="precip"] { border-left-color:var(--accent2); }
+  .chip[data-metric="uv"]     { border-left-color:var(--accent3); }
+  .chip[data-metric="aqi"]    { border-left-color:var(--accent4); }
+  .chip[data-metric="hum"]    { border-left-color:var(--accent5); }
+
+  .chip[data-metric="temp"]:hover,
+  .chip.is-selected[data-metric="temp"]{ background:var(--accentHover); }
+  .chip[data-metric="tempY"]:hover,
+  .chip.is-selected[data-metric="tempY"]{ background:var(--accentYHover); }
+  .chip[data-metric="precip"]:hover,
+  .chip.is-selected[data-metric="precip"]{ background:var(--accent2Hover); }
+  .chip[data-metric="uv"]:hover,
+  .chip.is-selected[data-metric="uv"]{ background:var(--accent3Hover); }
+  .chip[data-metric="aqi"]:hover,
+  .chip.is-selected[data-metric="aqi"]{ background:var(--accent4Hover); }
+  .chip[data-metric="hum"]:hover,
+  .chip.is-selected[data-metric="hum"]{ background:var(--accent5Hover); }
+
+  .label{ font-size:12px; color:var(--muted) }
+  .value{ font-size:20px; font-weight:700 }
+
+  .statusbar{
+    display:flex; gap:10px; align-items:center; justify-content:center;
+    color:var(--muted); font-size:13px; padding:3px 0;
+  }
+  .statusbar .dot{ width:8px; height:8px; border-radius:99px; background:#3fb950 }
+  .statusbar.offline .dot{ background:#d97706 }
+
+  .legend{
+    display:grid; gap:7px; font-size:12px; color:var(--muted); margin-top:5px;
+    grid-template-columns:1fr 1fr 1fr;
+  }
+  @media (max-width:400px){ .legend{ grid-template-columns:1fr 1fr; } }
+  .lg{ display:inline-flex; align-items:center; gap:8px }
+  .sw{ width:18px; height:3px; border-radius:6px }
+  .swT{ background:var(--accent) }
+  .swTY{ background:var(--accentY); position:relative }
+  .swTY::after{
+    content:""; position:absolute; inset:0;
+    background:repeating-linear-gradient(90deg, transparent 0 6px, var(--card) 6px 12px);
+  }
+  .swP{ background:var(--accent2) }
+  .swU{ background:var(--accent3) }
+  .swA{ background:var(--accent4) }
+  .swH{ background:var(--accent5) }
+
   .footer-controls{ display:flex; flex-wrap:wrap; gap:8px; margin-top:3px }
   a.btn{ text-decoration:none; display:inline-block; }
-  .note{color:var(--muted); font-size:12px; margin-top:6px}
-  @keyframes pageIn{ to { opacity: 1; } }
+  .note{ color:var(--muted); font-size:12px; margin-top:6px }
+
+  @keyframes pageIn{ to { opacity:1; } }
+
   button.is-active{
-    border-color: rgba(255,255,255,.22);
-    background: rgba(255,255,255,.06);
-    box-shadow: 0 8px 18px rgba(0,0,0,.25);
+    border-color:rgba(255,255,255,.22);
+    background:rgba(255,255,255,.06);
+    box-shadow:0 8px 18px rgba(0,0,0,.25);
   }
-  
-  /* Modal Overlay */
+
   .modal{
-    display:none;
-    position:fixed;
-    inset:0;
+    display:none; position:fixed; inset:0;
     background:rgba(0,0,0,.65);
     backdrop-filter:blur(6px);
     z-index:999;
-    justify-content:center;
-    align-items:center;
+    justify-content:center; align-items:center;
     padding:20px;
   }
-
-  /* Modal Box */
   .modal-content{
-    position: relative;
+    position:relative;
     background:var(--card);
     border:1px solid var(--border);
     border-radius:16px;
     padding:24px;
-    max-width:600px;
-    width:100%;
-    max-height:80vh;
-    overflow:auto;
+    max-width:600px; width:100%; max-height:80vh; overflow:auto;
     box-shadow:0 20px 60px rgba(0,0,0,.6);
     animation:fadeIn .2s ease;
   }
-
-  .modal-content h2{
-    margin-top:0;
-  }
-
+  .modal-content h2{ margin-top:0; }
   .modal-close{
-    position:absolute;
-    top:14px;
-    right:18px;
-    background:none;
-    border:none;
-    font-size:18px;
-    cursor:pointer;
-    color:var(--muted);
+    position:absolute; top:14px; right:18px;
+    background:none; border:none; font-size:18px; cursor:pointer; color:var(--muted);
   }
-
-  .modal-close:hover{
-    color:var(--fg);
-  }
-
+  .modal-close:hover{ color:var(--fg); }
   @keyframes fadeIn{
-    from{opacity:0; transform:scale(.96);}
-    to{opacity:1; transform:scale(1);}
+    from{ opacity:0; transform:scale(.96); }
+    to{ opacity:1; transform:scale(1); }
   }
-  
-  @media (max-width: 640px) {
 
-    /* Hide button text (keep emoji) */
+  @media (max-width:640px){
     .controls button span,
-    .controls a.btn span {
-      display: none;
-    }
+    .controls a.btn span{ display:none; }
 
-    /* Slightly tighter buttons on mobile */
     .controls button,
-    .controls a.btn {
-      padding: 8px 10px;
-    }
+    .controls a.btn{ padding:8px 10px; }
 
-    /* Make the dropdown smaller on mobile */
-    .controls select {
-      font-size: 15px;
-      padding: 9px 8px;
-    }
+    .controls select{ font-size:15px; padding:9px 8px; }
 
-    /* Make the search input take full width on mobile */
-    .controls input[type="text"]{
-      width: 45%;
-    }
-
+    .controls input[type="text"]{ width:45%; }
   }
-  
-  /* Heart beat animation */
+
   .heart-beat{
     display:inline-block;
     transform-origin:center;
-    animation: heartBeat 2.4s ease-in-out infinite;
-    will-change: transform;
+    animation:heartBeat 2.4s ease-in-out infinite;
+    will-change:transform;
   }
-
   @keyframes heartBeat{
-    0%   { transform: scale(1); }
-    18%  { transform: scale(1.18); }
-    36%  { transform: scale(1); }
-    54%  { transform: scale(1.12); }
-    72%  { transform: scale(1); }
-    100% { transform: scale(1); }
+    0%{ transform:scale(1); }
+    18%{ transform:scale(1.18); }
+    36%{ transform:scale(1); }
+    54%{ transform:scale(1.12); }
+    72%{ transform:scale(1); }
+    100%{ transform:scale(1); }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .heart-beat{ animation:none; }
   }
 
-  /* Respect reduced motion settings */
-  @media (prefers-reduced-motion: reduce){
-    .heart-beat{ animation: none; }
-  }
-  
   .refresh-cooldown{
-    background: var(--active) !important;
-    border-color: rgba(255,255,255,.14) !important;
-    opacity: .8;
-    cursor: not-allowed;
-    transform: none !important;
+    background:var(--active) !important;
+    border-color:rgba(255,255,255,.14) !important;
+    opacity:.8;
+    cursor:not-allowed;
+    transform:none !important;
   }
-  
+
   .chart-loading{
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:13px;
-    color:var(--muted);
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:var(--muted);
     background:linear-gradient(
       90deg,
       rgba(255,255,255,.04) 0%,
@@ -252,10 +229,9 @@
     animation:loadingMove 1.4s infinite linear;
     border-radius:12px;
   }
-
   @keyframes loadingMove{
-    0%{background-position:200% 0;}
-    100%{background-position:-200% 0;}
+    0%{ background-position:200% 0; }
+    100%{ background-position:-200% 0; }
   }
 </style>
 </head>
@@ -273,7 +249,7 @@
       <option value="72">3 days</option>
       <option value="96">4 days</option>
     </select>
-    <button id="toggleDetailsBtn" title="Show/Hide Y-axes">📊 <span>Y-Axes</span> </button>
+    <button id="toggleDetailsBtn" title="Show/Hide Y-axes">📊 <span>Y-Axes</span></button>
     <button id="savePngBtn" title="Save chart as PNG">💾 <span>Save</span></button>
     <button id="helpBtn" title="How to use this page">❓ <span>Help</span></button>
     <a class="btn" href="../../index.html" title="Main Page">🏡 <span>Main</span></a>
@@ -295,7 +271,7 @@
         <button id="btn96">96h</button>
         <span class="note" id="locNote">Location: —</span>
       </div>
-      
+
       <div style="height:360px; position:relative">
         <canvas id="forecastChart"></canvas>
         <div id="chartLoading" class="chart-loading">Loading weather data…</div>
@@ -309,38 +285,34 @@
         <span class="lg"><span class="sw swA"></span> AQI</span>
         <span class="lg"><span class="sw swH"></span> Humidity %</span>
       </div>
-
-      
     </section>
 
     <aside class="card">
       <div id="currentWeatherTitle" style="font-weight:700; margin-bottom:7px; margin-top:7px;">Current Weather Loading— —</div>
-      <div id="envRow" class="note" style="margin-bottom:6px;">
-      🗻 Elevation: — m • 🤿 Pressure: — hPa
-      </div>
+      <div id="envRow" class="note" style="margin-bottom:7px;">🗻 Elevation: — m • 🤿 Pressure: — hPa</div>
+      <div id="comfortRow" class="note" style="margin-top:7px; margin-bottom:7px">🥭 Feels like: — °C • 💨 Wind: — km/h</div>
+
       <div class="summary" id="summaryChips">
         <div class="chip" data-metric="temp"><div class="label">Temperature</div><div class="value" id="chipTemp">—</div></div>
-        <div class="chip" data-metric="tempY"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>  
+        <div class="chip" data-metric="tempY"><div class="label">Yesterday's</div><div class="value" id="chipTempY">—</div></div>
         <div class="chip" data-metric="precip"><div class="label">Precip %</div><div class="value" id="chipPrecip">—</div></div>
         <div class="chip" data-metric="uv"><div class="label" id="labelUV">✅ UV Index</div><div class="value" id="chipUV">—</div></div>
         <div class="chip" data-metric="aqi"><div class="label" id="labelAQI">✅ AQI</div><div class="value" id="chipAQI">—</div></div>
         <div class="chip" data-metric="hum"><div class="label">Humidity</div><div class="value" id="chipHum">—</div></div>
       </div>
-      <div id="comfortRow" class="note" style="margin-top:6px;">
-      🥭 Feels like: — °C • 💨 Wind: — km/h
-      </div>
-      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Forecast Notes</div>
-      <div class="note" id="insightBox">
-        Analyzing local conditions…
-      </div>
-      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">Air Quality Index — Thresholds</div>
+
+      <div style="font-weight:700; margin-bottom:7px; margin-top:7px">Forecast Notes</div>
+      <div class="note" id="insightBox">Analyzing local conditions…</div>
+
+      <div style="font-weight:700; margin-bottom:7px; margin-top:7px">Air Quality Index — Thresholds</div>
       <div class="note">
         <div>🟢 0–75: Safe air. Normal activity ✅</div>
         <div>🟡 76–100: Mild irritation possible ⚠️</div>
         <div>🟠 101–150: Lung stress. MASK now! 😷</div>
         <div>🔴 151+: Unhealthy for everyone. 🚫</div>
       </div>
-      <div style="font-weight:700; margin-bottom:7px; margin-top: 7px">UV Index — Thresholds</div>
+
+      <div style="font-weight:700; margin-bottom:7px; margin-top:7px">UV Index — Thresholds</div>
       <div class="note">
         <div>🟢 0–2: No risk. Protection unnecessary ✅</div>
         <div>🟡 3–5: Tiny skin damage over time 🧬</div>
@@ -349,103 +321,70 @@
       </div>
     </aside>
   </div>
-  <footer style="margin-top:10px;  padding:6px 0;  text-align:center;  font-size:12px;  color:var(--muted);  border-top:1px solid var(--border);">
+
+  <footer style="margin-top:10px; padding:6px 0; text-align:center; font-size:12px; color:var(--muted); border-top:1px solid var(--border);">
     Built with <span class="heart-beat">❤️</span> by
-    <a href="https://www.instagram.com/gerardo711"
-       target="_blank"
-       rel="noopener"
-       style="color:var(--fg); text-decoration:none;">
+    <a href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener" style="color:var(--fg); text-decoration:none;">
       Gerardo Sacarelo V.
     </a>
   </footer>
-  
 </main>
-  
-  <!-- HELP MODAL -->
-  <div id="helpModal" class="modal">
-    <div class="modal-content">
-      <button id="closeHelpBtn" class="modal-close">✖</button>
-      <h2>How to Use This Weather Page</h2>
 
-      <p><strong>📍 Location</strong><br>
-      • Use "Search" to enter a city name.<br>
-      • Use "GPS" to detect your current location automatically.</p>
+<div id="helpModal" class="modal">
+  <div class="modal-content">
+    <button id="closeHelpBtn" class="modal-close">✖</button>
+    <h2>How to Use This Weather Page</h2>
 
-      <p><strong>⏱ Time Range</strong><br>
-      • 24h / 48h / 72h / 96h adjusts how far into the future the chart shows.</p>
+    <p><strong>📍 Location</strong><br>
+    • Use "Search" to enter a city name.<br>
+    • Use "GPS" to detect your current location automatically.</p>
 
-      <p><strong>📊 Graph</strong><br>
-      • Solid line = Current temperature forecast.<br>
-      • Dashed line = Yesterday’s temperature (shifted for comparison).<br>
-      • First vertical line = Current time.<br>
-      • Extra vertical lines = Midnight markers.</p>
+    <p><strong>⏱ Time Range</strong><br>
+    • 24h / 48h / 72h / 96h adjusts how far into the future the chart shows.</p>
 
-      <p><strong>🧠 Smart Cards</strong><br>
-      • Hover over a card to highlight its line on the chart.<br>
-      • Click a card to lock the highlight.</p>
+    <p><strong>📊 Graph</strong><br>
+    • Solid line = Current temperature forecast.<br>
+    • Dashed line = Yesterday’s temperature (shifted for comparison).<br>
+    • First vertical line = Current time.<br>
+    • Extra vertical lines = Midnight markers.</p>
 
-      <p><strong>💾 Save</strong><br>
-      • Save downloads the chart as a PNG image.</p>
+    <p><strong>🧠 Smart Cards</strong><br>
+    • Hover over a card to highlight its line on the chart.<br>
+    • Click a card to lock the highlight.</p>
 
-      <p style="text-align:center; font-size:13px; color:var(--muted);">Built with <span class="heart-beat">❤️</span> by
-        <a href="https://www.instagram.com/gerardo711"
-           target="_blank"
-           rel="noopener"
-           style="color:var(--fg); text-decoration:none;">
-          Gerardo Sacarelo V.
-        </a></p>
-      
-      <p style="text-align:center; font-size:10px; color:var(--muted); margin-top:8px;">
-        Powered by:
-        <a href="https://open-meteo.com/"
-           target="_blank"
-           rel="noopener"
-           style="color:var(--fg); text-decoration:none;">
-          Open-Meteo
-        </a>
-        ·
-        <!--<a href="https://open-meteo.com/en/docs/air-quality-api"
-           target="_blank"
-           rel="noopener"
-           style="color:var(--fg); text-decoration:none;">
-          AQI
-        </a>
-        ·
-        <a href="https://open-meteo.com/en/docs/geocoding-api"
-           target="_blank"
-           rel="noopener"
-           style="color:var(--fg); text-decoration:none;">
-          Geocoding
-        </a>
-        · -->
-        <a href="https://ipapi.co/"
-           target="_blank"
-           rel="noopener"
-           style="color:var(--fg); text-decoration:none;">
-          ipapi
-        </a>
-        ·
-        <a href="https://ipwhois.io/"
-           target="_blank"
-           rel="noopener"
-           style="color:var(--fg); text-decoration:none;">
-          ipwho.is
-        </a>
-      </p>
-    </div>
+    <p><strong>💾 Save</strong><br>
+    • Save downloads the chart as a PNG image.</p>
+
+    <p style="text-align:center; font-size:13px; color:var(--muted);">Built with <span class="heart-beat">❤️</span> by
+      <a href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener" style="color:var(--fg); text-decoration:none;">
+        Gerardo Sacarelo V.
+      </a>
+    </p>
+
+    <p style="text-align:center; font-size:10px; color:var(--muted); margin-top:8px;">
+      Powered by:
+      <a href="https://open-meteo.com/" target="_blank" rel="noopener" style="color:var(--fg); text-decoration:none;">Open-Meteo</a>
+      ·
+      <a href="https://ipapi.co/" target="_blank" rel="noopener" style="color:var(--fg); text-decoration:none;">ipapi</a>
+      ·
+      <a href="https://ipwhois.io/" target="_blank" rel="noopener" style="color:var(--fg); text-decoration:none;">ipwho.is</a>
+    </p>
   </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 (() => {
-  // ---- Endpoints ----
   const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
-  const AIR_URL     = "https://air-quality-api.open-meteo.com/v1/air-quality";
+  const AIR_URL = "https://air-quality-api.open-meteo.com/v1/air-quality";
   const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
   const REFRESH_COOLDOWN_SEC = 30;
+  const INSIGHT_HOURS_LIMIT = 48;
+  const FETCH_FORWARD_HOURS = 96;
+  const BASE_WIDTHS = [2, 2, 1.8, 1.8, 1.8, 1.8];
+  const POP_WIDTH = 4.2;
 
-  // ---- Colors ----
-  const css = (v)=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const COLORS = {
     tNow: css('--accent') || '#fe4242',
     tY: css('--accentY') || '#c47777',
@@ -456,83 +395,76 @@
     nowline: css('--nowline') || '#dedede'
   };
 
-  // ---- DOM ----
-  const statusbar = document.getElementById('statusbar');
-  const statusText = document.getElementById('statusText');
-  const currentWeatherTitle = document.getElementById('currentWeatherTitle');
-  const chipTemp = document.getElementById('chipTemp');
-  const chipTempY = document.getElementById('chipTempY');    
-  const chipPrecip = document.getElementById('chipPrecip');
-  const chipUV = document.getElementById('chipUV');
-  const chipAQI = document.getElementById('chipAQI');
-  const labelUV = document.getElementById('labelUV');
-  const labelAQI = document.getElementById('labelAQI');
-  const chipHum = document.getElementById('chipHum');
-  const envRow = document.getElementById('envRow');
-  const comfortRow = document.getElementById('comfortRow');
-  const rangeSelect = document.getElementById('rangeSelect');
-  const btn24 = document.getElementById('btn24');
-  const btn48 = document.getElementById('btn48');
-  const btn72 = document.getElementById('btn72');
-  const btn96 = document.getElementById('btn96');
-  const refreshBtn = document.getElementById('refreshBtn');
-  const toggleDetailsBtn = document.getElementById('toggleDetailsBtn');
-  const savePngBtn = document.getElementById('savePngBtn');
-  const locationInput = document.getElementById('locationInput');
-  const searchBtn = document.getElementById('searchBtn');
-  const geoBtn = document.getElementById('geoBtn');
-  const locNote = document.getElementById('locNote');
-  const helpBtn = document.getElementById('helpBtn');
-  const helpModal = document.getElementById('helpModal');
-  const closeHelpBtn = document.getElementById('closeHelpBtn');
-  const chartLoading = document.getElementById('chartLoading');
-
-  // ---- State ----
-  let currentCoords = { lat: 37.5665, lon: 126.9780, name: "Seoul" }; // fallback
-  let chart = null;
-  let autoTimer = null;
-  let showDetails = false; // y-axes hidden by default
-  let refreshCooldownRemaining = 0;
-  let refreshCooldownTimer = null;
-  let fullSeries = null; // stores the full 96h dataset
-  
-  // ---- Chip → dataset mapping (for line highlight) ----
-  const metricToDataset = {
-    temp: 0,   // Temp (°C)
-    tempY: 1,  // Temp Yesterday (°C)
-    precip: 2, // Precip (%)
-    uv: 3,     // UV Index
-    aqi: 4,    // US AQI
-    hum: 5     // Humidity (%)
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    statusbar: $('statusbar'),
+    statusText: $('statusText'),
+    currentWeatherTitle: $('currentWeatherTitle'),
+    chipTemp: $('chipTemp'),
+    chipTempY: $('chipTempY'),
+    chipPrecip: $('chipPrecip'),
+    chipUV: $('chipUV'),
+    chipAQI: $('chipAQI'),
+    chipHum: $('chipHum'),
+    labelUV: $('labelUV'),
+    labelAQI: $('labelAQI'),
+    envRow: $('envRow'),
+    comfortRow: $('comfortRow'),
+    rangeSelect: $('rangeSelect'),
+    btn24: $('btn24'),
+    btn48: $('btn48'),
+    btn72: $('btn72'),
+    btn96: $('btn96'),
+    refreshBtn: $('refreshBtn'),
+    toggleDetailsBtn: $('toggleDetailsBtn'),
+    savePngBtn: $('savePngBtn'),
+    locationInput: $('locationInput'),
+    searchBtn: $('searchBtn'),
+    geoBtn: $('geoBtn'),
+    locNote: $('locNote'),
+    helpBtn: $('helpBtn'),
+    helpModal: $('helpModal'),
+    closeHelpBtn: $('closeHelpBtn'),
+    chartLoading: $('chartLoading'),
+    insightBox: $('insightBox'),
+    forecastChart: $('forecastChart')
   };
 
-  let lockedMetric = null; // click/tap locks highlight
+  let currentCoords = { lat: 37.5665, lon: 126.9780, name: "Seoul" };
+  let chart = null;
+  let autoTimer = null;
+  let showDetails = false;
+  let refreshCooldownRemaining = 0;
+  let refreshCooldownTimer = null;
+  let fullSeries = null;
+  let lockedMetric = null;
 
-  // ---- Helpers ----
+  const metricToDataset = { temp: 0, tempY: 1, precip: 2, uv: 3, aqi: 4, hum: 5 };
+  const rangeButtons = { 24: els.btn24, 48: els.btn48, 72: els.btn72, 96: els.btn96 };
+
   function setOnlineState() {
     const online = navigator.onLine;
-    statusbar.classList.toggle('offline', !online);
-    statusText.textContent = online ? "Online • Auto-update hourly" : "Offline • Will retry next hour";
+    els.statusbar.classList.toggle('offline', !online);
+    els.statusText.textContent = online ? "Online • Auto-update hourly" : "Offline • Will retry next hour";
   }
-  window.addEventListener('online', setOnlineState);
-  window.addEventListener('offline', setOnlineState);
-  setOnlineState();
 
-  const fmt = (n, unit="") => (n==null || Number.isNaN(n)) ? "—" : `${Math.round(n*10)/10}${unit}`;
+  function fmt(n, unit = "") {
+    return (n == null || Number.isNaN(n)) ? "—" : `${Math.round(n * 10) / 10}${unit}`;
+  }
 
-  function windDirToCompass(deg){
+  function windDirToCompass(deg) {
     if (deg == null || Number.isNaN(deg)) return "";
-    const dirs = ["N","NE","E","SE","S","SW","W","NW"];
+    const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
     return dirs[Math.round(deg / 45) % 8];
   }
 
-  function windDirArrow(deg){
+  function windDirArrow(deg) {
     if (deg == null || Number.isNaN(deg)) return "";
-    const arrows = ["↑","↗","→","↘","↓","↙","←","↖"];
+    const arrows = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
     return arrows[Math.round(deg / 45) % 8];
   }
-  
-  function getAQIEmoji(aqi){
+
+  function getAQIEmoji(aqi) {
     if (aqi == null || Number.isNaN(aqi)) return "";
     if (aqi <= 75) return "✅";
     if (aqi <= 100) return "🟡";
@@ -540,7 +472,7 @@
     return "🔴‼️";
   }
 
-  function getUVEmoji(uv){
+  function getUVEmoji(uv) {
     if (uv == null || Number.isNaN(uv)) return "";
     if (uv <= 2) return "✅";
     if (uv <= 5) return "🟡";
@@ -548,65 +480,57 @@
     return "🔴‼️";
   }
 
-  function hourIndexNow(labels, offsetSeconds){
+  function hourIndexNow(labels, offsetSeconds) {
     const nowUTC = new Date();
-    const local = new Date(nowUTC.getTime() + (offsetSeconds||0)*1000);
-    const key = local.toISOString().slice(0,13); // YYYY-MM-DDTHH in that tz
+    const local = new Date(nowUTC.getTime() + (offsetSeconds || 0) * 1000);
+    const key = local.toISOString().slice(0, 13);
     let idx = labels.findIndex(s => s.startsWith(key));
-    if (idx === -1){
-      const keyNum = parseInt(key.replace(/[-T:]/g,''),10);
-      idx = labels.findIndex(s => parseInt(s.slice(0,13).replace(/[-T:]/g,''),10) >= keyNum);
-      if (idx === -1) idx = labels.length-1;
+    if (idx === -1) {
+      const keyNum = parseInt(key.replace(/[-T:]/g, ''), 10);
+      idx = labels.findIndex(s => parseInt(s.slice(0, 13).replace(/[-T:]/g, ''), 10) >= keyNum);
+      if (idx === -1) idx = labels.length - 1;
     }
     return idx;
   }
 
-  function nextTopOfHourDelayMs(){
+  function nextTopOfHourDelayMs() {
     const now = new Date();
-    return (60-now.getMinutes())*60*1000 - now.getSeconds()*1000 - now.getMilliseconds();
+    return (60 - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
   }
-  
-  function isMobileView(){
+
+  function isMobileView() {
     return window.matchMedia("(max-width: 640px)").matches;
   }
 
-  function setRefreshButtonLabel(){
-    if (!refreshBtn) return;
+  function setApiButtonsLocked(lock) {
+    els.searchBtn.disabled = lock;
+    els.geoBtn.disabled = lock;
+  }
 
+  function setRefreshButtonLabel() {
     if (refreshCooldownRemaining > 0) {
-      if (isMobileView()) {
-        refreshBtn.innerHTML = `${refreshCooldownRemaining}s`;
-      } else {
-        refreshBtn.innerHTML = `♻️ <span>${refreshCooldownRemaining} sec</span>`;
-      }
-      refreshBtn.classList.add('refresh-cooldown');
-      refreshBtn.disabled = true;
-      refreshBtn.title = `Refresh available in ${refreshCooldownRemaining} seconds`;
+      els.refreshBtn.innerHTML = isMobileView()
+        ? `${refreshCooldownRemaining}s`
+        : `♻️ <span>${refreshCooldownRemaining} sec</span>`;
+      els.refreshBtn.classList.add('refresh-cooldown');
+      els.refreshBtn.disabled = true;
+      els.refreshBtn.title = `Refresh available in ${refreshCooldownRemaining} seconds`;
     } else {
-      if (isMobileView()) {
-        refreshBtn.innerHTML = `♻️`;
-      } else {
-        refreshBtn.innerHTML = `♻️ <span>Refresh</span>`;
-      }
-      refreshBtn.classList.remove('refresh-cooldown');
-      refreshBtn.disabled = false;
-      refreshBtn.title = "Refresh Now";
+      els.refreshBtn.innerHTML = isMobileView()
+        ? `♻️`
+        : `♻️ <span>Refresh</span>`;
+      els.refreshBtn.classList.remove('refresh-cooldown');
+      els.refreshBtn.disabled = false;
+      els.refreshBtn.title = "Refresh Now";
     }
   }
-  
-  function setApiButtonsLocked(lock){
-    searchBtn.disabled = lock;
-    geoBtn.disabled = lock;
-  }
 
-  function startRefreshCooldown(){
+  function startRefreshCooldown() {
     refreshCooldownRemaining = REFRESH_COOLDOWN_SEC;
     setApiButtonsLocked(true);
     setRefreshButtonLabel();
 
-    if (refreshCooldownTimer) {
-      clearInterval(refreshCooldownTimer);
-    }
+    if (refreshCooldownTimer) clearInterval(refreshCooldownTimer);
 
     refreshCooldownTimer = setInterval(() => {
       refreshCooldownRemaining--;
@@ -617,20 +541,19 @@
         refreshCooldownTimer = null;
         setApiButtonsLocked(false);
       }
-
       setRefreshButtonLabel();
     }, 1000);
   }
 
-  function dayNameFromISO(iso){
-    const y = parseInt(iso.slice(0,4),10);
-    const m = parseInt(iso.slice(5,7),10);
-    const d = parseInt(iso.slice(8,10),10);
-    const dd = new Date(Date.UTC(y, m-1, d));
-    return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dd.getUTCDay()];
+  function dayNameFromISO(iso) {
+    const y = parseInt(iso.slice(0, 4), 10);
+    const m = parseInt(iso.slice(5, 7), 10);
+    const d = parseInt(iso.slice(8, 10), 10);
+    const dd = new Date(Date.UTC(y, m - 1, d));
+    return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dd.getUTCDay()];
   }
-  
-  function hourWeight(hour){
+
+  function hourWeight(hour) {
     if (hour <= 6) return 1.0;
     if (hour <= 12) return 0.8;
     if (hour <= 24) return 0.6;
@@ -638,7 +561,7 @@
     return 0.2;
   }
 
-  function timePhrase(hour){
+  function timePhrase(hour) {
     if (hour <= 2) return "soon";
     if (hour <= 6) return "in the next few hours";
     if (hour <= 12) return "later today";
@@ -647,7 +570,7 @@
     return "later";
   }
 
-  function firstIndexWhere(arr, predicate){
+  function firstIndexWhere(arr, predicate) {
     for (let i = 0; i < arr.length; i++) {
       const v = arr[i];
       if (v != null && predicate(v, i)) return i;
@@ -655,8 +578,26 @@
     return -1;
   }
 
-  // ---- IP location (no API key) ----
-  async function getLocationFromIP(){
+  function limitSeriesForInsights(series, maxHours) {
+    const len = Math.min(maxHours, series.labels.length);
+    return {
+      ...series,
+      labels: series.labels.slice(0, len),
+      tempNow: series.tempNow.slice(0, len),
+      tempY: series.tempY.slice(0, len),
+      precip: series.precip.slice(0, len),
+      uv: series.uv.slice(0, len),
+      aqi: series.aqi.slice(0, len),
+      humidity: series.humidity.slice(0, len),
+      feel: series.feel.slice(0, len),
+      wind: series.wind.slice(0, len),
+      windDir: series.windDir.slice(0, len),
+      pressure: series.pressure.slice(0, len),
+      midnightIdxs: series.midnightIdxs.filter(i => i < len)
+    };
+  }
+
+  async function getLocationFromIP() {
     const providers = [
       async () => {
         const r = await fetch("https://ipapi.co/json/");
@@ -685,17 +626,20 @@
         throw new Error("ipwho.is missing coords");
       }
     ];
-    for (const fn of providers){
-      try { return await fn(); } catch(e) {}
+
+    for (const fn of providers) {
+      try { return await fn(); } catch (_) {}
     }
     return null;
   }
 
-  // ---- Fetchers ----
-  async function fetchWeather(lat, lon){
+  async function fetchWeather(lat, lon) {
     const params = new URLSearchParams({
-      latitude: lat, longitude: lon, timezone: "auto",
-      past_days: "1", forecast_days: "4",
+      latitude: lat,
+      longitude: lon,
+      timezone: "auto",
+      past_days: "1",
+      forecast_days: "4",
       hourly: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,surface_pressure",
       current: "temperature_2m,precipitation_probability,uv_index,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,surface_pressure"
     });
@@ -704,10 +648,13 @@
     return await r.json();
   }
 
-  async function fetchAir(lat, lon, fwdHours){
+  async function fetchAir(lat, lon, fwdHours) {
     const params = new URLSearchParams({
-      latitude: lat, longitude: lon, timezone: "auto",
-      past_hours: "24", forecast_hours: String(fwdHours),
+      latitude: lat,
+      longitude: lon,
+      timezone: "auto",
+      past_hours: "24",
+      forecast_hours: String(fwdHours),
       hourly: "us_aqi",
       current: "us_aqi"
     });
@@ -716,9 +663,11 @@
     return await r.json();
   }
 
-  function buildShiftedSeries(weather, air, fwdHours){
-    const wh = weather && weather.hourly ? weather.hourly : {};
+  function buildShiftedSeries(weather, air, fwdHours) {
+    const wh = weather?.hourly || {};
     const labels = Array.isArray(wh.time) ? wh.time : [];
+    if (labels.length === 0) return null;
+
     const t = Array.isArray(wh.temperature_2m) ? wh.temperature_2m : [];
     const p = Array.isArray(wh.precipitation_probability) ? wh.precipitation_probability : [];
     const uv = Array.isArray(wh.uv_index) ? wh.uv_index : [];
@@ -728,241 +677,218 @@
     const windDir = Array.isArray(wh.wind_direction_10m) ? wh.wind_direction_10m : [];
     const press = Array.isArray(wh.surface_pressure) ? wh.surface_pressure : [];
 
-    if (labels.length === 0) return null;
-
     const offsetSeconds = weather?.utc_offset_seconds ?? 0;
     const nowIdx = hourIndexNow(labels, offsetSeconds);
     const end = Math.min(labels.length, nowIdx + fwdHours + 1);
     const xLabels = labels.slice(nowIdx, end);
-    const currentTimeLocal = weather?.current?.time ?? xLabels[0]; // already local to the location
+    const currentTimeLocal = weather?.current?.time ?? xLabels[0];
 
     const tempNow = t.slice(nowIdx, end);
-
-    const tempY = [];
-    for (let k=0; k<xLabels.length; k++){
-      const idx = nowIdx - 24 + k;
-      tempY.push(idx>=0 && idx<t.length ? t[idx] : null);
-    }
-
     const precipNow = p.slice(nowIdx, end);
     const uvNow = uv.slice(nowIdx, end);
     const humNow = hum.slice(nowIdx, end);
+    const feelNow = feel.slice(nowIdx, end);
+    const windNow = wind.slice(nowIdx, end);
+    const windDirNow = windDir.slice(nowIdx, end);
+    const pressNow = press.slice(nowIdx, end);
+
+    const tempY = xLabels.map((_, k) => {
+      const idx = nowIdx - 24 + k;
+      return idx >= 0 && idx < t.length ? t[idx] : null;
+    });
 
     let aqiNow = new Array(xLabels.length).fill(null);
-    if (air && air.hourly){
+    if (air?.hourly) {
       const at = Array.isArray(air.hourly.time) ? air.hourly.time : [];
       const aqi = Array.isArray(air.hourly.us_aqi) ? air.hourly.us_aqi : [];
-      const map = new Map();
-      for (let i=0;i<at.length;i++){ map.set(at[i], aqi[i]); }
+      const map = new Map(at.map((ts, i) => [ts, aqi[i]]));
       aqiNow = xLabels.map(ts => map.has(ts) ? map.get(ts) : null);
     }
 
-    const curTemp   = weather?.current?.temperature_2m ?? (tempNow[0] ?? null);
-    const curPrecip = weather?.current?.precipitation_probability ?? (precipNow[0] ?? null);
-    const curUV     = weather?.current?.uv_index ?? (uvNow[0] ?? null);
-    const curAQI    = air?.current?.us_aqi ?? (aqiNow[0] ?? null);
-    const curHum    = weather?.current?.relative_humidity_2m ?? (humNow[0] ?? null);
-    const curFeel = weather?.current?.apparent_temperature ?? (feel[nowIdx] ?? null);
-    const curWind = weather?.current?.wind_speed_10m ?? (wind[nowIdx] ?? null);
-    const curWindDir = weather?.current?.wind_direction_10m ?? (windDir[nowIdx] ?? null);
-    const curPress = weather?.current?.surface_pressure ?? (press[nowIdx] ?? null);
-    const elevation = weather?.elevation ?? null;
+    const current = {
+      temp: weather?.current?.temperature_2m ?? tempNow[0] ?? null,
+      tempY: tempY[0] ?? null,
+      precip: weather?.current?.precipitation_probability ?? precipNow[0] ?? null,
+      uv: weather?.current?.uv_index ?? uvNow[0] ?? null,
+      aqi: air?.current?.us_aqi ?? aqiNow[0] ?? null,
+      hum: weather?.current?.relative_humidity_2m ?? humNow[0] ?? null,
+      feel: weather?.current?.apparent_temperature ?? feelNow[0] ?? null,
+      wind: weather?.current?.wind_speed_10m ?? windNow[0] ?? null,
+      windDir: weather?.current?.wind_direction_10m ?? windDirNow[0] ?? null,
+      press: weather?.current?.surface_pressure ?? pressNow[0] ?? null,
+      elevation: weather?.elevation ?? null
+    };
 
-    const midnightIdxs = xLabels.reduce((acc, ts, i) => { if (ts.slice(11,13) === "00") acc.push(i); return acc; }, []);
+    const midnightIdxs = xLabels.reduce((acc, ts, i) => {
+      if (ts.slice(11, 13) === "00") acc.push(i);
+      return acc;
+    }, []);
 
     return {
       labels: xLabels,
-      tempNow, tempY,
+      tempNow,
+      tempY,
       precip: precipNow,
       uv: uvNow,
       aqi: aqiNow,
       humidity: humNow,
-      feel: feel.slice(nowIdx, end),
-      wind: wind.slice(nowIdx, end),
-      windDir: windDir.slice(nowIdx, end),
-      pressure: press.slice(nowIdx, end),
+      feel: feelNow,
+      wind: windNow,
+      windDir: windDirNow,
+      pressure: pressNow,
       midnightIdxs,
       offsetSeconds,
       currentTimeLocal,
-      current: {
-        temp: curTemp,
-        tempY: tempY[0] ?? null,
-        precip: curPrecip,
-        uv: curUV,
-        aqi: curAQI,
-        hum: curHum,
-        feel: curFeel,
-        wind: curWind,
-        windDir: curWindDir,
-        press: curPress,
-        elevation: elevation
-      }
+      current
     };
   }
 
-  // ---- Chart plugin: markers ----
   const MarkersPlugin = {
     id: 'markers',
     afterDatasetsDraw(chart) {
-      const {ctx, chartArea, scales} = chart;
+      const { ctx, chartArea, scales } = chart;
       const xScale = scales.x;
-      if (!xScale || chart.data.labels.length === 0) return;
-
       const labels = chart.data.labels;
+      if (!xScale || labels.length === 0) return;
+
       const px0 = xScale.getPixelForValue(labels[0]);
-      let px1 = px0;
-      if (labels.length > 1) px1 = xScale.getPixelForValue(labels[1]);
+      const px1 = labels.length > 1 ? xScale.getPixelForValue(labels[1]) : px0;
       const hourWidth = px1 - px0;
 
       const offset = chart.$offsetSeconds || 0;
       const nowUTC = new Date();
-      const local = new Date(nowUTC.getTime() + offset*1000);
-      const frac = (local.getMinutes()*60 + local.getSeconds()) / 3600;
+      const local = new Date(nowUTC.getTime() + offset * 1000);
+      const frac = (local.getMinutes() * 60 + local.getSeconds()) / 3600;
       let xNow = px0 + hourWidth * frac;
       if (!isFinite(xNow)) xNow = px0;
 
       ctx.save();
       ctx.strokeStyle = COLORS.nowline;
       ctx.lineWidth = 1.5;
-      ctx.setLineDash([6,4]);
+      ctx.setLineDash([6, 4]);
 
-      // Now line
       ctx.beginPath();
-      ctx.moveTo(Math.round(xNow)+.5, chartArea.top);
-      ctx.lineTo(Math.round(xNow)+.5, chartArea.bottom);
+      ctx.moveTo(Math.round(xNow) + .5, chartArea.top);
+      ctx.lineTo(Math.round(xNow) + .5, chartArea.bottom);
       ctx.stroke();
 
-      // Midnight lines
-      const midIdxs = chart.$midnightIdxs || [];
-      ctx.setLineDash([4,4]);
-      for (const i of midIdxs){
+      ctx.setLineDash([4, 4]);
+      for (const i of (chart.$midnightIdxs || [])) {
         const x = xScale.getPixelForValue(labels[i]);
         ctx.beginPath();
-        ctx.moveTo(Math.round(x)+.5, chartArea.top);
-        ctx.lineTo(Math.round(x)+.5, chartArea.bottom);
+        ctx.moveTo(Math.round(x) + .5, chartArea.top);
+        ctx.lineTo(Math.round(x) + .5, chartArea.bottom);
         ctx.stroke();
       }
       ctx.restore();
     }
   };
 
-  function ensureChart(){
+  function ensureChart() {
     if (chart) return chart;
-    const ctx = document.getElementById('forecastChart').getContext('2d');
+
+    const ctx = els.forecastChart.getContext('2d');
     chart = new Chart(ctx, {
-      type:'line',
-      data:{ labels:[], datasets:[
-        { label:'Temp (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tNow, borderWidth:2, tension:.3, pointRadius:0, spanGaps:true },
-        { label:'Yesterday (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tY, borderWidth:2, borderDash:[6,6], tension:.2, pointRadius:0, spanGaps:true },
-        { label:'Precip (%)', data:[], yAxisID:'yPerc', borderColor:COLORS.precip, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
-        { label:'UV Index', data:[], yAxisID:'yUV', borderColor:COLORS.uv, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
-        { label:'AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
-        { label:'Humidity (%)', data:[], yAxisID:'yHum', borderColor:COLORS.hum, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true }
-      ]},
-      options:{
-        animation:{duration:0},
-        responsive:true,
-        maintainAspectRatio:false,
-        interaction:{mode:'index', intersect:false},
-        scales:{
-          x:{
-            ticks:{
-              color:'#ffffff',
-              maxRotation:0,
-              autoSkip:true,
-              callback:(value, index)=>{
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label:'Temp (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tNow, borderWidth:2, tension:.3, pointRadius:0, spanGaps:true },
+          { label:'Yesterday (°C)', data:[], yAxisID:'yTemp', borderColor:COLORS.tY, borderWidth:2, borderDash:[6,6], tension:.2, pointRadius:0, spanGaps:true },
+          { label:'Precip (%)', data:[], yAxisID:'yPerc', borderColor:COLORS.precip, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
+          { label:'UV Index', data:[], yAxisID:'yUV', borderColor:COLORS.uv, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
+          { label:'AQI', data:[], yAxisID:'yAQI', borderColor:COLORS.aqi, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true },
+          { label:'Humidity (%)', data:[], yAxisID:'yHum', borderColor:COLORS.hum, borderWidth:1.8, tension:.2, pointRadius:0, spanGaps:true }
+        ]
+      },
+      options: {
+        animation: { duration: 0 },
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+          x: {
+            ticks: {
+              color: '#ffffff',
+              maxRotation: 0,
+              autoSkip: true,
+              callback: (value, index) => {
                 const s = chart.data.labels[index];
-                const hour = s.slice(11,13);
-                return hour === "00" ? (dayNameFromISO(s) + " 00") : hour;
+                const hour = s.slice(11, 13);
+                return hour === "00" ? `${dayNameFromISO(s)} 00` : hour;
               }
             },
-            grid:{color:'rgba(255,255,255,0.05)'}
+            grid: { color:'rgba(255,255,255,0.05)' }
           },
-          yTemp:{
+          yTemp: {
             position:'left',
-            title:{display:true,text:'°C'},
-            ticks:{color:'#ffffff'},
-            grid:{color:'rgba(255,255,255,0.10)'}
+            title:{ display:true, text:'°C' },
+            ticks:{ color:'#ffffff' },
+            grid:{ color:'rgba(255,255,255,0.10)' }
           },
-          yPerc:{
+          yPerc: {
             position:'right',
             display:false,
             offset:true,
-            title:{display:true,text:'Precip %'},
+            title:{ display:true, text:'Precip %' },
             min:0, max:100,
-            ticks:{color:'#cfd6e4'},
-            grid:{drawOnChartArea:false}
+            ticks:{ color:'#cfd6e4' },
+            grid:{ drawOnChartArea:false }
           },
-          yUV:{
+          yUV: {
             position:'right',
             display:false,
             offset:true,
-            title:{display:true,text:'UV'},
+            title:{ display:true, text:'UV' },
             min:0,
             suggestedMax:12,
-            ticks:{color:'#cfd6e4'},
-            grid:{drawOnChartArea:false}
+            ticks:{ color:'#cfd6e4' },
+            grid:{ drawOnChartArea:false }
           },
-          yAQI:{
+          yAQI: {
             position:'right',
             display:false,
             offset:true,
-            title:{display:true,text:'AQI'},
+            title:{ display:true, text:'AQI' },
             min:0,
             suggestedMax:150,
-            ticks:{color:'#cfd6e4'},
-            grid:{drawOnChartArea:false}
+            ticks:{ color:'#cfd6e4' },
+            grid:{ drawOnChartArea:false }
           },
-          yHum:{
+          yHum: {
             position:'right',
             display:false,
             offset:true,
-            title:{display:true,text:'Humidity %'},
+            title:{ display:true, text:'Humidity %' },
             min:0, max:100,
-            ticks:{color:'#cfd6e4'},
-            grid:{drawOnChartArea:false}
+            ticks:{ color:'#cfd6e4' },
+            grid:{ drawOnChartArea:false }
           }
         },
-        plugins:{ legend:{display:false} }
+        plugins:{ legend:{ display:false } }
       },
       plugins:[MarkersPlugin]
     });
+
     return chart;
   }
-  
-  // ---- Line highlight helpers (pop line thickness) ----
+
   function applyHighlight(metric) {
     const c = ensureChart();
-
-    // Base widths must match your dataset defaults (from ensureChart)
-    const baseWidths = [2, 2, 1.8, 1.8, 1.8, 1.8];
-    const popWidth = 4.2;
-
-    // Reset all datasets to base widths
-    c.data.datasets.forEach((ds, i) => {
-      ds.borderWidth = baseWidths[i] ?? 2;
-    });
-
-    // Apply highlight if metric is valid
+    c.data.datasets.forEach((ds, i) => { ds.borderWidth = BASE_WIDTHS[i] ?? 2; });
     if (metric && metricToDataset[metric] != null) {
-      const idx = metricToDataset[metric];
-      c.data.datasets[idx].borderWidth = popWidth;
+      c.data.datasets[metricToDataset[metric]].borderWidth = POP_WIDTH;
     }
-
-    // Fast redraw without animation
     c.update('none');
   }
 
   function clearHighlightIfNotLocked() {
-    if (lockedMetric) return;
-    applyHighlight(null);
+    if (!lockedMetric) applyHighlight(null);
   }
-  
-  function sliceSeries(hours){
+
+  function sliceSeries(hours) {
     if (!fullSeries) return null;
-
     const len = Math.min(hours, fullSeries.labels.length);
-
     return {
       labels: fullSeries.labels.slice(0, len),
       tempNow: fullSeries.tempNow.slice(0, len),
@@ -981,8 +907,8 @@
       current: fullSeries.current
     };
   }
-  
-  function updateChart(series){
+
+  function updateChart(series) {
     const c = ensureChart();
     c.data.labels = series.labels;
     c.data.datasets[0].data = series.tempNow;
@@ -992,385 +918,251 @@
     c.data.datasets[4].data = series.aqi;
     c.data.datasets[5].data = series.humidity;
 
-    const aqiMax = Math.max.apply(null, series.aqi.filter(v => v!=null).concat([0]));
-    const niceAQI = aqiMax<=100?100: aqiMax<=150?150: aqiMax<=200?200: aqiMax<=300?300: 500;
-    const uvMax = Math.max.apply(null, series.uv.filter(v => v!=null).concat([0]));
-    const niceUV = Math.max(12, Math.ceil(uvMax/2)*2);
-    c.options.scales.yAQI.suggestedMax = niceAQI;
-    c.options.scales.yUV.suggestedMax = niceUV;
+    const aqiMax = Math.max(...series.aqi.filter(v => v != null).concat([0]));
+    const uvMax = Math.max(...series.uv.filter(v => v != null).concat([0]));
+
+    c.options.scales.yAQI.suggestedMax =
+      aqiMax <= 100 ? 100 :
+      aqiMax <= 150 ? 150 :
+      aqiMax <= 200 ? 200 :
+      aqiMax <= 300 ? 300 : 500;
+
+    c.options.scales.yUV.suggestedMax = Math.max(12, Math.ceil(uvMax / 2) * 2);
 
     c.$midnightIdxs = series.midnightIdxs || [];
     c.$offsetSeconds = series.offsetSeconds || 0;
 
-    // Keep axis display consistent after data refresh
     c.options.scales.yPerc.display = showDetails;
     c.options.scales.yUV.display = showDetails;
     c.options.scales.yAQI.display = showDetails;
     c.options.scales.yHum.display = showDetails;
 
     c.update();
-    
-    // Re-apply locked highlight after data refresh
-    if (lockedMetric) {
-      applyHighlight(lockedMetric);
-    }
+    if (lockedMetric) applyHighlight(lockedMetric);
   }
 
-  function updateChips(cur){
-    chipTemp.textContent = fmt(cur.temp, "°C");
-    chipTempY.textContent = fmt(cur.tempY, "°C");  
-    chipPrecip.textContent = fmt(cur.precip, "%");
-    chipUV.textContent = fmt(cur.uv, "");
-    chipAQI.textContent = fmt(cur.aqi, "");
-    chipHum.textContent = fmt(cur.hum, "%");
-    
-    // Dynamic label emojis
-    if (labelUV) {
-      labelUV.textContent = `${getUVEmoji(cur.uv)} UV Index`;
-    }
-    if (labelAQI) {
-      labelAQI.textContent = `${getAQIEmoji(cur.aqi)} AQI`;
-    }
-    
-    if (envRow){
-      envRow.textContent =
-        `🗻 Elevation: ${fmt(cur.elevation," m")} • 🤿 Pressure: ${fmt(cur.press," hPa")}`;
-    }
-
-    if (comfortRow){
-      const dir = windDirToCompass(cur.windDir);
-      const arrow = windDirArrow(cur.windDir);
-
-      comfortRow.textContent =
-        `🥭 Feels like: ${fmt(cur.feel,"°C")} • 💨 Wind: ${fmt(cur.wind," km/h")} ${arrow} ${dir}`;
-    }
+  function updateTitle(series) {
+    if (!els.currentWeatherTitle || !series.currentTimeLocal) return;
+    const ts = series.currentTimeLocal;
+    const cityOnly = currentCoords.name
+      ? currentCoords.name.split(",")[0].replace(/\(.*?\)/g, "").trim()
+      : "";
+    els.currentWeatherTitle.textContent = `🧭 ${cityOnly} — ${dayNameFromISO(ts)} ${ts.slice(11, 16)}`;
   }
-    function generateInsights(series){
-      const events = [];
 
-      const len = series.labels.length;
+  function updateChips(cur) {
+    els.chipTemp.textContent = fmt(cur.temp, "°C");
+    els.chipTempY.textContent = fmt(cur.tempY, "°C");
+    els.chipPrecip.textContent = fmt(cur.precip, "%");
+    els.chipUV.textContent = fmt(cur.uv, "");
+    els.chipAQI.textContent = fmt(cur.aqi, "");
+    els.chipHum.textContent = fmt(cur.hum, "%");
 
-      const addEvent = (key, text, risk, hour) => {
-        if (hour < 0) return;
-        events.push({
-          key,
-          text,
-          risk,
-          hour,
-          score: risk * hourWeight(hour)
-        });
-      };
+    els.labelUV.textContent = `${getUVEmoji(cur.uv)} UV Index`;
+    els.labelAQI.textContent = `${getAQIEmoji(cur.aqi)} AQI`;
 
-      // ---- Rain / precipitation ----
-      const heavyRainIdx = firstIndexWhere(series.precip, v => v >= 70);
-      const medRainIdx   = firstIndexWhere(series.precip, v => v >= 40);
+    els.envRow.textContent = `🗻 Elevation: ${fmt(cur.elevation, " m")} • 🤿 Pressure: ${fmt(cur.press, " hPa")}`;
 
-      if (heavyRainIdx >= 0) {
-        addEvent(
-          "rain",
-          `🌧️ Heavy rain expected ${timePhrase(heavyRainIdx)}`,
-          5,
-          heavyRainIdx
-        );
-      } else if (medRainIdx >= 0) {
-        addEvent(
-          "rain",
-          `🌦️ Rain possible ${timePhrase(medRainIdx)}`,
-          3,
-          medRainIdx
-        );
-      }
+    const dir = windDirToCompass(cur.windDir);
+    const arrow = windDirArrow(cur.windDir);
+    els.comfortRow.textContent = `🥭 Feels like: ${fmt(cur.feel, "°C")} • 💨 Wind: ${fmt(cur.wind, " km/h")} ${arrow} ${dir}`;
+  }
 
-      // ---- AQI / air quality ----
-      const badAQIIdx = firstIndexWhere(series.aqi, v => v >= 151);
-      const modAQIIdx = firstIndexWhere(series.aqi, v => v >= 101);
-      const mildAQIIdx = firstIndexWhere(series.aqi, v => v >= 76);
+  function generateInsights(series) {
+    const events = [];
+    const addEvent = (key, text, risk, hour) => {
+      if (hour < 0) return;
+      events.push({ key, text, risk, hour, score: risk * hourWeight(hour) });
+    };
 
-      if (badAQIIdx >= 0) {
-        addEvent(
-          "aqi",
-          `🚫 Unhealthy air quality ${timePhrase(badAQIIdx)}`,
-          5,
-          badAQIIdx
-        );
-      } else if (modAQIIdx >= 0) {
-        addEvent(
-          "aqi",
-          `😷 Lung stress possible ${timePhrase(modAQIIdx)}`,
-          4,
-          modAQIIdx
-        );
-      } else if (mildAQIIdx >= 0) {
-        addEvent(
-          "aqi",
-          `⚠️ Mild air irritation possible ${timePhrase(mildAQIIdx)}`,
-          2,
-          mildAQIIdx
-        );
-      }
+    const heavyRainIdx = firstIndexWhere(series.precip, v => v >= 70);
+    const medRainIdx = firstIndexWhere(series.precip, v => v >= 40);
+    if (heavyRainIdx >= 0) addEvent("rain", `🌧️ Heavy rain expected ${timePhrase(heavyRainIdx)}`, 5, heavyRainIdx);
+    else if (medRainIdx >= 0) addEvent("rain", `🌦️ Rain possible ${timePhrase(medRainIdx)}`, 3, medRainIdx);
 
-      // ---- UV ----
-      const highUVIdx = firstIndexWhere(series.uv, v => v >= 8);
-      const medUVIdx  = firstIndexWhere(series.uv, v => v >= 6);
-      const lowUVIdx  = firstIndexWhere(series.uv, v => v >= 3);
+    const badAQIIdx = firstIndexWhere(series.aqi, v => v >= 151);
+    const modAQIIdx = firstIndexWhere(series.aqi, v => v >= 101);
+    const mildAQIIdx = firstIndexWhere(series.aqi, v => v >= 76);
+    if (badAQIIdx >= 0) addEvent("aqi", `🚫 Unhealthy air quality ${timePhrase(badAQIIdx)}`, 5, badAQIIdx);
+    else if (modAQIIdx >= 0) addEvent("aqi", `😷 Lung stress possible ${timePhrase(modAQIIdx)}`, 4, modAQIIdx);
+    else if (mildAQIIdx >= 0) addEvent("aqi", `⚠️ Mild air irritation possible ${timePhrase(mildAQIIdx)}`, 2, mildAQIIdx);
 
-      if (highUVIdx >= 0) {
-        addEvent(
-          "uv",
-          `🧢 Very high UV ${timePhrase(highUVIdx)}`,
-          4,
-          highUVIdx
-        );
-      } else if (medUVIdx >= 0) {
-        addEvent(
-          "uv",
-          `🧴 High UV ${timePhrase(medUVIdx)}`,
-          3,
-          medUVIdx
-        );
-      } else if (lowUVIdx >= 0) {
-        addEvent(
-          "uv",
-          `🧬 Moderate UV ${timePhrase(lowUVIdx)}`,
-          1,
-          lowUVIdx
-        );
-      }
+    const highUVIdx = firstIndexWhere(series.uv, v => v >= 8);
+    const medUVIdx = firstIndexWhere(series.uv, v => v >= 6);
+    const lowUVIdx = firstIndexWhere(series.uv, v => v >= 3);
+    if (highUVIdx >= 0) addEvent("uv", `🧢 Very high UV ${timePhrase(highUVIdx)}`, 4, highUVIdx);
+    else if (medUVIdx >= 0) addEvent("uv", `🧴 High UV ${timePhrase(medUVIdx)}`, 3, medUVIdx);
+    else if (lowUVIdx >= 0) addEvent("uv", `🧬 Moderate UV ${timePhrase(lowUVIdx)}`, 1, lowUVIdx);
 
-      // ---- Wind ----
-      const strongWindIdx = firstIndexWhere(series.wind, v => v >= 35);
-      const breezyIdx     = firstIndexWhere(series.wind, v => v >= 20);
-
-      if (strongWindIdx >= 0) {
-        const dir = windDirToCompass(series.windDir?.[strongWindIdx]);
-        const arrow = windDirArrow(series.windDir?.[strongWindIdx]);
-        addEvent(
-          "wind",
-          `💨 Strong winds ${timePhrase(strongWindIdx)} ${arrow} ${dir}`.trim(),
-          4,
-          strongWindIdx
-        );
-      } else if (breezyIdx >= 0) {
-        const dir = windDirToCompass(series.windDir?.[breezyIdx]);
-        const arrow = windDirArrow(series.windDir?.[breezyIdx]);
-        addEvent(
-          "wind",
-          `🌬️ Breezy conditions ${timePhrase(breezyIdx)} ${arrow} ${dir}`.trim(),
-          2,
-          breezyIdx
-        );
-      }
-
-      // ---- Heat / cold / comfort ----
-      const heatStressIdx = firstIndexWhere(
-        series.feel,
-        (v, i) => v >= 32 && (series.humidity?.[i] ?? 0) >= 60
-      );
-
-      const freezingIdx = firstIndexWhere(series.feel, v => v <= 0);
-
-      const dryAirIdx = firstIndexWhere(
-        series.humidity,
-        (v, i) => v <= 30 && (series.feel?.[i] ?? 99) > 5
-      );
-
-      if (heatStressIdx >= 0) {
-        addEvent(
-          "comfort",
-          `🔥 Muggy heat stress possible ${timePhrase(heatStressIdx)}`,
-          4,
-          heatStressIdx
-        );
-      } else if (freezingIdx >= 0) {
-        addEvent(
-          "comfort",
-          `❄️ Freezing conditions possible ${timePhrase(freezingIdx)}`,
-          4,
-          freezingIdx
-        );
-      } else if (dryAirIdx >= 0) {
-        addEvent(
-          "comfort",
-          `🏜️ Dry air expected ${timePhrase(dryAirIdx)}`,
-          1,
-          dryAirIdx
-        );
-      }
-
-      // ---- Pressure trend / instability ----
-      if (series.pressure && series.pressure.length >= 6) {
-        const p0 = series.pressure[0];
-        const pLater = series.pressure[Math.min(12, series.pressure.length - 1)];
-        if (p0 != null && pLater != null) {
-          const drop = p0 - pLater;
-          if (drop >= 6) {
-            addEvent(
-              "pressure",
-              "📉 Falling pressure may signal changing weather",
-              2,
-              Math.min(12, series.pressure.length - 1)
-            );
-          }
-        }
-      }
-
-      // ---- Temperature trend (only if no stronger comfort event) ----
-      if (!events.some(e => e.key === "comfort")) {
-        if (series.tempNow.length >= 2) {
-          const tNow = series.tempNow[0];
-          const tLater = series.tempNow[Math.min(6, series.tempNow.length - 1)];
-
-          if (tNow != null && tLater != null) {
-            if (tLater > tNow + 3) {
-              addEvent("temptrend", "🌡️ Temperature rising in the next few hours", 1, 6);
-            } else if (tLater < tNow - 3) {
-              addEvent("temptrend", "🧊 Temperature dropping in the next few hours", 1, 6);
-            }
-          }
-        }
-      }
-
-      // ---- Remove duplicate categories, keep best one per key ----
-      const bestByKey = new Map();
-      for (const ev of events) {
-        const existing = bestByKey.get(ev.key);
-        if (!existing || ev.score > existing.score || (ev.score === existing.score && ev.hour < existing.hour)) {
-          bestByKey.set(ev.key, ev);
-        }
-      }
-
-      const finalEvents = Array.from(bestByKey.values())
-        .sort((a, b) => {
-          if (b.score !== a.score) return b.score - a.score;
-          if (b.risk !== a.risk) return b.risk - a.risk;
-          return a.hour - b.hour;
-        })
-        .slice(0, 4);
-
-      if (finalEvents.length === 0) {
-        return ["🌤️ Conditions look stable for now"];
-      }
-
-      return finalEvents.map(e => e.text);
+    const strongWindIdx = firstIndexWhere(series.wind, v => v >= 35);
+    const breezyIdx = firstIndexWhere(series.wind, v => v >= 20);
+    if (strongWindIdx >= 0) {
+      const dir = windDirToCompass(series.windDir?.[strongWindIdx]);
+      const arrow = windDirArrow(series.windDir?.[strongWindIdx]);
+      addEvent("wind", `💨 Strong winds ${timePhrase(strongWindIdx)} ${arrow} ${dir}`.trim(), 4, strongWindIdx);
+    } else if (breezyIdx >= 0) {
+      const dir = windDirToCompass(series.windDir?.[breezyIdx]);
+      const arrow = windDirArrow(series.windDir?.[breezyIdx]);
+      addEvent("wind", `🌬️ Breezy conditions ${timePhrase(breezyIdx)} ${arrow} ${dir}`.trim(), 2, breezyIdx);
     }
 
+    const heatStressIdx = firstIndexWhere(series.feel, (v, i) => v >= 32 && (series.humidity?.[i] ?? 0) >= 60);
+    const freezingIdx = firstIndexWhere(series.feel, v => v <= 0);
+    const dryAirIdx = firstIndexWhere(series.humidity, (v, i) => v <= 30 && (series.feel?.[i] ?? 99) > 5);
+    if (heatStressIdx >= 0) addEvent("comfort", `🔥 Muggy heat stress possible ${timePhrase(heatStressIdx)}`, 4, heatStressIdx);
+    else if (freezingIdx >= 0) addEvent("comfort", `❄️ Freezing conditions possible ${timePhrase(freezingIdx)}`, 4, freezingIdx);
+    else if (dryAirIdx >= 0) addEvent("comfort", `🏜️ Dry air expected ${timePhrase(dryAirIdx)}`, 1, dryAirIdx);
 
-  async function runUpdate(){
-    if (chartLoading) chartLoading.style.display = "flex";
+    if (series.pressure?.length >= 6) {
+      const p0 = series.pressure[0];
+      const pLater = series.pressure[Math.min(12, series.pressure.length - 1)];
+      if (p0 != null && pLater != null && (p0 - pLater) >= 6) {
+        addEvent("pressure", "📉 Falling pressure may signal changing weather", 2, Math.min(12, series.pressure.length - 1));
+      }
+    }
+
+    if (!events.some(e => e.key === "comfort") && series.tempNow.length >= 2) {
+      const tNow = series.tempNow[0];
+      const tLater = series.tempNow[Math.min(6, series.tempNow.length - 1)];
+      if (tNow != null && tLater != null) {
+        if (tLater > tNow + 3) addEvent("temptrend", "🌡️ Temperature rising in the next few hours", 1, 6);
+        else if (tLater < tNow - 3) addEvent("temptrend", "🧊 Temperature dropping in the next few hours", 1, 6);
+      }
+    }
+
+    const bestByKey = new Map();
+    for (const ev of events) {
+      const existing = bestByKey.get(ev.key);
+      if (!existing || ev.score > existing.score || (ev.score === existing.score && ev.hour < existing.hour)) {
+        bestByKey.set(ev.key, ev);
+      }
+    }
+
+    const finalEvents = Array.from(bestByKey.values())
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (b.risk !== a.risk) return b.risk - a.risk;
+        return a.hour - b.hour;
+      })
+      .slice(0, 4);
+
+    return finalEvents.length ? finalEvents.map(e => e.text) : ["🌤️ Conditions look stable for now"];
+  }
+
+  function updateInsights(series) {
+    const tips = generateInsights(limitSeriesForInsights(series, INSIGHT_HOURS_LIMIT));
+    els.insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+  }
+
+  function updateStaticUi(series) {
+    updateTitle(series);
+    updateChips(series.current);
+    updateInsights(series);
+    els.locNote.textContent = `Location: ${currentCoords.name}  [${currentCoords.lat.toFixed(3)}, ${currentCoords.lon.toFixed(3)}]`;
+    els.statusbar.classList.remove('offline');
+    els.statusText.textContent = "Online • Auto-update hourly";
+  }
+
+  async function runUpdate() {
+    if (els.chartLoading) els.chartLoading.style.display = "flex";
     setOnlineState();
-    if (!navigator.onLine) { scheduleNextAuto(); return; }
-    const fwd = 96; // always fetch full range 96h
-    try{
+    if (!navigator.onLine) {
+      scheduleNextAuto();
+      return;
+    }
+
+    try {
       const [wRes, aRes] = await Promise.allSettled([
         fetchWeather(currentCoords.lat, currentCoords.lon),
-        fetchAir(currentCoords.lat, currentCoords.lon, fwd)
+        fetchAir(currentCoords.lat, currentCoords.lon, FETCH_FORWARD_HOURS)
       ]);
+
       const weather = wRes.status === "fulfilled" ? wRes.value : null;
-      const air     = aRes.status === "fulfilled" ? aRes.value : null;
-      if (!weather){
-        statusbar.classList.add('offline');
-        statusText.textContent = "Weather data unavailable";
-        scheduleNextAuto(); return;
+      const air = aRes.status === "fulfilled" ? aRes.value : null;
+
+      if (!weather) {
+        els.statusbar.classList.add('offline');
+        els.statusText.textContent = "Weather data unavailable";
+        scheduleNextAuto();
+        return;
       }
-      const series = buildShiftedSeries(weather, air, fwd);
+
+      const series = buildShiftedSeries(weather, air, FETCH_FORWARD_HOURS);
+      if (!series) {
+        els.statusbar.classList.add('offline');
+        els.statusText.textContent = "No timeline available";
+        scheduleNextAuto();
+        return;
+      }
+
       fullSeries = series;
-      if (!series){
-        statusbar.classList.add('offline');
-        statusText.textContent = "No timeline available";
-        scheduleNextAuto(); return;
-      }
-      updateChart(sliceSeries(parseInt(rangeSelect.value,10)));
-      if (chartLoading) chartLoading.style.display = "none";
-      updateChips(series.current);
-      
-      // ---- Update header title with city + local time ----
-      if (currentWeatherTitle && series.currentTimeLocal) {
-        const ts = series.currentTimeLocal; // "YYYY-MM-DDTHH:MM" in local time
-
-        const cityOnly = currentCoords.name
-          ? currentCoords.name.split(",")[0].replace(/\(.*?\)/g, "").trim()
-          : "";
-
-        const weekday = dayNameFromISO(ts);     // uses your existing helper
-        const hhmm = ts.slice(11, 16);          // "HH:MM"
-
-        currentWeatherTitle.textContent = `🧭 ${cityOnly} — ${weekday} ${hhmm}`;
-      }
-
-      // Update insights
-      const insightBox = document.getElementById('insightBox');
-      if (insightBox){
-        const tips = generateInsights(series);
-        insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
-      }
-      locNote.textContent = `Location: ${currentCoords.name}  [${currentCoords.lat.toFixed(3)}, ${currentCoords.lon.toFixed(3)}]`;
-      statusbar.classList.remove('offline');
-      statusText.textContent = "Online • Auto-update hourly";
-    }catch(err){
+      const visibleSeries = sliceSeries(parseInt(els.rangeSelect.value, 10));
+      updateChart(visibleSeries);
+      if (els.chartLoading) els.chartLoading.style.display = "none";
+      updateStaticUi(series);
+    } catch (err) {
       console.error(err);
-      statusbar.classList.add('offline');
-      statusText.textContent = "Error fetching • Will retry next hour";
-    }finally{
+      els.statusbar.classList.add('offline');
+      els.statusText.textContent = "Error fetching • Will retry next hour";
+    } finally {
       scheduleNextAuto();
     }
   }
 
-  function scheduleNextAuto(){
+  function scheduleNextAuto() {
     if (autoTimer) clearTimeout(autoTimer);
-    const ms = nextTopOfHourDelayMs();
-    autoTimer = setTimeout(runUpdate, Math.max(ms, 20000));
+    autoTimer = setTimeout(runUpdate, Math.max(nextTopOfHourDelayMs(), 20000));
   }
 
-  // ---- Geocoding / Location ----
-  async function geocodeCity(q){
-    const url = GEOCODE_URL+"?name="+encodeURIComponent(q)+"&count=1&language=en&format=json";
+  async function geocodeCity(q) {
+    const url = GEOCODE_URL + "?name=" + encodeURIComponent(q) + "&count=1&language=en&format=json";
     const res = await fetch(url);
-    if(!res.ok) throw new Error("Geocoding failed");
+    if (!res.ok) throw new Error("Geocoding failed");
     const json = await res.json();
-    if (!json.results || json.results.length===0) throw new Error("City not found");
+    if (!json.results?.length) throw new Error("City not found");
     const r = json.results[0];
-    return { lat:r.latitude, lon:r.longitude, name:(r.name + (r.admin1?", "+r.admin1:"") + (r.country?", "+r.country:"")) };
+    return {
+      lat: r.latitude,
+      lon: r.longitude,
+      name: `${r.name}${r.admin1 ? ", " + r.admin1 : ""}${r.country ? ", " + r.country : ""}`
+    };
   }
 
-  // My Location: GPS first; fallback to IP
-  function useGeolocationOrIP(){
+  function useGeolocationOrIP() {
+    const applyLocAndUpdate = (loc) => {
+      if (loc) currentCoords = loc;
+      runUpdate();
+    };
+
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos)=>{
-          currentCoords = { lat:pos.coords.latitude, lon:pos.coords.longitude, name:"My Location (GPS)" };
-          runUpdate();
-        },
-        async ()=>{
+        (pos) => applyLocAndUpdate({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          name: "My Location (GPS)"
+        }),
+        async () => {
           const ipLoc = await getLocationFromIP();
-          if (ipLoc) {
-            currentCoords = ipLoc;
-            currentCoords.name += " (IP)";
-          }
-          runUpdate();
+          if (ipLoc) ipLoc.name += " (IP)";
+          applyLocAndUpdate(ipLoc);
         },
         { enableHighAccuracy:false, timeout:8000, maximumAge:600000 }
       );
     } else {
       (async () => {
         const ipLoc = await getLocationFromIP();
-        if (ipLoc) {
-          currentCoords = ipLoc;
-          currentCoords.name += " (IP)";
-        }
-        runUpdate();
+        if (ipLoc) ipLoc.name += " (IP)";
+        applyLocAndUpdate(ipLoc);
       })();
     }
   }
 
-  // ---- Save chart as PNG ----
-  function saveChartAsPNG(){
-    const canvas = document.getElementById('forecastChart');
-    if (!canvas) return;
-    const fwd = rangeSelect.value;
+  function saveChartAsPNG() {
+    if (!els.forecastChart) return;
     const safeName = (currentCoords.name || "location").replace(/[^\w\-]+/g, "_");
-    const ts = new Date().toISOString().slice(0,16).replace("T","_").replace(":","");
-    const filename = `weather_${safeName}_${fwd}h_${ts}.png`;
-    const url = canvas.toDataURL('image/png');
+    const ts = new Date().toISOString().slice(0, 16).replace("T", "_").replace(":", "");
+    const filename = `weather_${safeName}_${els.rangeSelect.value}h_${ts}.png`;
+    const url = els.forecastChart.toDataURL('image/png');
 
     const a = document.createElement('a');
     a.href = url;
@@ -1380,177 +1172,131 @@
     a.remove();
   }
 
-  // ---- UI wiring ----
-  function setActiveRangeButton(hours){
-    [btn24, btn48, btn72, btn96].forEach(b => b && b.classList.remove('is-active'));
-    const map = { "24": btn24, "48": btn48, "72": btn72, "96": btn96 };
-    const target = map[String(hours)];
-    if (target) target.classList.add('is-active');
+  function setActiveRangeButton(hours) {
+    Object.values(rangeButtons).forEach(b => b?.classList.remove('is-active'));
+    rangeButtons[String(hours)]?.classList.add('is-active');
   }
-  
-  // ---- Chip interactions: hover = temporary highlight, click/tap = lock highlight ----
-  document.querySelectorAll('.chip[data-metric]').forEach(chip => {
-    const metric = chip.getAttribute('data-metric');
 
-    // Desktop hover
-    chip.addEventListener('mouseenter', () => {
-      if (!lockedMetric) applyHighlight(metric);
-    });
-    chip.addEventListener('mouseleave', () => {
-      clearHighlightIfNotLocked();
-    });
-
-    // Click/tap toggles lock (works on mobile too)
-    chip.addEventListener('click', () => {
-      // Remove selection from all chips
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-selected'));
-
-      if (lockedMetric === metric) {
-        // Unlock
-        lockedMetric = null;
-        applyHighlight(null);
-      } else {
-        // Lock new metric
-        lockedMetric = metric;
-        chip.classList.add('is-selected');
-        applyHighlight(metric);
-      }
-    });
-  });
-
-  refreshBtn.addEventListener('click', () => {
-    if (refreshCooldownRemaining > 0) return;
-    runUpdate();
-    startRefreshCooldown();
-  });
-  
-  btn24.addEventListener('click', ()=>{
-    rangeSelect.value="24";
-    setActiveRangeButton(24);
-    const s = sliceSeries(24);
-    if (s){
+  function applyRange(hours) {
+    els.rangeSelect.value = String(hours);
+    setActiveRangeButton(hours);
+    const s = sliceSeries(hours);
+    if (s) {
       updateChart(s);
-
-      const tips = generateInsights(s);
-      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
+      updateInsights(s);
     }
-  });
+  }
 
-  btn48.addEventListener('click', ()=>{
-    rangeSelect.value="48";
-    setActiveRangeButton(48);
-    const s = sliceSeries(48);
-    if (s){
-      updateChart(s);
-
-      const tips = generateInsights(s);
-      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
-    }
-  });
-
-  btn72.addEventListener('click', ()=>{
-    rangeSelect.value="72";
-    setActiveRangeButton(72);
-    const s = sliceSeries(72);
-    if (s){
-      updateChart(s);
-
-      const tips = generateInsights(s);
-      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
-    }
-  });
-
-  btn96.addEventListener('click', ()=>{
-    rangeSelect.value="96";
-    setActiveRangeButton(96);
-    const s = sliceSeries(96);
-    if (s){
-      updateChart(s);
-
-      const tips = generateInsights(s);
-      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
-    }
-  });
-
-  rangeSelect.addEventListener('change', ()=>{
-    setActiveRangeButton(rangeSelect.value);
-    const s = sliceSeries(parseInt(rangeSelect.value,10));
-    if (s){
-      updateChart(s);
-
-      const tips = generateInsights(s);
-      insightBox.innerHTML = tips.map(t => "• " + t).join("<br/>");
-    }
-  });
-
-  searchBtn.addEventListener('click', async ()=>{
-    if (refreshCooldownRemaining > 0) return;
-    const q = locationInput.value.trim(); if(!q) return;
-    try{ currentCoords = await geocodeCity(q); runUpdate(); startRefreshCooldown();}
-    catch(e){ alert("City not found. Try another name."); }
-  });
-
-  geoBtn.addEventListener('click', ()=>{
-    if (refreshCooldownRemaining > 0) return;
-    useGeolocationOrIP();
-    startRefreshCooldown();
-  });
-
-  toggleDetailsBtn.addEventListener('click', ()=>{
+  function toggleDetails() {
     showDetails = !showDetails;
     const c = ensureChart();
     c.options.scales.yPerc.display = showDetails;
     c.options.scales.yUV.display = showDetails;
     c.options.scales.yAQI.display = showDetails;
     c.options.scales.yHum.display = showDetails;
-    toggleDetailsBtn.textContent = showDetails ? "📊 Hide" : "📊 Show";
+    els.toggleDetailsBtn.textContent = showDetails ? "📊 Hide" : "📊 Show";
     c.update();
-  });
+  }
 
-  savePngBtn.addEventListener('click', saveChartAsPNG);
-  
-  // Help modal (safe wiring)
-  if (helpBtn && helpModal) {
-    helpBtn.addEventListener('click', () => {
-      helpModal.style.display = 'flex';
+  function bindChipInteractions() {
+    document.querySelectorAll('.chip[data-metric]').forEach(chip => {
+      const metric = chip.getAttribute('data-metric');
+
+      chip.addEventListener('mouseenter', () => {
+        if (!lockedMetric) applyHighlight(metric);
+      });
+
+      chip.addEventListener('mouseleave', clearHighlightIfNotLocked);
+
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('is-selected'));
+        if (lockedMetric === metric) {
+          lockedMetric = null;
+          applyHighlight(null);
+        } else {
+          lockedMetric = metric;
+          chip.classList.add('is-selected');
+          applyHighlight(metric);
+        }
+      });
     });
   }
 
-  if (closeHelpBtn && helpModal) {
-    closeHelpBtn.addEventListener('click', () => {
-      helpModal.style.display = 'none';
+  function bindEvents() {
+    els.refreshBtn.addEventListener('click', () => {
+      if (refreshCooldownRemaining > 0) return;
+      runUpdate();
+      startRefreshCooldown();
     });
-  }
 
-  if (helpModal) {
-    helpModal.addEventListener('click', (e) => {
-      if (e.target === helpModal) {
-        helpModal.style.display = 'none';
+    [24, 48, 72, 96].forEach(hours => {
+      rangeButtons[hours].addEventListener('click', () => applyRange(hours));
+    });
+
+    els.rangeSelect.addEventListener('change', () => {
+      applyRange(parseInt(els.rangeSelect.value, 10));
+    });
+
+    els.searchBtn.addEventListener('click', async () => {
+      if (refreshCooldownRemaining > 0) return;
+      const q = els.locationInput.value.trim();
+      if (!q) return;
+      try {
+        currentCoords = await geocodeCity(q);
+        runUpdate();
+        startRefreshCooldown();
+      } catch (_) {
+        alert("City not found. Try another name.");
       }
     });
-  }
-  
-  window.addEventListener('resize', () => {
-    setRefreshButtonLabel();
-  });
-  
-  // ---- Boot ----
-  (async () => {
-    setActiveRangeButton(rangeSelect.value);
-    setRefreshButtonLabel();
 
-    try{
+    els.geoBtn.addEventListener('click', () => {
+      if (refreshCooldownRemaining > 0) return;
+      useGeolocationOrIP();
+      startRefreshCooldown();
+    });
+
+    els.toggleDetailsBtn.addEventListener('click', toggleDetails);
+    els.savePngBtn.addEventListener('click', saveChartAsPNG);
+
+    if (els.helpBtn && els.helpModal) {
+      els.helpBtn.addEventListener('click', () => { els.helpModal.style.display = 'flex'; });
+    }
+    if (els.closeHelpBtn && els.helpModal) {
+      els.closeHelpBtn.addEventListener('click', () => { els.helpModal.style.display = 'none'; });
+    }
+    if (els.helpModal) {
+      els.helpModal.addEventListener('click', (e) => {
+        if (e.target === els.helpModal) els.helpModal.style.display = 'none';
+      });
+    }
+
+    window.addEventListener('resize', setRefreshButtonLabel);
+    window.addEventListener('online', setOnlineState);
+    window.addEventListener('offline', setOnlineState);
+  }
+
+  async function boot() {
+    setOnlineState();
+    setActiveRangeButton(els.rangeSelect.value);
+    setRefreshButtonLabel();
+    bindChipInteractions();
+    bindEvents();
+
+    try {
       const ipLoc = await getLocationFromIP();
-      if (ipLoc){
+      if (ipLoc) {
         currentCoords = ipLoc;
         currentCoords.name += " (IP)";
       }
-    } catch(e) {}
+    } catch (_) {}
 
     runUpdate();
     startRefreshCooldown();
-  })();
+  }
+
+  boot();
 })();
-</script>  
+</script>
 </body>
 </html>
