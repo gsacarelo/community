@@ -26,7 +26,7 @@
       --card:#101114cc;
       --stroke:#1c1d22;
       --text:#e9e9ee;
-      --muted:#a5acb8;
+      --muted:#c7d7f3;
       --brand:#b79bff;
       --brand-strong:#9f85ff;
       --brand-glow:rgba(183,155,255,.5);
@@ -92,9 +92,45 @@
     }
     .hero h1{margin:0 0 6px;font-size:clamp(20px,3vw,28px)}
     .hero p{margin:0;color:var(--muted)}
-    .badges{display:flex;flex-wrap:wrap;gap:6px;row-gap:6px;margin-top:10px;justify-content:center}
-    .chip{padding:6px 10px;border-radius:999px;background:#0f1015;border:1px solid var(--stroke);color:var(--muted);font-size:12px}
+    .badges{
+      display:flex;
+      gap:6px;
+      margin-top:10px;
+      justify-content:center;
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      overflow-y:hidden;
+      white-space:nowrap;
+      padding:2px 0 6px;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
+      -webkit-overflow-scrolling:touch;
+    }
 
+    .badges::-webkit-scrollbar{
+      display:none;
+    }
+
+    .badges.is-looping{
+      justify-content:flex-start;
+    }
+
+    .badges-set{
+      display:flex;
+      gap:6px;
+      flex:0 0 auto;
+    }
+
+    .chip{
+      flex:0 0 auto;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#0f1015;
+      border:1px solid var(--stroke);
+      color:var(--muted);
+      font-size:12px;
+    }
+      
     section{margin-top:16px;padding:12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--stroke);box-shadow:var(--shadow)}
     section h2{margin:0 0 6px;font-size:22px;text-align:center}
     .load-status{text-align:center;color:var(--muted);font-size:14px;margin:4px 0 8px}
@@ -103,30 +139,140 @@
     @media(min-width:1240px){.grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}}
 
     .card{
-      display:block;padding:12px;border:1px solid var(--stroke);border-radius:16px;
-      background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),#13151d;
+      position:relative;
+      display:block;
+      padding:12px;
+      border:1px solid var(--stroke);
+      border-radius:32px;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),
+        linear-gradient(135deg, rgba(183,155,255,.04), transparent 42%),
+        #13151d;
       box-shadow:var(--shadow);
-      transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease,filter .16s ease;
+      transition:
+        transform .16s ease,
+        box-shadow .16s ease,
+        background .16s ease,
+        border-color .16s ease,
+        filter .16s ease;
       will-change:transform,box-shadow,filter;
+      overflow:hidden;
     }
+
+    .card::after{
+      content:"";
+      position:absolute;
+      top:-120%;
+      left:-26%;
+      width:38%;
+      height:260%;
+      transform:rotate(14deg);
+      background:linear-gradient(
+        180deg,
+        rgba(255,255,255,0),
+        rgba(255,255,255,.08),
+        rgba(255,255,255,0)
+      );
+      opacity:0;
+      pointer-events:none;
+    }
+
     a.card:hover{
-      transform:translateY(-10px) scale(1.035);
+      transform:translateY(-3px) scale(1.07);
       box-shadow:var(--shadow-strong),0 0 0 2px var(--brand-glow);
       border-color:var(--brand-strong);
-      background:#0f1323;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),
+        linear-gradient(135deg, rgba(183,155,255,.07), transparent 42%),
+        #0f1323;
       filter:saturate(1.15) contrast(1.08);
     }
+
     a.card:active{
       transform:translateY(-4px) scale(0.98);
       box-shadow:var(--shadow-strong),0 0 0 6px var(--brand-glow);
       border-color:var(--brand-strong);
-      background:#0d1020;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),
+        linear-gradient(135deg, rgba(183,155,255,.08), transparent 42%),
+        #0d1020;
       filter:saturate(1.18) contrast(1.1) brightness(1.02);
     }
-    .card h3{margin:0 0 4px;font-size:16px;text-align:center}
-    .card p{margin:0;color:var(--muted);text-align:center}
-    .pill{margin-left:8px;padding:2px 6px;border-radius:999px;background:rgba(183,155,255,.18);border:1px solid rgba(183,155,255,.5);color:#efe7ff;font-size:11px;vertical-align:middle}
-    .link{display:block;margin-top:8px;text-align:center;color:#d7dbff;font-size:13px}
+
+    @media (prefers-reduced-motion: no-preference) {
+      a.card:hover::after{
+        opacity:1;
+        animation:cardShine .9s ease;
+      }
+
+      @keyframes cardShine{
+        from{ transform:translateX(-20%) rotate(14deg); }
+        to{ transform:translateX(290%) rotate(14deg); }
+      }
+    }
+
+    .card h3{
+      margin:0 0 0px;
+      font-size:16px;
+      text-align:center;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-left:8px;
+      padding:2px 6px;
+      border-radius:999px;
+      background:rgba(183,155,255,.18);
+      border:1px solid rgba(183,155,255,.5);
+      color:#efe7ff;
+      font-size:11px;
+      vertical-align:middle;
+      line-height:1;
+    }
+
+    .pill::before{
+      content:"";
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--brand);
+      box-shadow:0 0 8px rgba(183,155,255,.7);
+      flex:0 0 auto;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .pill::before{
+        animation:pillDotPulse 2.1s ease-in-out infinite;
+      }
+
+      @keyframes pillDotPulse{
+        0%,100%{
+          transform:scale(1);
+          box-shadow:0 0 8px rgba(183,155,255,.55);
+        }
+        50%{
+          transform:scale(1.28);
+          box-shadow:0 0 14px rgba(183,155,255,.9);
+        }
+      }
+    }
+
+    .link{
+      display:block;
+      margin-top:0px;
+      text-align:center;
+      color:#d7dbff;
+      font-size:13px;
+    }
+      
     /* Mini-card buttons for the Contact section */
     .btn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;justify-items:stretch}
     .mini-card{
@@ -185,8 +331,8 @@
           <span>Gerardo&nbsp;Sacarelo&nbsp;V.</span>
         </div>
         <nav>
-          <a href="#projects">Side&nbsp;Projects</a>
-          <a href="#tools">Tools</a>
+          <a href="#projects">Builds</a>
+          <a href="#tools">Utility</a>
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
         </nav>
@@ -194,54 +340,55 @@
     </header>
 
     <section class="hero">
-      <h1>PhD • E-Commerce • Creative Technologist</h1>
-      <p>Building quiet-luxury software, human-systems, and practical experiments... without manuals.</p>
-      <div class="badges">
+      <h1>Most Systems Fail. I Fix That.</h1>
+      <p>If a system only works when everything goes right, it’s not a system. I build for when things go wrong.</p>
+      <div class="badges" id="hero-badges">
         <span class="chip">Charm Engineer</span>
         <span class="chip">Loop Escape Consultant</span>
         <span class="chip">Tiger Hugger</span>
+        <span class="chip">Systems &gt; Discipline</span>
         <!-- <span class="chip">Emoji Prophet</span> -->
       </div>
     </section>
 
     <section id="projects">
-      <h2>⚡ Side Projects</h2>
+      <h2>⚡ Active Builds</h2>
       <div id="status-projects" class="load-status">Loading apps…</div>
       <div class="grid" id="grid-projects">
-        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Another project is brewing.</p><span class="link">Coming soon</span></div>
+        <div class="card"><h3>Project G<span class="pill">Soon</span></h3><p>New system in progress.</p><span class="link">Coming soon</span></div>
         <!--<div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Stay tuned for updates.</p><span class="link">Coming soon</span></div> -->
       </div>
     </section>
 
     <section id="tools">
-      <h2>🛠️ Tools &amp; Experiments</h2>
+      <h2>🛠️ Utility Layer</h2>
       <div id="status-tools" class="load-status">Loading tools…</div>
       <div class="grid" id="grid-tools">
-        <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Utility arriving shortly.</p><span class="link">Coming soon</span></div>
+        <div class="card"><h3>Tool X<span class="pill">Soon</span></h3><p>Still being tested.</p><span class="link">Coming soon</span></div>
         <!-- <div class="card"><h3>Soon<span class="pill">Placeholder</span></h3><p>Small lab, big ideas.</p><span class="link">Coming soon</span></div> -->
       </div>
     </section>
 
     <section id="about">
-      <h2>💡 About</h2>
+      <h2>💡 About Me</h2>
       <div class="card">
-        <p style="margin:0">PhD-level maker focused on health tech, embedded systems, and non-conventional learning. This site tracks public side-projects and reference tools with a bias toward signal over noise.</p>
+        <p style="margin:0">I design systems across software, hardware, and human behavior. The focus is simple: remove reliance on effort and make things work consistently in real conditions.</p>
       </div>
     </section>
 
     <section id="contact">
-      <h2>📬 Get in Touch</h2>
+      <h2>📬 Find Me</h2>
       <div class="card">
         <div class="btn-grid">
-          <a class="mini-card" href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">📸 Instagram</a>
-          <a class="mini-card" href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">🔗 Linktree</a>
-          <a class="mini-card" href="https://discord.gg/w4tFSTe89U" target="_blank" rel="noopener">🏪 Discord</a>
-          <a class="mini-card" href="#" aria-disabled="true">➕ Another link (soon)</a>
+          <a class="mini-card" href="https://www.instagram.com/gerardo711" target="_blank" rel="noopener">📸 Visual Feed</a>
+          <a class="mini-card" href="https://linktr.ee/gsacarelo" target="_blank" rel="noopener">🔗 All Links</a>
+          <a class="mini-card" href="https://discord.gg/w4tFSTe89U" target="_blank" rel="noopener">🏪 Private Hub</a>
+          <a class="mini-card" href="#" aria-disabled="true">🤫 Private link </a>
         </div>
       </div>
     </section>
 
-    <footer>© 1990 – <span id="year"></span> Gerardo Sacarelo V.<span class="heart" aria-hidden="true">💜</span> All rights reserved.</footer>
+    <footer>© 1990 – <span id="year"></span> Gerardo Sacarelo V.<span class="heart" aria-hidden="true">💜</span> Keep it simple.</footer>
   </div>
 
   <script>
@@ -368,5 +515,184 @@
       ]);
     })();
   </script>
+  <script>
+    (function () {
+      const rail = document.getElementById("hero-badges");
+      if (!rail) return;
+
+      const originalItems = Array.from(rail.children).map(el => el.cloneNode(true));
+
+      let rafId = null;
+      let resumeTimer = null;
+
+      let isLooping = false;
+      let autoEnabled = false;
+
+      let oneSetWidth = 0;
+      let virtualScroll = 0;
+      let currentVelocity = 0;
+      let targetVelocity = 0;
+      let lastTime = 0;
+
+      let autoSpeed = 18; // pixels per second
+
+      function stopAnimation() {
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+      }
+
+      function clearRail() {
+        rail.innerHTML = "";
+      }
+
+      function makeSet() {
+        const set = document.createElement("div");
+        set.className = "badges-set";
+        originalItems.forEach(el => set.appendChild(el.cloneNode(true)));
+        return set;
+      }
+
+      function resetStatic() {
+        stopAnimation();
+        clearTimeout(resumeTimer);
+
+        isLooping = false;
+        autoEnabled = false;
+        oneSetWidth = 0;
+        virtualScroll = 0;
+        currentVelocity = 0;
+        targetVelocity = 0;
+        lastTime = 0;
+
+        rail.classList.remove("is-looping");
+        clearRail();
+
+        originalItems.forEach(el => rail.appendChild(el.cloneNode(true)));
+        rail.scrollLeft = 0;
+      }
+
+      function contentFits() {
+        resetStatic();
+        return rail.scrollWidth <= rail.clientWidth + 2;
+      }
+
+      function normalizeVirtualScroll() {
+        if (!isLooping || !oneSetWidth) return;
+
+        while (virtualScroll < oneSetWidth) {
+          virtualScroll += oneSetWidth;
+        }
+        while (virtualScroll >= oneSetWidth * 2) {
+          virtualScroll -= oneSetWidth;
+        }
+      }
+
+      function applyScroll() {
+        rail.scrollLeft = virtualScroll;
+      }
+
+      function pauseAutoThenResume(delay = 1400) {
+        autoEnabled = false;
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(() => {
+          autoEnabled = true;
+        }, delay);
+      }
+
+      function animate(now) {
+        if (!isLooping) return;
+
+        if (!lastTime) lastTime = now;
+        const dt = Math.min((now - lastTime) / 1000, 0.05);
+        lastTime = now;
+
+        currentVelocity += (targetVelocity - currentVelocity) * 0.12;
+        targetVelocity *= 0.90;
+        if (Math.abs(targetVelocity) < 0.01) targetVelocity = 0;
+
+        const autoStep = autoEnabled ? autoSpeed * dt : 0;
+        const wheelStep = currentVelocity * dt * 60;
+
+        virtualScroll += autoStep + wheelStep;
+        normalizeVirtualScroll();
+        applyScroll();
+
+        rafId = requestAnimationFrame(animate);
+      }
+
+      function startAnimation() {
+        stopAnimation();
+        rafId = requestAnimationFrame(animate);
+      }
+
+      function buildLoop() {
+        clearRail();
+        rail.classList.add("is-looping");
+
+        const set1 = makeSet();
+        const set2 = makeSet();
+        const set3 = makeSet();
+
+        rail.appendChild(set1);
+        rail.appendChild(set2);
+        rail.appendChild(set3);
+
+        oneSetWidth = set1.scrollWidth;
+        virtualScroll = oneSetWidth;
+        rail.scrollLeft = virtualScroll;
+
+        isLooping = true;
+        autoEnabled = true;
+        currentVelocity = 0;
+        targetVelocity = 0;
+        lastTime = 0;
+
+        startAnimation();
+      }
+
+      function setupRail() {
+        resetStatic();
+
+        requestAnimationFrame(() => {
+          if (contentFits()) {
+            resetStatic();
+          } else {
+            buildLoop();
+          }
+        });
+      }
+
+      rail.addEventListener("wheel", function (e) {
+        if (!isLooping) return;
+
+        const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+        if (!delta) return;
+
+        e.preventDefault();
+        pauseAutoThenResume();
+        targetVelocity += delta * 0.18;
+      }, { passive: false });
+
+      rail.addEventListener("pointerdown", function () {
+        if (!isLooping) return;
+        pauseAutoThenResume(1800);
+      });
+
+      rail.addEventListener("touchstart", function () {
+        if (!isLooping) return;
+        pauseAutoThenResume(1800);
+      }, { passive: true });
+
+      let resizeTimer = null;
+      window.addEventListener("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setupRail, 140);
+      });
+
+      setupRail();
+    })();
+    </script>
 </body>
 </html>
