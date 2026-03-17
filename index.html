@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Gerardo Sacarelo V. - Community</title>
-  <meta name="description" content="Gerardo Sacarelo — PhD • E-commerce • Creative Technologist. Side projects, tools, contact."/>
+  <title>Gerardo Sacarelo V.</title>
+  <meta name="description" content="Gerardo Sacarelo — PhD building systems that work without constant effort. Tools, automation, and real-world experiments."/>
 
   <!-- Cross-platform icons -->
   <!-- PWA manifest (Android uses this for the home-screen icon) -->
@@ -23,15 +23,15 @@
   <style>
     :root{
       --bg:#0b0b0c;
-      --card:#101114cc;
-      --stroke:#1c1d22;
+      --card:#242129cc;
+      --stroke:#373739;
       --text:#e9e9ee;
       --muted:#c7d7f3;
       --brand:#b79bff;
       --brand-strong:#9f85ff;
       --brand-glow:rgba(183,155,255,.5);
-      --radius:12px;
-      --shadow:0 6px 18px rgba(0,0,0,.28);
+      --radius:16px;
+      --shadow:0 6px 12px rgba(0,0,0,.28);
       --shadow-strong:0 22px 46px rgba(0,0,0,.60);
     }
     *{box-sizing:border-box}
@@ -47,14 +47,25 @@
     .wrap{max-width:1120px;margin:0 auto;padding:12px 10px 56px}
 
     header{
-      position:sticky;top:0;z-index:20;
-      padding:10px 10px;
-      border-bottom:1px solid var(--stroke);
-      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02)),#0f1014f2;
-      box-shadow:0 4px 18px rgba(0,0,0,.35);
-      backdrop-filter:blur(8px);
+      position:sticky;
+      top:0;
+      z-index:20;
+
+      padding:7px 7px;
+      border-bottom:1px solid rgba(255,255,255,.07);
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(15,16,20,.72),
+          rgba(49, 43, 57, 0.5)
+        );
+
+      box-shadow:0 4px 18px rgba(0,0,0,.24);
+      backdrop-filter:blur(2px) saturate(1.15);
+      -webkit-backdrop-filter:blur(2px) saturate(1.15);
     }
-    .topbar{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .topbar{display:flex;flex-direction:column;align-items:center;gap:6px}
     .brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.2px}
     .brand .dot{width:12px;height:12px;border-radius:50%;background:conic-gradient(#7b5cff,#b79bff,#7b5cff);box-shadow:0 0 12px rgba(183,155,255,.7)}
     @media (prefers-reduced-motion: no-preference) {
@@ -63,15 +74,15 @@
       }
       @keyframes dotPulse{
         0%,100% { box-shadow: 0 0 12px rgba(183,155,255,.55); transform: scale(1); }
-        50%     { box-shadow: 0 0 22px rgba(183,155,255,.85); transform: scale(1.2); }
+        50%     { box-shadow: 0 0 22px rgba(183,155,255,.85); transform: scale(1.4); }
       }
     }
     nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
     nav a{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;line-height:1;border:1px solid var(--stroke);background:rgba(255,255,255,.02);transition:border-color .15s,background .15s,box-shadow .15s,transform .05s;font-size:14px}
-    nav a:hover{border-color:#2a2c33;background:#151721;box-shadow:0 0 0 2px rgba(183,155,255,.18) inset}
-    nav a:active{transform:translateY(1px);box-shadow:0 0 0 2px rgba(183,155,255,.28) inset}
+    nav a:hover{border-color:#6d519a;background:#664395;box-shadow:0 0 0 2px rgba(183,155,255,.18) inset}
+    nav a:active{transform:translateY(1px);box-shadow:0 0 0 2px rgba(243, 239, 251, 0.28) inset}
 
-    .hero{margin-top:10px;text-align:center; position:relative; overflow:hidden}
+    .hero{margin-top:0px;text-align:center; position:relative; overflow:hidden}
     .hero::before{
       content:"";
       position:absolute;
@@ -90,18 +101,18 @@
         50%     { transform: translateY(10px) scale(1.03); opacity:1; }
       }
     }
-    .hero h1{margin:0 0 6px;font-size:clamp(20px,3vw,28px)}
+    .hero h1{margin:0 0 0px;font-size:clamp(20px,3vw,28px)}
     .hero p{margin:0;color:var(--muted)}
     .badges{
       display:flex;
       gap:6px;
-      margin-top:10px;
+      margin-top:3px;
       justify-content:center;
       flex-wrap:nowrap;
       overflow-x:auto;
       overflow-y:hidden;
       white-space:nowrap;
-      padding:2px 0 6px;
+      padding:0px 0 3px;
       scrollbar-width:none;
       -ms-overflow-style:none;
       -webkit-overflow-scrolling:touch;
@@ -131,8 +142,29 @@
       font-size:12px;
     }
       
-    section{margin-top:16px;padding:12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--stroke);box-shadow:var(--shadow)}
-    section h2{margin:0 0 6px;font-size:22px;text-align:center}
+    section{margin-top:8px;padding:12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--stroke);box-shadow:var(--shadow)}
+    section h2{margin:0 0 12px;font-size:22px;text-align:center}
+    section h2{
+      position:sticky;
+      top:86px; /* adjust based on your header height */
+      z-index:10;
+
+      margin:0 0 12px;
+      padding:6px 2;
+
+      background:linear-gradient(
+        180deg,
+        rgba(16,17,20,0.95),
+        rgba(16,17,20,0.75),
+        rgba(16,17,20,0)
+      );
+
+      backdrop-filter:blur(2px);
+      border-bottom:1px solid var(--stroke);
+    }
+    section h2{
+      border-bottom:1px solid var(--stroke);
+    }
     .load-status{text-align:center;color:var(--muted);font-size:14px;margin:4px 0 8px}
 
     .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
@@ -221,6 +253,22 @@
       margin:0;
       color:var(--muted);
       text-align:center;
+    }
+    
+    .card-enter{
+      opacity:0;
+      transform:translateY(14px) scale(.985);
+      filter:blur(4px);
+    }
+
+    .card-enter.card-enter-active{
+      opacity:1;
+      transform:translateY(0) scale(1);
+      filter:blur(0);
+      transition:
+        opacity .42s ease,
+        transform .42s ease,
+        filter .42s ease;
     }
 
     .pill{
@@ -341,12 +389,12 @@
 
     <section class="hero">
       <h1>Most Systems Fail. I Fix That.</h1>
-      <p>If a system only works when everything goes right, it’s not a system. I build for when things go wrong.</p>
+      <p><em>"If a system only works when everything goes right, it’s not a system."</em></p>
       <div class="badges" id="hero-badges">
-        <span class="chip">Charm Engineer</span>
-        <span class="chip">Loop Escape Consultant</span>
-        <span class="chip">Tiger Hugger</span>
-        <span class="chip">Systems &gt; Discipline</span>
+        <span class="chip">🍒 Charm Engineer</span>
+        <span class="chip">🤹 Loop Escape Consultant</span>
+        <span class="chip">🦁 Tiger Hugger</span>
+        <span class="chip">🏋️‍♂️ Systems &gt; Discipline</span>
         <!-- <span class="chip">Emoji Prophet</span> -->
       </div>
     </section>
@@ -439,10 +487,14 @@
 
       function insertSortedBeforePlaceholders(grid, cards){
         cards.sort((a,b)=> +a.dataset.order - +b.dataset.order);
+
         const children = Array.from(grid.children);
-        const firstPlaceholderIdx = children.findIndex(el => el.classList?.contains("card") && el.tagName !== "A");
+        const firstPlaceholderIdx = children.findIndex(
+          el => el.classList?.contains("card") && el.tagName !== "A"
+        );
         const insertIdx = firstPlaceholderIdx >= 0 ? firstPlaceholderIdx : children.length;
-        cards.forEach((card,i) => grid.insertBefore(card, grid.children[insertIdx+i]));
+
+        animateCardsIn(grid, cards, insertIdx);
       }
 
       async function fetchInfocard(files, base, folder){
@@ -470,6 +522,22 @@
         return txt;
       }
 
+      function animateCardsIn(grid, cards, insertBeforeIdx){
+        const children = Array.from(grid.children);
+        const insertIdx = typeof insertBeforeIdx === "number" ? insertBeforeIdx : children.length;
+
+        cards.forEach((card, i) => {
+          card.classList.add("card-enter");
+          grid.insertBefore(card, grid.children[insertIdx + i] || null);
+
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              card.classList.add("card-enter-active");
+            }, i * 128); //Cards Stagger Speed 60-90-140 = faster-balanced-slower
+          });
+        });
+      }
+      
       async function addCards(base, gridId, statusId){
         const grid = document.getElementById(gridId);
         const status = document.getElementById(statusId);
