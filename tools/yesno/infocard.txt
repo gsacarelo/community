@@ -1,0 +1,7 @@
+title: Men Oracle
+subtitle: Yes or No?
+emoji: 🥃
+pill: Coin
+order: 90
+url: 
+hide: false
